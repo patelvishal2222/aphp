@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en" ng-app="example_codeenable">
 <head>
 
@@ -14,12 +14,14 @@
 
   <link rel="stylesheet" href="./css/bootstrap.min.css">
   <link rel="stylesheet" href="./assets/css/style.css">
-
+  
+<script src="./jquery/jquery.min.js"></script>
+<script src="./jquery/bootstrap.min.js"></script>
   <script src="./jquery/angular.js"></script>
   <script src="./jquery/angular-ui-router.js"></script>
     <script data-require="ui-bootstrap@*" data-semver="0.12.1" src="./jquery/ui-bootstrap-tpls-0.12.1.min.js"></script>
-<script src="./jquery/jquery.min.js"></script>
-  <script src="./jquery/bootstrap.min.js"></script>
+
+  
   
   <script src="./app/app.js"></script>
   <script src="./controllers/student_contrloer.js"></script>
@@ -31,12 +33,12 @@
 </head>
 
     <body>
-<!--
+
         <nav class="navbar navbar-inverse navbar-fixed-top">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                        <span class="icon-bar"></span>
+                        <span class="icon-bar"> </span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
@@ -44,13 +46,18 @@
                 </div>
                 <div class="collapse navbar-collapse" id="myNavbar">
                     <ul class="nav navbar-nav">
-                    <li> <img src="./assets/images/ce.png" alt="CE" class="tlogo"> </li>
-                        <li class="active"><a href="index.php">Home</a></li>
+                    
+                        <li class="active"><a ng-href=".">Home</a></li>
+						<li><a class="dropdown-item"  ng-href="account" >Account</a></li>
+						<li><a class="dropdown-item"  ng-href="item" >item</a></li>
+						<li><a class="dropdown-item"  ng-href="transcation" >transcation</a></li>
                     </ul>
 
                 </div>
             </div>
-        </nav>-->
+        </nav>
+		
+<!--
  <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
     <div class="navbar-header">
@@ -68,9 +75,7 @@
 	            <a class="dropdown-item"  ng-href="item"  >Item</a>
 	            <div class="dropdown-divider"></div>
 	            <a class="dropdown-item" ng-href="transcation"  >Transcation</a>
-				<!--
-				<div class="dropdown-divider"></div>
-	            <a class="dropdown-item" ng-href="student"  >strudent</a> -->
+				
 	          </div>
       </li>
       <li><a ng-href="item">ItemMaster</a></li>
@@ -79,7 +84,7 @@
 
   </div>
 </nav>
-
+-->
 <div class="container " >
     <div class="row content">
 
@@ -92,11 +97,10 @@
 </div>
 
 
-
-
 <footer class="container-fluid text-center">
-  <p>delux Account System</p>
+<p>delux Account System</p>
 </footer>
+
 
 
 </body>
