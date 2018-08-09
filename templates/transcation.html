@@ -1,0 +1,106 @@
+
+
+ <div class="row ">
+        <div class="col-lg-2">
+          <h3>Transction List</h3>   
+        </div>
+        <div class="col-lg-8 mt-12" >
+        
+        
+                            <div class="input-group col-md-12">
+                                <input type="text" id="search_input" value="" ng-model="search_input" class="form-control" placeholder="Search" />
+                                <span class="input-group-btn">
+                                    <button ng-click="tran_con.search_data(search_input)" class="button button-green" type="button">
+                                        <span class=" glyphicon glyphicon-search"></span>
+                                    </button>
+                                </span>
+                            </div>
+                    
+       </div>
+          <div class="col-lg-2 ">
+             
+                 <a ui-sref='sales({TranId:0})' >
+			   <button type="button" class="button button-purple mt-12 pull-right" > Sales</button> 
+			   </a>
+          </div>
+    </div>
+
+
+
+<p class="{{tran_con.alert_class}}">{{tran_con.msg}} 
+
+
+
+</p>
+<table class="table">
+            <thead>
+                <tr>
+             
+                    <th>Bill No</th>
+					<th>Bill Date</th>
+					<th>AccountName</th>
+					<th>Address</th>
+                    <th>Total</th>
+					 <th>Remarks</th>
+                    
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+          
+                <tr ng-repeat="trn in tran_con.tran_list">
+                   
+				   <td>{{trn.BillNo}}</td>
+				   <td>{{trn.BillDate}}</td>
+                    <td>{{trn.AccountName}}</td>
+                    <td>{{trn.Address}}</td>
+					<td>{{trn.Total}}</td>
+					<td>{{trn.Remarks}}</td>
+                   
+                    
+                    
+                 
+                <td class="text-right">
+				    
+					
+			  
+                <a ui-sref='sales({TranId:trn.TranId})' >
+			   <button type="button" class="button button-blue" > Edit </button> 
+			   </a>
+			 
+			   <a ui-sref='salesprint({TranId:trn.TranId})' >
+			   <button type="button" class="button button-green" > View </button> 
+			   </a>
+			   
+                </td>
+                 <!--
+				  <button type="button"  data-toggle="modal"  class="button button-red" ng-click="tran_con.deleteObject(trn.TranId)">Delete</button> 
+                     
+                  
+                     
+			   </a>
+
+
+-->
+                
+                      </tr>
+                    
+                    
+              
+                
+                
+                
+
+           </tbody>
+        </table>
+    
+<div class="pull-right">
+
+    <pagination 
+      ng-model="currentPage"
+      total-items="total_row"
+      max-size="maxSize"  
+      boundary-links="true">
+    </pagination>
+</div>

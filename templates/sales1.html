@@ -1,0 +1,264 @@
+
+
+ <div  id="sales" >
+<!-- Form -->
+           <div class="row">
+            <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Modal Header</h4>
+							
+                        </div>
+                        <div class="modal-body">
+                            <div>
+                                <div class="row">
+								<div class="col-lg-2" > 
+                                    <label>item&nbsp;Name</label>
+									</div>
+                    <div class="col-lg-8" > 
+                                    <select class="form-control" data-ng-model="tran_con.TempTrandetails.ItemMaster"
+                                            ng-options="y.ItemName for (x,y) in ItemNames track by y.ItemMasterId "
+											ng-change="tran_con.SelectAccount()
+                                            "></select>
+											</div>
+                                </div>
+
+                                <div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Height</label>
+									</div>
+									<div class="col-lg-8" > 
+                                    <input type="number"   class="form-control"   ng-model="tran_con.TempTrandetails.Height" required />
+									</div>
+                                </div>
+								<div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Length</label>
+									</div>
+									<div class="col-lg-8" > 
+                                    <input type="number"  class="form-control"  ng-model="tran_con.TempTrandetails.Length" required />
+									</div>
+                                </div>
+							
+								<div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Quntity</label>
+											</div>
+									<div class="col-lg-8" > 
+									<!--
+                                    <input type="number" class="form-control"   ng-model="tran_con.TempTrandetails.Quntity" />
+									-->
+									{{tran_con.countdata(tran_con.TempTrandetails.Length)*tran_con.countdata(tran_con.TempTrandetails.Height) }}
+											</div>
+                                </div >
+								<div class="row" >
+								<div class="col-lg-2" > 
+                                    <label>Nos</label>
+											</div>
+									<div class="col-lg-8" > 
+                                    <input type="number"  class="form-control"  ng-model="tran_con.TempTrandetails.Nos" required />
+											</div>
+                                </div >
+								<div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Total Quntity</label>
+									</div>
+									<div class="col-lg-8" > 
+									<!--
+                                    <input type="number" class="form-control"  ng-model="tran_con.TempTrandetails.TotalQuntity" />
+									-->
+									{{tran_con.countdata(tran_con.TempTrandetails.Length)*tran_con.countdata(tran_con.TempTrandetails.Height)*tran_con.TempTrandetails.Nos}}
+									</div>
+                                </div >
+								<div class="row" >
+								<div class="col-lg-2" > 
+                                    <label>Rate</label>
+									</div>
+									<div class="col-lg-8" > 
+                                    <input type="text" class="form-control" ng-model="tran_con.TempTrandetails.Rate" required />
+									</div>
+                                </div >
+								<div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Amount</label>
+									</div>
+									<div class="col-lg-8" > 
+									<!--
+                                    <input type="number" class="form-control" ng-model="tran_con.TempTrandetails.Amount" />
+									-->
+									{{ tran_con.countdata(tran_con.TempTrandetails.Length)*tran_con.countdata(tran_con.TempTrandetails.Height)*tran_con.TempTrandetails.Nos*tran_con.TempTrandetails.Rate}}
+									</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="tran_con.PushRecord()">{{ModelButton}}</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- Form -->
+          
+        <div class="modal-header">
+		<a  ng-href="transcation"  >
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+		  </a>
+          <h4 class="modal-title">Sales Bill </h4>
+		  
+          
+          
+			  
+			
+		  
+        </div>
+		 
+
+
+        <div class="modal-body">
+         
+           <form method="post"  id="sales_frm" ng-submit="tran_con.addTran()" >
+		   <div id="printsave">
+		  
+		   
+			<div class="row ">
+			<div class="col-lg-2" > 
+                <label for="BillNo">Bill Date:</label>
+                
+				</div>
+				<div class="col-lg-2" > 
+				<input type="text" ng-model="tran_con.tran.BillNo" id="BillNo" class="form-control"    maxlength="10">
+				</div>
+				<div class="col-lg-4" > 
+				</div>
+				<div class="col-lg-2" > 
+				<label for="BillDate">Bill Date:</label>
+				</div>
+				<div class="col-lg-2" >
+				
+                <input type="date" ng-model="tran_con.tran.BillDate" id="BillDate" class="form-control "     maxlength="10">
+				
+				</div>
+            </div>
+<div class="row">
+			 <div class="col-lg-2">
+		  <label for="AccountName">AccountName:</label>
+			</div>
+			<div class="col-lg-8" >
+                <input type="text" ng-model="tran_con.tran.AccountName" id="AccountName" class="form-control" required  maxlength="50">
+          </div>
+	   </div>
+           
+            <div class="row">
+			<div class="col-lg-2">
+                <label for="Address">Address:</label>
+				</div>
+				<div class="col-lg-8">
+                <input type="text" class="form-control" ng-model="tran_con.tran.Address" id="Address"   maxlength="50">
+				</div>
+            </div>
+            <div class="row">
+			<div class="col-lg-2">
+                <label for="City">City:</label>
+				</div>
+				<div class="col-lg-8">
+                <input type="text" class="form-control" ng-model="tran_con.tran.City" id="City"   maxlength="50">
+				</div>
+            </div>
+               <div class="row">
+			   <div class="col-lg-2">
+                <label for="Phone">Phone:</label>
+				</div>
+				<div class="col-lg-8">
+                <input type="text" class="form-control" ng-model="tran_con.tran.Phone" id="Phone"   maxlength="50">
+				</div>
+            </div>
+            
+               <div class="row">
+			   <div class="col-lg-2">
+                <label for="Remark">Refrecence:</label>
+				</div>
+				<div class="col-lg-8">
+                <input type="text" class="form-control" ng-model="tran_con.tran.Remark" id="Remark"   maxlength="50">
+				</div>
+            </div>
+			<div class="form-group">
+			</div>
+			
+			 <div class="form-group">
+                    <button type="button" class="btn btn-primary" value="Add" data-toggle="modal" data-target="#myModal" ng-click="tran_con.AddRecord()"> Add</button>
+
+                </div>
+                <div class="table table-responsive">
+                    <table class="table table-bordered">
+                        <tr style="background-color:#428bca">
+                            <th>Srno</th>
+                            <th>ItemName</th>
+							<th>Height</th>
+							<th>Length</th>
+							
+                            <th>Quntity</th>
+							<th>Nos</th>
+                            <th>TotalQuntity</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+
+                        <tr ng-repeat="trandetails  in tran_con.tran.trandetails ">
+                            <td>{{trandetails.Srno}}</td>
+                            <td>{{trandetails.ItemMaster.ItemName}}</td>
+							<td style="text-align:right" >{{trandetails.Height}}</td>
+							<td style="text-align:right" >{{trandetails.Length}}</td>
+							<td style="text-align:right"  >{{trandetails.Quntity}}</td>
+							<td style="text-align:right" >{{trandetails.Nos}}</td>
+                            <td style="text-align:right" >{{trandetails.TotalQuntity}}</td>
+                            <td style="text-align:right" >{{trandetails.Rate}}</td>
+                            <td style="text-align:right" >{{trandetails.Amount |currency:"Rs ":2}}</td>
+                            <td><input type="Button" value="Edit" ng-click="tran_con.EditRecord(trandetails)" data-toggle="modal" data-target="#myModal" /> </td>
+                            <td><input type="Button" value="Delete" ng-click="tran_con.DeleteRecord($index)" /> </td>
+
+                        </tr>
+                    </table>
+                </div>
+			
+               <div class="row">
+			   <div class="col-lg-7">
+			   </div>
+			    <div class="col-lg-2">
+                <label for="Total">Total:</label>
+				</div>
+				 <div class="col-lg-3">
+                <input type="text" class="form-control" style="text-align:right"   ng-model=" tran_con.tran.Total" id="Total"   maxlength="20">
+				</div>
+				
+            </div>
+			  </div>
+            <div class="form-group">
+			</div>
+                <div class="row">
+			<!--	 <button type="button" class="button button-green"  ng-click="tran_con.Print('printsave')"> Print </button>  -->
+            <input type="submit" class="button button-green  pull-right"  value="Submit"/>
+                </div>
+             
+        
+    
+            
+       
+        <div class="modal-footer">
+		  
+        </div>
+		</form> 
+    
+      
+
+  
+  
+  </div>

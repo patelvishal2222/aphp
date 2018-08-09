@@ -1,0 +1,225 @@
+
+
+ <div class="modal-header">
+		<a  ng-href="transcation"  >
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+		  </a>
+          
+		   <button type="button" class="button button-green" ng-click="funPrint();" > Print </button> 
+          
+          
+			  
+			
+		  
+        </div>
+ <div  id="sales">
+		
+
+          
+        <div class="modal-header">
+		
+		
+          <h4 class="modal-title">Sales Bill Print </h4>
+		  
+          
+          
+			  
+			
+		  
+        </div>
+		 
+
+
+        <div class="modal-body">
+		
+         
+           <form method="post"  id="sales_frm" ng-submit="tran_con.addTran()" >
+		   <div id="printsave">
+		   <div class="table table-responsive">
+		   <table border=0>
+		   
+		   
+		   <tr>
+		  
+		   
+			
+			<td width="200px">
+                <label for="BillNo">Bill No:</label>
+                </td>
+				<td>
+				
+				
+				{{tran_con.tran.BillNo}}
+				
+				</td>
+				<td width="400px">
+				</td>
+				<td>
+				
+				<label for="BillDate">Bill Date:</label>
+				</td>
+				<td>
+				
+				{{tran_con.tran.BillDate | date:"dd-MMM-yyyy"}}
+				
+               </td> 
+				
+				</tr>
+            
+			
+			 <td>
+		  <label for="AccountName">Account Name:  </label>
+			</td >
+			<td colspan=4>
+			
+			{{tran_con.tran.AccountName}}
+			
+                
+          </td>
+	   </tr>
+           
+            <tr>
+			<td>
+                <label for="Address">Address:</label>
+				</td>
+				<td colspan=4>
+                
+				{{tran_con.tran.Address}}
+				</td>
+            </tr>
+            <tr>
+			<td>
+                <label for="City">City:</label>
+				</td>
+				<td colspan=4>
+                
+				{{tran_con.tran.City}}
+				</td>
+            </tr>
+               <tr>
+			   <td>
+                <label for="Phone">Phone:</label>
+				</td>
+				<td colspan=4>
+                
+				{{tran_con.tran.Phone}}
+				</td>
+            </tr>
+            
+               <tr>
+			   <td>
+                <label for="Remark">Refrecence:</label>
+				</td>
+				<td colspan=4>
+                
+				{{tran_con.tran.Remark}}
+				</td>
+            </tr>
+			</table>
+			</div>
+			<div class="form-group">
+			</div>
+			
+			 <div class="form-group">
+                    
+
+                </div>
+                <div class="table table-responsive">
+                    <table class="table table-bordered" border="1">
+                        <tr style="background-color:#428bca">
+                            <th>Srno</th>
+                            <th>ItemName</th>
+							<th >Height</th>
+							<th>Length</th>
+							
+                            <th>Quntity</th>
+							<th>Nos</th>
+                            <th>TotalQuntity</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                            
+                        </tr>
+
+                        <tr ng-repeat="trandetails  in tran_con.tran.trandetails ">
+                            <td>{{trandetails.Srno}}</td>
+                            <td>{{trandetails.ItemMaster.ItemName}}</td>
+							<td  style="text-align:right" >{{trandetails.Height}}</td>
+							<td  style="text-align:right" >{{trandetails.Length}}</td>
+							<td  style="text-align:right" >{{trandetails.Quntity}}</td>
+							<td   style="text-align:right" >{{trandetails.Nos}}</td>
+                            <td style="text-align:right">{{trandetails.TotalQuntity}}</td>
+                            <td  style="text-align:right">{{trandetails.Rate}}</td>
+                            <td style="text-align:right" >{{trandetails.Amount}}</td>
+                            
+
+                        </tr>
+						 <tr ng-repeat="p  in tran_con.rowsdata ">
+                            <td>{{p}}</td>
+                            <td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            
+
+                        </tr>
+						<tr>
+						<td colspan=7 >
+						</td>
+						<td>
+						<label for="Total">Total:</label>
+						</td>
+						<td  style="text-align:right">
+						{{tran_con.tran.Total}}
+						</td>
+						</tr>
+                    </table>
+                </div>
+			
+			<table>
+			<tr>
+			
+               
+			   <td width="700px">
+			   </td>
+			    <td>
+                
+				</td>
+				 <td>
+                
+				
+				</td>
+				
+            
+			  </tr>
+			  </table>
+            <div class="form-group">
+			</div>
+                <div class="row">
+			 <!--	 <button type="button" class="button button-green"  ng-click="tran_con.Print('printsave')"> Print </button> 
+            <input type="submit" class="button button-green  pull-right"  value="Submit"/>-->
+			<pre>This is  auto Generate Bill</pre>
+			
+                </div>
+             
+        
+    
+            
+       
+        <div class="modal-footer">
+		  
+        </div>
+		</div>
+		</form> 
+    
+      
+
+  
+  
+  
+  </div>
+  </div>
+  
