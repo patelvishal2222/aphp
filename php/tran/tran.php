@@ -94,7 +94,11 @@ class Tran extends Database
 		{
 		$count_sql = "SELECT  LAST_INSERT_ID()";
     $query=  $this->conn->query($count_sql);
-    $TranId = mysqli_fetch_row($query)[0];
+    if($query)
+	{
+	 $row=mysqli_fetch_row($query);
+   $TranId =(int)$row[0];
+	}
 	
 		}
 $trandetails=$post_data->trandetails;
