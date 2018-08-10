@@ -1,10 +1,15 @@
-
+<script >
+function fun1()
+{
+alert(2);
+}
+</script>
 
  <div class="modal-header">
 		<a  ng-href="transcation"  >
           <button type="button" class="close" data-dismiss="modal">&times;</button>
 		  </a>
-          
+          <input type=button onclick="fun1();" value=Button></input>
 		   <button type="button" class="button button-green" ng-click="funPrint();" > Print </button> 
           
           
@@ -52,7 +57,7 @@
 				{{tran_con.tran.BillNo}}
 				
 				</td>
-				<td width="400px">
+				<td width="300px">
 				</td>
 				<td>
 				
@@ -125,7 +130,7 @@
 
                 </div>
                 <div class="table table-responsive">
-                    <table class="table table-bordered" border="1">
+                    <table class="table table-bordered" border="1" cellpadding="0" style="width:100%" >
                         <tr style="background-color:#428bca">
                             <th>Srno</th>
                             <th>ItemName</th>
