@@ -34,7 +34,9 @@ class AccountMaster extends Database
          $search="WHERE ( AccountName LIKE '%$search_input%' OR Address like '%$search_input%' OR City like '%$search_input%' OR Phone like '$search_input%'  )";
        }
 
-
+if($page<0)
+		$sql = "SELECT * FROM AccountMaster $search ORDER BY AccountMasterId ";
+	else
        $sql = "SELECT * FROM AccountMaster $search ORDER BY AccountMasterId desc LIMIT $page,$perpage";
 
        $query=  $this->conn->query($sql);
