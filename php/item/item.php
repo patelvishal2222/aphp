@@ -36,8 +36,8 @@ class Item   extends Database
        }
 
 		if($page<0)
-			$page=0;
-	
+		$sql = "SELECT * FROM ItemMaster $search ORDER BY ItemMasterId ";
+	else
        $sql = "SELECT * FROM ItemMaster $search ORDER BY ItemMasterId desc LIMIT $page,$perpage";
 	
        $query=  $this->conn->query($sql);
