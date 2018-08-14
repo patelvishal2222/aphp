@@ -1,4 +1,25 @@
+<style>
+.vertical-menu {
+    width: 200px;
+}
 
+.vertical-menu a {
+    background-color: #eee;
+    color: black;
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+}
+
+.vertical-menu a:hover {
+    background-color: #ccc;
+}
+
+.vertical-menu a.active {
+    background-color: #4CAF50;
+    color: white;
+}
+</style>
 
  <div class="row ">
         <div class="col-lg-2">
@@ -32,6 +53,19 @@
 
 
 </p>
+ <div class="row ">
+ <div   class="col-lg-2">
+ 
+ <div class="vertical-menu">
+<a ui-sref='sales({TranId:0})' >Sales</a> 
+
+
+  <a ui-sref='sales({TranId:0})'  class="active">Purchase</a> 
+
+</div>
+ 
+ </div>
+ <div class="col-lg-10">
 <table class="table">
             <thead>
                 <tr>
@@ -63,7 +97,7 @@
                  
                 <td class="text-right">
 				    
-					
+				  <button type="button"  data-toggle="modal"  class="button button-red" ng-click="tran_con.deleteObject(trn.TranId)">Delete</button> 	
 			  
                 <a ui-sref='sales({TranId:trn.TranId})' >
 			   <button type="button" class="button button-blue" > Edit </button> 
@@ -75,7 +109,7 @@
 			   
                 </td>
                  <!--
-				  <button type="button"  data-toggle="modal"  class="button button-red" ng-click="tran_con.deleteObject(trn.TranId)">Delete</button> 
+				
                      
                   
                      
@@ -103,4 +137,6 @@
       max-size="maxSize"  
       boundary-links="true">
     </pagination>
+</div>
+</div>
 </div>
