@@ -18,7 +18,7 @@ class Tran extends Database
        }
 
 
-       $sql = "SELECT * FROM Tran $search ORDER BY TranId desc LIMIT $page,$perpage";
+       $sql = "SELECT * FROM Tran T inner join AccountMaster A on T.AccountMasterId=A.AccountMasterId    $search ORDER BY TranId desc LIMIT $page,$perpage";
 
        $query=  $this->conn->query($sql);
        $account=array();
@@ -38,7 +38,7 @@ class Tran extends Database
     return $account;
     }
 
-    public function create_tran_info($post_data=array()){
+    public function InsertUpdate($post_data=array()){
 
 
 	$BillNo='';
@@ -54,25 +54,14 @@ class Tran extends Database
 	  // $BillDate=Date('Y-m-d',$BillDate);
        }
       
-	   $AccountName='';
-       if(isset($post_data->AccountName)){
-       $AccountName= mysqli_real_escape_string($this->conn,trim($post_data->AccountName));
+	   $AccountMasterId='';
+       if(isset($post_data->AccountMaster->AccountMasterId)){
+       $AccountMasterId= mysqli_real_escape_string($this->conn,trim($post_data->AccountMaster->AccountMasterId));
        }
-       $Address='';
-       if(isset($post_data->Address)){
-       $Address= mysqli_real_escape_string($this->conn,trim($post_data->Address));
-       }
+     
 
-        $City='';
-       if(isset($post_data->City)){
-       $City= mysqli_real_escape_string($this->conn,trim($post_data->City));
-       }
+     
 
-
-       $Phone='';
-       if(isset($post_data->Phone)){
-       $Phone= mysqli_real_escape_string($this->conn,trim($post_data->Phone));
-       }
    $Total='';
        if(isset($post_data->Total)){
        $Total= mysqli_real_escape_string($this->conn,trim($post_data->Total));
@@ -84,11 +73,17 @@ class Tran extends Database
 //str_to_date('$BillDate','%Y-%m-%d')
         $TranId= mysqli_real_escape_string($this->conn,trim($post_data->TranId));
 		if($TranId==0)
-       $sql1="INSERT INTO Tran (BillNo,BillDate,AccountName, Address, City,Phone,Total,Remarks) VALUES ('$BillNo','$BillDate','$AccountName', '$Address', '$City','$Phone','$Total','$Remarks')";
-   else
-	$sql1="UPDATE Tran SET BillNo='$BillNo',BillDate='$BillDate',AccountName='$AccountName', Address='$Address', City='$City',Phone='$Phone',Total='$Total',Remarks='$Remarks' WHERE TranId='$TranId'";
-
+       $sql1="INSERT INTO Tran (BillNo,BillDate,AccountMasterId,Total,Remarks) VALUES ('$BillNo','$BillDate','$AccountMasterId','$Total','$Remarks')";
+     else
+  	$sql1="UPDATE Tran SET BillNo='$BillNo',BillDate='$BillDate',AccountMasterId='$AccountMasterId',Total='$Total',Remarks='$Remarks' WHERE TranId='$TranId'";
+		$this->conn->autocommit(false);
         $result=  $this->conn->query($sql1);
+		if(!$result)
+		{
+			$this->conn->rollback();
+			  return 'An error occurred while inserting data '.$sql1;
+			
+		}
 		
 		if($TranId==0)
 		{
@@ -99,9 +94,17 @@ class Tran extends Database
 	 $row=mysqli_fetch_row($query);
    $TranId =(int)$row[0];
 	}
+	else
+	{
+		$this->conn->rollback();
+		  return 'An error occurred while inserting data '.$count_sql;
+	}
 	
 		}
+		
 $trandetails=$post_data->trandetails;
+$TranDetailsIds=$post_data->TranDetailsIds;
+
 foreach( $trandetails as $trandetail )
 {
 	$Srno=$trandetail->Srno;
@@ -130,15 +133,37 @@ foreach( $trandetails as $trandetail )
 		if($TranDetailsId==0)
 	$sql="INSERT INTO trandetails (TranId,Srno,ItemMasterId,Height,Length,Quntity,Nos,TotalQuntity,Rate,Amount) VALUES ('$TranId','$Srno','$ItemMasterId','$Height','$Length','$Quntity','$Nos','$TotalQuntity','$Rate','$Amount')";
 else
+{
 	$sql="UPDATE trandetails SET Srno='$Srno',ItemMasterId='$ItemMasterId',Height='$Height',Length='$Length',Quntity='$Quntity',Nos='$Nos',TotalQuntity='$TotalQuntity',Rate='$Rate',Amount='$Amount'  where TranDetailsId='$TranDetailsId' ";
+	
+	
+	
+}
 
 	 $result=  $this->conn->query($sql);
+	 
+	 if(!$result)
+		{
+			$this->conn->rollback();
+			  return 'An error occurred while inserting data '.$sql;
+			
+		}
+}
+
+
+
+if($TranDetailsIds<>"" and $TranId>0)
+{
+   $sqlDelete="Update trandetails set IsDeleted=1   where tranid=$TranId and trandetailsId  in ($TranDetailsIds)";
+   $result=  $this->conn->query($sqlDelete);
 }
 
         if($result){
-          return 'Succefully Created Tran Info'.$sql1.$date1.$BillDate;
+			 $this->conn->commit();
+          return 'Succefully Created Tran Info';
         }else{
-           return 'An error occurred while inserting data '.$sql;
+			$this->conn->rollback();
+           return 'An error occurred while inserting data '.$sqlDelete;
         }
 
 
@@ -146,6 +171,7 @@ else
 
 
     }
+	
 
     public function getObject($id){
        if(isset($id)){
@@ -156,10 +182,13 @@ else
        $result=  $this->conn->query($sql);
 	   $account=array();
 	   $account=$result->fetch_assoc();
-       $sql = "SELECT * FROM trandetails  where TranId='$TranId' ORDER BY srno  ";
-
+	   $AccountMasterId=$account["AccountMasterId"];
+	   
+	   $sql = "SELECT * FROM AccountMaster  where  AccountMasterId=$AccountMasterId ";
+	   $result=  $this->conn->query($sql);
+	   $account['AccountMaster']=$result->fetch_assoc();
+       $sql = "SELECT * FROM trandetails  where  IsDeleted=0  AND TranId='$TranId' ORDER BY srno  ";
        $query=  $this->conn->query($sql);
-       
        if ($query->num_rows > 0) {
        while ($row = $query->fetch_assoc()) {
           
