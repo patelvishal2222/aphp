@@ -1,5 +1,7 @@
 
 
+ 
+
  <div  id="sales" >
 <!-- Form -->
            <div class="row">
@@ -27,14 +29,6 @@
 											</div>
                                 </div>
 
-                                <div class="row">
-								<div class="col-lg-2" > 
-                                    <label>Height</label>
-									</div>
-									<div class="col-lg-8" > 
-                                    <input type="number"   class="form-control"   ng-model="tran_con.TempTrandetails.Height" required />
-									</div>
-                                </div>
 								<div class="row">
 								<div class="col-lg-2" > 
                                     <label>Length</label>
@@ -44,6 +38,22 @@
 									</div>
                                 </div>
 							
+                                <div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Height</label>
+									</div>
+									<div class="col-lg-8" > 
+                                    <input type="number"   class="form-control"   ng-model="tran_con.TempTrandetails.Height" required />
+									</div>
+                                </div>
+								<div class="row" >
+								<div class="col-lg-2" > 
+                                    <label>Nos</label>
+											</div>
+									<div class="col-lg-8" > 
+                                    <input type="number"  class="form-control"  ng-model="tran_con.TempTrandetails.Nos" required />
+											</div>
+                                </div >
 								<div class="row">
 								<div class="col-lg-2" > 
                                     <label>Quntity</label>
@@ -55,14 +65,7 @@
 									{{tran_con.countdata(tran_con.TempTrandetails.Length)*tran_con.countdata(tran_con.TempTrandetails.Height) }}
 											</div>
                                 </div >
-								<div class="row" >
-								<div class="col-lg-2" > 
-                                    <label>Nos</label>
-											</div>
-									<div class="col-lg-8" > 
-                                    <input type="number"  class="form-control"  ng-model="tran_con.TempTrandetails.Nos" required />
-											</div>
-                                </div >
+								
 								<div class="row">
 								<div class="col-lg-2" > 
                                     <label>Total Quntity</label>
@@ -105,7 +108,61 @@
             </div>
         </div>
         <!-- Form -->
-          
+  <div class="row">
+            <div class="modal fade" id="myModalDirect" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Modal Header</h4>
+							
+                        </div>
+                        <div class="modal-body">
+                            <div>
+                               
+
+								<div class="row">
+								<div class="col-lg-2" > 
+                                    <label for="Length">Length</label>
+									</div>
+									<div class="col-lg-8" > 
+                                    <input type="number"  id="Length" class="form-control"  ng-model="tran_con.TempTrandetails.Length" required  />
+									</div>
+                                </div>
+							
+                                <div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Height</label>
+									</div>
+									<div class="col-lg-8" > 
+                                    <input type="number"   class="form-control"   ng-model="tran_con.TempTrandetails.Height" required />
+									</div>
+                                </div>
+								<div class="row" >
+								<div class="col-lg-2" > 
+                                    <label>Nos</label>
+											</div>
+									<div class="col-lg-8" > 
+                                    <input type="number"  class="form-control"  ng-model="tran_con.TempTrandetails.Nos" required />
+											</div>
+                                </div >
+								
+							
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" data-dismiss="modal" ng-click="tran_con.PushRecord()" >{{ModelButton}}</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+		           
+		
         <div class="modal-header">
 		<a  ng-href="transcation"  >
           <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -129,7 +186,7 @@
 		   
 			<div class="row ">
 			<div class="col-lg-2" > 
-                <label for="BillNo">Bill Date:</label>
+                <label for="BillNo">Bill NO:</label>
                 
 				</div>
 				<div class="col-lg-2" > 
@@ -142,7 +199,8 @@
 				</div>
 				<div class="col-lg-2" >
 				
-                <input type="date" ng-model="tran_con.tran.BillDate" id="BillDate" class="form-control "     maxlength="10">
+                <input type="date" ng-model="tran_con.tran.BillDate" id="BillDate" class="form-control "    format="dd-MMM-yyyy"  maxlength="10">
+				
 				
 				</div>
             </div>
@@ -150,9 +208,18 @@
 			 <div class="col-lg-2">
 		  <label for="AccountName">AccountName:</label>
 			</div>
-			<div class="col-lg-8" >
-                <input type="text" ng-model="tran_con.tran.AccountName" id="AccountName" class="form-control" required  maxlength="50">
-          </div>
+			
+		    <div class="col-lg-8" > 
+                                    <select class="form-control" data-ng-model="tran_con.tran.AccountMaster"
+                                            ng-options="y.AccountName for (x,y) in AccountMasters track by y.AccountMasterId "
+											required 
+                                            "></select>
+											</div>
+											<div class="col-lg-2" > 
+											
+											<button type="button" class="btn btn-primary" value="Add" data-toggle="modal" data-target="#myModalAccount" ng-click="tran_con.AccountCreat()"> Account Create</button>
+											</div>
+											
 	   </div>
            
             <div class="row">
@@ -160,7 +227,8 @@
                 <label for="Address">Address:</label>
 				</div>
 				<div class="col-lg-8">
-                <input type="text" class="form-control" ng-model="tran_con.tran.Address" id="Address"   maxlength="50">
+                
+				{{tran_con.tran.AccountMaster.Address}}
 				</div>
             </div>
             <div class="row">
@@ -168,7 +236,8 @@
                 <label for="City">City:</label>
 				</div>
 				<div class="col-lg-8">
-                <input type="text" class="form-control" ng-model="tran_con.tran.City" id="City"   maxlength="50">
+                
+				{{tran_con.tran.AccountMaster.City}}
 				</div>
             </div>
                <div class="row">
@@ -176,7 +245,8 @@
                 <label for="Phone">Phone:</label>
 				</div>
 				<div class="col-lg-8">
-                <input type="text" class="form-control" ng-model="tran_con.tran.Phone" id="Phone"   maxlength="50">
+                
+				{{tran_con.tran.AccountMaster.Phone}}
 				</div>
             </div>
             
@@ -185,7 +255,7 @@
                 <label for="Remark">Refrecence:</label>
 				</div>
 				<div class="col-lg-8">
-                <input type="text" class="form-control" ng-model="tran_con.tran.Remark" id="Remark"   maxlength="50">
+                <input type="text" class="form-control" ng-model="tran_con.tran.Remarks" id="Remarks"   maxlength="50">
 				</div>
             </div>
 			<div class="form-group">
@@ -200,11 +270,11 @@
                         <tr style="background-color:#428bca">
                             <th>Srno</th>
                             <th>ItemName</th>
-							<th>Height</th>
 							<th>Length</th>
-							
-                            <th>Quntity</th>
+							<th>Height</th>
 							<th>Nos</th>
+                            <th>Quntity</th>
+
                             <th>TotalQuntity</th>
                             <th>Rate</th>
                             <th>Amount</th>
@@ -214,14 +284,15 @@
 
                         <tr ng-repeat="trandetails  in tran_con.tran.trandetails ">
                             <td>{{trandetails.Srno}}</td>
-                            <td>{{trandetails.ItemMaster.ItemName}}</td>
-							<td style="text-align:right" >{{trandetails.Height}}</td>
-							<td style="text-align:right" >{{trandetails.Length}}</td>
-							<td style="text-align:right"  >{{trandetails.Quntity}}</td>
-							<td style="text-align:right" >{{trandetails.Nos}}</td>
-                            <td style="text-align:right" >{{trandetails.TotalQuntity}}</td>
-                            <td style="text-align:right" >{{trandetails.Rate}}</td>
-                            <td style="text-align:right" >{{trandetails.Amount |currency:"Rs ":2}}</td>
+                            <td> <input type="Button" value="{{trandetails.ItemMaster.ItemName}}" ng-click="tran_con.AddDirectRecord(trandetails)" data-toggle="modal" data-target="#myModalDirect" /> </td>
+							<td style="text-align:right" >{{trandetails.Length|number:2}}</td>
+							<td style="text-align:right" >{{trandetails.Height|number:2}}</td>
+							<td style="text-align:right" >{{trandetails.Nos|number:2}}</td>
+							<td style="text-align:right"  >{{trandetails.Quntity |number:2}}</td>
+							
+                            <td style="text-align:right" >{{trandetails.TotalQuntity |number:2}}</td>
+                            <td style="text-align:right" >{{trandetails.Rate |number:2}}</td>
+                            <td style="text-align:right" >{{trandetails.Amount |number:2}}</td>
                             <td><input type="Button" value="Edit" ng-click="tran_con.EditRecord(trandetails)" data-toggle="modal" data-target="#myModal" /> </td>
                             <td><input type="Button" value="Delete" ng-click="tran_con.DeleteRecord($index)" /> </td>
 
@@ -236,7 +307,8 @@
                 <label for="Total">Total:</label>
 				</div>
 				 <div class="col-lg-3">
-                <input type="text" class="form-control" style="text-align:right"   ng-model=" tran_con.tran.Total" id="Total"   maxlength="20">
+				 {{tran_con.tran.Total|number:2}}
+                
 				</div>
 				
             </div>
