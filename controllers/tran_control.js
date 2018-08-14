@@ -35,7 +35,7 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 	 //ItemMasterId
 	 
 	 
-        $http.get('php/item/select.php?page=1&search_input=' ).then(function (response) {
+        $http.get('php/item/select.php' ).then(function (response) {
 		
            $scope.ItemNames = response.data.item_list;
 		
@@ -45,7 +45,7 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
        });
 	   
 	   //ItemNames
-	   $http.get('php/accountmaster/select.php?page=1&search_input=' ).then(function (response) {
+	   $http.get('php/accountmaster/select.php' ).then(function (response) {
 		
            $scope.AccountMasters = response.data.account_list;
 		
