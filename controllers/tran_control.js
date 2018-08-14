@@ -29,6 +29,7 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 	vm.TempTrandetails = {};
      vm.tran = {};
 	 vm.tran.TranId=$stateParams.TranId;
+	 vm.tran.TranDetailsIds="";
 	  vm.tran.BillDate=new Date();
 	 
 	 //ItemMasterId
@@ -42,6 +43,30 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 		
 			
        });
+	   
+	   //ItemNames
+	   $http.get('php/accountmaster/select.php?page=1&search_input=' ).then(function (response) {
+		
+           $scope.AccountMasters = response.data.account_list;
+		
+            
+		
+			
+       });
+	   
+	   this.AddDirectRecord=function (TransactionDetails) 
+	   {
+		    $scope.ModelButton = "Add";
+               vm.TempTrandetails = {};
+			   vm.TempTrandetails.Srno = 0;
+		       vm.TempTrandetails.TranDetailsId=0;
+               vm.TempTrandetails.ItemMaster = angular.copy(TransactionDetails.ItemMaster);
+			   //vm.TempTrandetails.Height=parseFloat(TransactionDetails.Height);
+			   //vm.TempTrandetails.Length= parseFloat(TransactionDetails.Length);
+			   //vm.TempTrandetails.Nos= parseFloat(TransactionDetails.Nos);
+			   vm.TempTrandetails.Rate= parseFloat(TransactionDetails.Rate);
+			   
+	   }
 	 //AddRecord
             this.AddRecord = function () {
 				
@@ -69,6 +94,7 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
             }
             //pushRecord
             this.PushRecord = function () {
+				
 				vm.TempTrandetails.Quntity=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length);
 				vm.TempTrandetails.TotalQuntity=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length)*vm.TempTrandetails.Nos;
 				vm.TempTrandetails.Amount=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length)*vm.TempTrandetails.Nos*vm.TempTrandetails.Rate;
@@ -93,7 +119,13 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
             }
             //DeleteRecord
             this.DeleteRecord = function (index) {
-
+					if( vm.tran.trandetails[index].TranDetailsId>0)
+					{
+							if(vm.tran.TranDetailsIds=="")
+							vm.tran.TranDetailsIds=vm.tran.trandetails[index].TranDetailsId;
+								else
+									vm.tran.TranDetailsIds=vm.tran.TranDetailsIds+","+vm.tran.trandetails[index].TranDetailsId;
+					}
                  vm.tran.trandetails.splice(index, 1);
                 for (; index <  vm.tran.trandetails.length; index++) {
                      vm.tran.trandetails[index].Srno = index + 1;
@@ -167,7 +199,45 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 				return b;
 				
 			}
+			
+this.getTotal=function(indexend,key)
+{
+	var sum=0
+	var ItemMasterId=vm.tran.trandetails[indexend].ItemMasterId;
 	
+for(var index=indexend;index>=0;index--)
+	{
+		
+		if(ItemMasterId==vm.tran.trandetails[index].ItemMasterId)
+	sum=sum+parseFloat(vm.tran.trandetails[index][key]);
+	else
+		break;
+	
+	}
+	
+	
+	return sum;
+}
+	/*
+	this.getAmount=function(indexend)
+{
+	var sum=0
+	var ItemMasterId=vm.tran.trandetails[indexend].ItemMasterId;
+	
+for(var index=indexend;index>=0;index--)
+	{
+		
+		if(ItemMasterId==vm.tran.trandetails[index].ItemMasterId)
+	sum=sum+parseFloat(vm.tran.trandetails[index].Amount);
+	else
+		break;
+	
+	}
+	
+	
+	return sum;
+}
+	*/
     this.search_data = function (search_input) {
 		
         if (search_input.length > 0)
@@ -214,7 +284,7 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 					    
    
 
-                       '</head><body onload="window.print()"><div class="reward-body"><div style="height:100px"></div>' + printContents.outerHTML + '</div></html>');
+                       '</head><body onload="window.print()"><div class="reward-body"><div style="height:70px"></div>' + printContents.outerHTML + '</div></html>');
 			   
 	popupWin.print();
 	popupWin.close();
@@ -249,8 +319,10 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
         $http.get('php/tran/selectone.php?TranId=' + TranId).then(function (response) {
             vm.tran = response.data;
 			 vm.tran.BillDate=new Date(vm.tran.BillDate);
+			 vm.tran.TranDetailsIds="";
 			 vm.rowsdata=[];
-			 for(i=vm.tran.trandetails.length+1;i<=10;i++)
+			 
+			 for(i=vm.tran.trandetails.length+1;i<=25;i++)
 			 {
 				   vm.rowsdata.push(i);
 			 }
@@ -275,4 +347,5 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 
 
 });
+
 
