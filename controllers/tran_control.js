@@ -93,13 +93,15 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
                
             }
             //pushRecord
-            this.PushRecord = function () {
+            this.PushRecord = function (formIndex) {
 				
 				vm.TempTrandetails.Quntity=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length);
 				vm.TempTrandetails.TotalQuntity=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length)*vm.TempTrandetails.Nos;
 				vm.TempTrandetails.Amount=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length)*vm.TempTrandetails.Nos*vm.TempTrandetails.Rate;
-				
-				
+				if(formIndex==1)
+					 $('#myModal').modal('toggle');
+					else
+				 $('#myModalDirect').modal('toggle');
 				
 				                if (vm.TempTrandetails.Srno == 0) {
 									
@@ -181,6 +183,27 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
                 
 
             }
+			
+			
+         this.addAccount = function (tempAccountMaster) {
+        $http.post('php/accountmaster/insert.php', tempAccountMaster).then(function (response) {
+            vm.msg = response.data.message;
+            vm.alert_class = 'custom-alert';
+            document.getElementById("create_account_info_frm").reset();
+            $('#create_account_info_modal').modal('toggle');
+           $http.get('php/accountmaster/select.php' ).then(function (response) {
+		
+           $scope.AccountMasters = response.data.account_list;
+		
+       vm.tran.AccountMaster= $scope.AccountMasters[ $scope.AccountMasters.length-1];        
+		
+			
+       });
+	   
+	
+	
+        });
+    };
 			this.countdata =function (a) 
 			{
 				
@@ -347,5 +370,8 @@ for(var index=indexend;index>=0;index--)
 
 
 });
+
+
+
 
 
