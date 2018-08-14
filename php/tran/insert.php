@@ -15,7 +15,7 @@ echo	$ItemMasters->ItemMasterId;
 
 }
 */
-$result=$obj->create_tran_info($data);
+$result=$obj->InsertUpdate($data);
 $message['message']=$result;
 
 echo json_encode($message);
