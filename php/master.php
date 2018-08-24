@@ -1,7 +1,7 @@
 <?php
   
     $servername = "localhost";
-    $dbname = "test";
+    $dbname = "account";
     $username = "root";
     $password = "root";
   
@@ -20,7 +20,7 @@
 
 	$request_method=$_SERVER["REQUEST_METHOD"];
 	
-	echo $request_method;
+	
 	switch($request_method)
 	{
 		case 'GET':
@@ -41,7 +41,25 @@
 		case 'POST':
 			// Insert Product
 			//insert_product();
-			echo "POST";
+				$data = json_decode(file_get_contents('php://input'), true);
+				foreach( $data as $key=>$value){
+						if( is_array($value))
+						{
+						//echo 'array'.$key . " = " . $value. "<br>";
+							InsertUpdate($key,$value);
+						}
+					else if(is_object($value)) 
+					{
+					//echo 'OBject'.$key . " = " . $value. "<br>";
+					}
+					
+					else
+					{
+						//echo 'Other'.$key . " = " . $value. "<br>";
+					}
+				}
+
+//echo "End";
 			break;
 		case 'PUT':
 			// Update Product
@@ -61,7 +79,39 @@
 			break;
 	}
 	
+	  function InsertUpdate($tb,$data)
+	{
+		$f="";
+		$v="";
+		$fv="";
+		$PrimaryKey=$tb.'Id';
+		$PrimaryKeyValue=0;
+		foreach( $data as $key=>$value){
+			
+				if($key==$PrimaryKey)
+				{$PrimaryKeyValue=$value;
+				}
+				else
+				{
+				$f=$f.$key.",";
+				$v=$v."'".$value."',";
+				$fv=$fv.$key."='".$value."',";
+				}
+		}
+		$f1=rtrim($f,",");
+		$v1=rtrim($v,",");
+		$fv=rtrim($fv,",");
+		
+		
+		$Query="";
+		if($PrimaryKeyValue==0)
+			$Query= "INSERT INTO $tb ($f1) values ($v1)";
+		else
+			$Query= "UPDATE $tb SET $fv where $PrimaryKey= $PrimaryKeyValue";
+		echo $Query;
+	}
 	
+
 	
 
 ?>
