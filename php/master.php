@@ -1,3 +1,4 @@
+//encodeURI()
 <?php
   
     $servername = "localhost";
