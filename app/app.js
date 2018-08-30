@@ -107,3 +107,56 @@ myApp.config(function ($stateProvider, $locationProvider, $urlRouterProvider) {
 
 });
 
+
+//<button export-to-csv details=tran_con.tran_list >Download</button>
+myApp.directive('exportToCsv',function(){
+  	return {
+    	restrict: 'A',
+    	link: function (scope, element, attrs) {
+    		var el = element[0];
+			if(attrs.details){
+				scope.details = attrs.details;
+                //scope.details = scope.$eval(attrs.details);
+				console.log(scope.details);
+            }
+	        element.bind('click', function(e){
+				
+				
+	        	var table = e.target.nextElementSibling;
+				 scope.details = scope.$eval(attrs.details);
+				
+	        	var csvString = '';
+	        	for(var i=0; i< scope.details.length;i++){
+	        		var rowData =  scope.details[i];
+				if(i==0)
+				{
+	        		for (data in rowData) 
+					{
+	        			csvString = csvString + data+ ",";
+							
+	        		}
+					csvString = csvString.substring(0,csvString.length - 1);
+	        		csvString = csvString + "\n";
+				}
+						for (data in rowData) 
+					{
+	        			csvString = csvString + rowData[data]+ ",";
+							
+	        		}
+	        		csvString = csvString.substring(0,csvString.length - 1);
+	        		csvString = csvString + "\n";
+			    }
+	         	csvString = csvString.substring(0, csvString.length - 1);
+	         	var a = $('<a/>', {
+		            style:'display:none',
+		            href:'data:application/octet-stream;base64,'+btoa(csvString),
+		            download:'Export.csv'
+		        }).appendTo('body')
+		        a[0].click()
+		        a.remove();
+	        });
+    	}
+  	}
+	});
+
+
