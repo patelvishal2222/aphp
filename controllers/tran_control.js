@@ -111,7 +111,14 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 		
            $scope.menulist = response.data.listdata;
 		
-            
+               
+		$scope.selmenu = $filter('filter')( $scope.menulist , {VoucherTypeId: vm.tran.VoucherTypeId})[0];
+           console.log($scope.selmenu); 
+		   if(vm.tran.VoucherTypeId>0 )
+		   {
+		vm.color=$scope.selmenu.color;
+		 vm.Title=$scope.selmenu.Title;
+		   }
 		
 			
        });
