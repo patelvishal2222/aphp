@@ -1,0 +1,31 @@
+ALTER TABLE `account`.`trandetails` 
+ADD COLUMN `IsDeleted` INT NOT NULL DEFAULT 0 AFTER `details`;
+
+
+
+ALTER TABLE `account`.`tran` 
+CHANGE COLUMN `AccountName` `AccountName` VARCHAR(45) NOT NULL ,
+ADD COLUMN `AccountMasterId` INT NOT NULL AFTER `BillDate`,
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (`TranId`, `AccountName`);
+
+
+
+ALTER TABLE `account`.`tran` 
+DROP COLUMN `Phone`,
+DROP COLUMN `City`,
+DROP COLUMN `Address`,
+DROP COLUMN `AccountName`,
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (`TranId`);
+
+
+
+ALTER TABLE `account`.`tran` 
+ADD INDEX `Tran_AccountMaster_AccountMasterId_idx` (`AccountMasterId` ASC);
+ALTER TABLE `account`.`tran` 
+ADD CONSTRAINT `Tran_AccountMaster_AccountMasterId`
+  FOREIGN KEY (`AccountMasterId`)
+  REFERENCES `account`.`accountmaster` (`AccountMasterId`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
