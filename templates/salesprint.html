@@ -1,0 +1,224 @@
+<script >
+function fun1()
+{
+alert(2);
+}
+</script>
+
+
+
+ <div class="modal-header">
+		<a  ng-href="transcation"  >
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+		  </a>
+		  <!--
+          <input type=button onclick="fun1();" value=Button></input>
+		  -->
+		   <button type="button" class="button button-green" ng-click="funPrint();" > Print </button> 
+		   
+          
+          
+			  
+			
+		  
+        </div>
+ <div  id="sales">
+        <div >
+          <h4 class="modal-title center ">Sales Bill </h4>
+        </div>
+		 
+
+
+        <div class="modal-body">
+		
+         
+           
+		   <div id="sales_frm">
+		   <div class="table table-responsive">
+		   <table border=0>
+		   
+		   
+		   <tr>
+		  
+		   
+			
+			<td width="200px">
+			
+                <label for="BillNo">Bill No:</label>
+			
+                </td>
+				<td style="border-bottom:2px solid #005000;">
+				
+				
+				{{tran_con.tran.BillNo}}
+				
+				</td>
+				<td width="200px">
+				</td>
+				<td>
+				
+				<label for="BillDate">Bill Date:</label>
+				</td>
+				<td style="border-bottom:2px solid #005000;">
+				
+				{{tran_con.tran.BillDate | date:"dd-MMM-yyyy"}}
+				
+               </td> 
+				
+				</tr>
+            
+			
+			 <td>
+		  <label for="AccountName">Account Name:  </label>
+			</td >
+			<td colspan=4 style="border-bottom:2px solid #005000;" >
+			
+			{{tran_con.tran.AccountMaster.AccountName}}
+			
+                
+          </td>
+	   </tr>
+           
+            <tr>
+			<td>
+                <label for="Address">Address:</label>
+				</td>
+				<td colspan=4 style="border-bottom:2px solid #005000;">
+                
+				{{tran_con.tran.AccountMaster.Address}}
+				</td>
+            </tr>
+            <tr>
+			<td>
+                <label for="City">City:</label>
+				</td>
+				<td colspan=4 style="border-bottom:2px solid #005000;">
+                
+				{{tran_con.tran.AccountMaster.City}}
+				</td>
+            </tr>
+               <tr>
+			   <td>
+                <label for="Phone">Phone:</label>
+				</td>
+				<td colspan=4 style="border-bottom:2px solid #005000;">
+                
+				{{tran_con.tran.AccountMaster.Phone}}
+				</td>
+            </tr>
+            
+               <tr>
+			   <td>
+                <label for="Remark">Refrecence:</label>
+				</td>
+				<td colspan=4 style="border-bottom:2px solid #005000;">
+                
+				{{tran_con.tran.Remark}}
+				</td>
+            </tr>
+			</table>
+			</div>
+			
+                <div class="table table-responsive">
+                    <table class="table table-bordered" border="1" cellpadding="0" style="width:100%" >
+                        <tr style="background-color:#428bca">
+                            <th>Srno</th>
+                            <th>ItemName</th>
+							
+							<th>Length</th>
+							<th >Height</th>
+							<th>Nos</th>
+                            <th>Quantity</th>
+                            <th>TotalQuantity</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                            
+                        </tr>
+<tbody ng-init="total = 0">
+                        <tr ng-repeat="trandetails  in tran_con.tran.trandetails  "  >
+						
+                            <td>{{$index+1}}
+							
+							</td>
+                            <td>{{trandetails.ItemMaster.ItemName}}</td>
+							<td  style="text-align:right" >{{trandetails.Length|number:2}}</td>
+							<td  style="text-align:right" >{{trandetails.Height|number:2}}</td>
+							<td   style="text-align:right" >{{trandetails.Nos|number:2}}</td>
+							<td  style="text-align:right" >{{trandetails.TotalQuantity|number:2}}</td>
+							
+                            
+							 <td  style="text-align:right"  >
+							 <div ng-if="trandetails.ItemMasterId!=tran_con.tran.trandetails[$index+1].ItemMasterId" > 
+							 {{tran_con.getTotal($index,'TotalQuantity') |number:2}}
+							 </div>
+							 </td>
+							</td>
+                            <td  style="text-align:right">
+							 <div ng-if="trandetails.ItemMasterId!=tran_con.tran.trandetails[$index+1].ItemMasterId" > 
+							 {{trandetails.Rate|number:2}}
+							 </div>
+							 
+							</td>
+                            <td style="text-align:right" >
+							<div ng-if="trandetails.ItemMasterId!=tran_con.tran.trandetails[$index+1].ItemMasterId" > 
+							 {{tran_con.getTotal($index,'Amount') |number:2}}
+							 </div>
+							</td>
+                            
+
+                        </tr>
+						 <tr ng-repeat="p  in tran_con.rowsdata ">
+                            <td>{{p}}</td>
+                            <td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            
+
+                        </tr>
+						<tr>
+						<td colspan=7 >
+						</td>
+						<td>
+						<label for="Total">Total:</label>
+						</td>
+						<td  style="text-align:right">
+						{{tran_con.tran.Total |number:2}}
+						</td>
+						</tr>
+						</tbody>
+                    </table>
+                </div>
+			
+            <div class="form-group">
+			</div>
+                <div class="row">
+			 <!--	 <button type="button" class="button button-green"  ng-click="tran_con.Print('printsave')"> Print </button> 
+            <input type="submit" class="button button-green  pull-right"  value="Submit"/>-->
+			<pre>
+			Subject to Mahemdabad Jurisdiction.			</pre>
+				
+                </div>
+             
+        
+    
+            
+       
+        <div class="modal-footer">
+		  
+        </div>
+		</div>
+		
+    
+      
+
+  
+  
+  
+  </div>
+  </div>
+  

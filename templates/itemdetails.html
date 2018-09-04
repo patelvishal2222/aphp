@@ -1,0 +1,94 @@
+
+ <div >
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+		 <a  ng-href="account"  >
+		<button type="button" class="close" data-dismiss="modal">&times;</button>
+		</a>
+          <h4 class="modal-title">Item Info </h4>
+        </div>
+        <div class="modal-body" >
+         
+                 <div>
+		 <button type="button" class="button button-purple mt-12 pull-right"  export-to-csv details=itemdet_con.ItemDetails >Export</button>
+		 </div>
+            <div class="form-group">
+                <label >Item Name:</label>
+                {{itemdet_con.dbdata.ItemMaster.ItemName}}
+               
+            </div>
+            <div class="form-group">
+                <label >Purchase Rate:</label>
+                  {{itemdet_con.dbdata.ItemMaster.PurRate}}
+              
+            </div>
+            <div class="form-group">
+                <label >Sales Rate:</label>
+                     {{itemdet_con.dbdata.ItemMaster.SaleRate}}
+             
+            </div>
+           
+        
+    
+            
+        </div>
+        
+      </div>
+      
+    </div>
+  
+<div>
+<table class="table">
+            <thead>
+                <tr>
+             
+                    <th>BillNo</th>
+                    <th>Bill Date</th>
+                    <th>Account Name</th>
+					
+					<th>Inward</th>
+					<th>OutWard</th>
+					<th>Stock</th>
+					<th>Amount</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                
+          
+                <tr ng-repeat="ItemDetail in itemdet_con.ItemDetails">
+                   
+                    <td>{{ItemDetail.BillNo}}</td>
+                    <td>{{ItemDetail.BillDate}}</td>
+                    <td>{{ItemDetail.accountName}}</td>
+					
+					<td>
+				<div>
+				
+					<a ui-sref='{{ItemDetail.TemplateName}}({VoucherTypeId:ItemDetail.VoucherTypeId,TranId:ItemDetail.TranId})'  >{{ItemDetail.Inward}}</a> 
+					</div>
+					</td>
+					<td>
+				<div>
+				
+					<a ui-sref='{{ItemDetail.TemplateName}}({VoucherTypeId:ItemDetail.VoucherTypeId,TranId:ItemDetail.TranId})'  >{{ItemDetail.OutWard}}</a> 
+					</div>
+					</td>
+					<td>{{ItemDetail.StockQty}}</td>
+                    <td>{{ItemDetail.Amount}}</td>
+                    
+                 
+                
+                    
+                    
+                    
+                </tr>
+                
+                
+                
+
+           </tbody>
+        </table>
+</div>

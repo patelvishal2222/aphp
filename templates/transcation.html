@@ -1,8 +1,8 @@
+
 <style>
 .vertical-menu {
     width: 200px;
 }
-
 .vertical-menu a {
     background-color: #eee;
     color: black;
@@ -10,11 +10,9 @@
     padding: 12px;
     text-decoration: none;
 }
-
 .vertical-menu a:hover {
     background-color: #ccc;
 }
-
 .vertical-menu a.active {
     background-color: #4CAF50;
     color: white;
@@ -40,9 +38,11 @@
        </div>
           <div class="col-lg-2 ">
              
-                 <a ui-sref='sales({TranId:0})' >
+                 <!--<a ui-sref='sales({VoucherTypeId:2,TranId:0})' >
 			   <button type="button" class="button button-purple mt-12 pull-right" > Sales</button> 
-			   </a>
+			   </a>-->
+			   <button type="button" class="button button-purple mt-12 pull-right"  export-to-csv details=tran_con.tran_list >Export</button>
+			   
           </div>
     </div>
 
@@ -53,28 +53,30 @@
 
 
 </p>
- <div class="row ">
- <div   class="col-lg-2">
- 
- <div class="vertical-menu">
-<a ui-sref='sales({TranId:0})' >Sales</a> 
 
+<div class="col-lg-2">
+           <div class="vertical-menu" ng-repeat="menu in menulist">
+		   <div ng-show={{menu.Visible}}> 
+		   <a ui-sref='{{menu.TemplateName}}({VoucherTypeId:menu.VoucherTypeId,TranId:0})'  >{{menu.Name}}</a> 
+		   
+		   </div>
+		   </div>
+		  
 
-  <a ui-sref='sales({TranId:0})'  class="active">Purchase</a> 
-
+        
 </div>
- 
- </div>
- <div class="col-lg-10">
+
+<div class="col-lg-10">
 <table class="table">
             <thead>
                 <tr>
              
-                    <th>Bill No</th>
+                    <th style="text-align:right">Bill No</th>
 					<th>Bill Date</th>
+					<th>VoucherName</th>
 					<th>AccountName</th>
 					<th>Address</th>
-                    <th>Total</th>
+                    <th  class="text-right">Total</th>
 					 <th>Remarks</th>
                     
                     <th class="text-right">Action</th>
@@ -85,31 +87,34 @@
           
                 <tr ng-repeat="trn in tran_con.tran_list">
                    
-				   <td>{{trn.BillNo}}</td>
-				   <td>{{trn.BillDate}}</td>
+				   <td style="text-align:right">{{trn.BillNo}}</td>
+				   <td>{{trn.BillDate|  date:"dd-MMM-yyyy" }}</td>
+				   <td>{{trn.VoucherName}}</td>
                     <td>{{trn.AccountName}}</td>
                     <td>{{trn.Address}}</td>
-					<td>{{trn.Total}}</td>
-					<td>{{trn.Remarks}}</td>
+					<td style="text-align:right">{{trn.Total | number:2}}</td>
+					<td>{{trn.Remarks}}
+					
+					</td>
                    
                     
                     
                  
                 <td class="text-right">
 				    
-				  <button type="button"  data-toggle="modal"  class="button button-red" ng-click="tran_con.deleteObject(trn.TranId)">Delete</button> 	
+					<button type="button"  data-toggle="modal"  class="button button-red" ng-click="tran_con.deleteObject(trn.TranId)">Delete</button> 
 			  
-                <a ui-sref='sales({TranId:trn.TranId})' >
+                <a ui-sref='{{trn.TemplateName}}({VoucherTypeId:trn.VoucherTypeId,TranId:trn.TranId})' >
 			   <button type="button" class="button button-blue" > Edit </button> 
 			   </a>
-			 
-			   <a ui-sref='salesprint({TranId:trn.TranId})' >
+			                                                        
+			   <a ui-sref='{{trn.PrintTemplateName}}({VoucherTypeId:trn.VoucherTypeId,TranId:trn.TranId})' >
 			   <button type="button" class="button button-green" > View </button> 
 			   </a>
 			   
                 </td>
                  <!--
-				
+				  
                      
                   
                      
@@ -137,6 +142,5 @@
       max-size="maxSize"  
       boundary-links="true">
     </pagination>
-</div>
 </div>
 </div>
