@@ -61,6 +61,10 @@ class Tran extends Database
      
 
      
+	   $VoucherTypeId='';
+       if(isset($post_data->VoucherTypeId)){
+       $VoucherTypeId= mysqli_real_escape_string($this->conn,trim($post_data->VoucherTypeId));
+       }
 
    $Total='';
        if(isset($post_data->Total)){
@@ -73,7 +77,7 @@ class Tran extends Database
 //str_to_date('$BillDate','%Y-%m-%d')
         $TranId= mysqli_real_escape_string($this->conn,trim($post_data->TranId));
 		if($TranId==0)
-       $sql1="INSERT INTO Tran (BillNo,BillDate,AccountMasterId,Total,Remarks) VALUES ('$BillNo','$BillDate','$AccountMasterId','$Total','$Remarks')";
+       $sql1="INSERT INTO Tran (BillNo,BillDate,AccountMasterId,VoucherTypeId,Total,Remarks) VALUES ('$BillNo','$BillDate','$AccountMasterId','$VoucherTypeId','$Total','$Remarks')";
      else
   	$sql1="UPDATE Tran SET BillNo='$BillNo',BillDate='$BillDate',AccountMasterId='$AccountMasterId',Total='$Total',Remarks='$Remarks' WHERE TranId='$TranId'";
 		$this->conn->autocommit(false);
@@ -108,13 +112,21 @@ $TranDetailsIds=$post_data->TranDetailsIds;
 foreach( $trandetails as $trandetail )
 {
 	$Srno=$trandetail->Srno;
+	$Height=0;
+	if(isset($trandetail->Height))
 	$Height=$trandetail->Height;
+
+	$Length=0;
+	if(isset($trandetail->Length))
 	$Length=$trandetail->Length;
-	
-	
-	$Quntity=$trandetail->Quntity;
+
+	$Quantity=0;
+	if(isset($trandetail->Quantity))
+	$Quantity=$trandetail->Quantity;
+	$Nos=0;
+	if(isset($trandetail->Nos))
 	$Nos=$trandetail->Nos;
-	$TotalQuntity=$trandetail->TotalQuntity;
+	$TotalQuantity=$trandetail->TotalQuantity;
 	$Rate=$trandetail->Rate;
 	$Amount=$trandetail->Amount;
 	$ItemMasters=$trandetail->ItemMaster;
@@ -131,10 +143,10 @@ foreach( $trandetails as $trandetail )
 	
 	
 		if($TranDetailsId==0)
-	$sql="INSERT INTO trandetails (TranId,Srno,ItemMasterId,Height,Length,Quntity,Nos,TotalQuntity,Rate,Amount) VALUES ('$TranId','$Srno','$ItemMasterId','$Height','$Length','$Quntity','$Nos','$TotalQuntity','$Rate','$Amount')";
+	$sql="INSERT INTO trandetails (TranId,Srno,ItemMasterId,Height,Length,Quantity,Nos,TotalQuantity,Rate,Amount) VALUES ('$TranId','$Srno','$ItemMasterId','$Height','$Length','$Quantity','$Nos','$TotalQuantity','$Rate','$Amount')";
 else
 {
-	$sql="UPDATE trandetails SET Srno='$Srno',ItemMasterId='$ItemMasterId',Height='$Height',Length='$Length',Quntity='$Quntity',Nos='$Nos',TotalQuntity='$TotalQuntity',Rate='$Rate',Amount='$Amount'  where TranDetailsId='$TranDetailsId' ";
+	$sql="UPDATE trandetails SET Srno='$Srno',ItemMasterId='$ItemMasterId',Height='$Height',Length='$Length',Quantity='$Quantity',Nos='$Nos',TotalQuantity='$TotalQuantity',Rate='$Rate',Amount='$Amount'  where TranDetailsId='$TranDetailsId' ";
 	
 	
 	
