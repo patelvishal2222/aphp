@@ -5,10 +5,10 @@ myApp.controller('account_control', function ($scope, $state, $http, $location) 
   
     $scope.currentPage = 1;
     $scope.maxSize = 3;
-	
+	vm.dbdata={};
     this.search_data = function (search_input) {
 		
-        if (search_input.length > 0)
+        if (search_input.length >= 0)
             vm.loadData(1);
 
     };
@@ -17,8 +17,9 @@ myApp.controller('account_control', function ($scope, $state, $http, $location) 
 		
 		
         var search_input = document.getElementById("search_input").value;
-        $http.get('php/accountmaster/select.php?page=' + page_number + '&search_input=' + search_input).then(function (response) {
-            vm.account_list = response.data.account_list;
+        $http.get(encodeURI("php/DyamicOperation.php?List=1&Sql=select *  from  vwAccountMaster&TableName=AccountMaster&Page="+page_number+"&PageSize=10&OrderBy=AccountMasterId desc&Search=AccountName like '%"+search_input+"%'")).then(function (response) {
+			
+            vm.account_list = response.data.listdata;
             $scope.total_row = response.data.total;
 			
         });
@@ -35,9 +36,15 @@ myApp.controller('account_control', function ($scope, $state, $http, $location) 
 
     });
 //    
+this.AddData=function()
+{
+	vm.dbdata.AccountMaster={};
+	vm.dbdata.AccountMaster.AccountMasterId=0;
+	
+}
 
     this.addAccount = function (info) {
-        $http.post('php/accountmaster/insert.php', info).then(function (response) {
+        $http.post('php/DyamicOperation.php', vm.dbdata).then(function (response) {
             vm.msg = response.data.message;
             vm.alert_class = 'custom-alert';
             document.getElementById("create_account_info_frm").reset();
@@ -48,14 +55,16 @@ myApp.controller('account_control', function ($scope, $state, $http, $location) 
     };
 
     this.edit_item_info = function (AccountMasterId) {
-        $http.get('php/accountmaster/selectone.php?AccountMasterId=' + AccountMasterId).then(function (response) {
-            vm.account = response.data;
+        $http.get('php/DyamicOperation.php?getObject=AccountMaster&PrimaryKey=AccountMasterId&PrimaryValue='+  AccountMasterId).then(function (response) {
+			console.log( 'two');
+             vm.dbdata.AccountMaster= response.data;
+			 console.log( vm.dbdata);
         });
     };
 
 
     this.updateAccount = function () {
-        $http.post('php/accountmaster/update.php', this.account).then(function (response) {
+        $http.post('php/DyamicOperation.php', vm.dbdata).then(function (response) {
             vm.msg = response.data.message;
             vm.alert_class = 'custom-alert';
             $('#edit_item_info_modal').modal('toggle');
@@ -64,19 +73,13 @@ myApp.controller('account_control', function ($scope, $state, $http, $location) 
     };
 
 
-    this.get_item_info = function (AccountMasterId) {
-        $http.get('php/accountmaster/selectone.php?AccountMasterId=' + AccountMasterId).then(function (response) {
-            vm.item = response.data;
-
-
-        });
-    };
+   
 
 
     this.deleteObject = function (AccountMasterId) {
 		         var yesno = confirm('Are you sure remove Record?');
                 if (yesno == true) {
-        $http.post('php/accountmaster/delete.php?AccountMasterId=' + AccountMasterId).then(function (response) {
+        $http.get('php/DyamicOperation.php?deleteObject=AccountMaster&PrimaryKey=AccountMasterId&PrimaryValue='+ AccountMasterId).then(function (response) {
             vm.msg = response.data.message;
             vm.alert_class = 'custom-alert';
             vm.loadData($scope.currentPage);

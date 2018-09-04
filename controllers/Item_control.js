@@ -5,10 +5,10 @@ myApp.controller('item_control', function ($scope, $state, $http, $location) {
   
     $scope.currentPage = 1;
     $scope.maxSize = 3;
-	
+	vm.dbdata={};
     this.search_data = function (search_input) {
 		
-        if (search_input.length > 0)
+        if (search_input.length >= 0)
             vm.loadData(1);
 
     };
@@ -17,8 +17,9 @@ myApp.controller('item_control', function ($scope, $state, $http, $location) {
 		
 		
         var search_input = document.getElementById("search_input").value;
-        $http.get('php/item/select.php?page=' + page_number + '&search_input=' + search_input).then(function (response) {
-            vm.item_list = response.data.item_list;
+        $http.get(encodeURI("php/DyamicOperation.php?List=1&Sql=select *  from  vwitemmaster&TableName=vwitemmaster&Page="+page_number+"&PageSize=10&OrderBy=ItemMasterId desc&Search=ItemName like '%"+search_input+"%'")).then(function (response) {
+			
+            vm.item_list = response.data.listdata;
             $scope.total_row = response.data.total;
 			
         });
@@ -36,8 +37,15 @@ myApp.controller('item_control', function ($scope, $state, $http, $location) {
     });
 //    
 
+this.AddData=function()
+{
+	vm.dbdata.ItemMaster={};
+	vm.dbdata.ItemMaster.ItemMasterId=0;
+	
+}
+
     this.addItem = function (info) {
-        $http.post('php/item/insert.php', info).then(function (response) {
+        $http.post('php/DyamicOperation.php',  vm.dbdata).then(function (response) {
             vm.msg = response.data.message;
             vm.alert_class = 'custom-alert';
             document.getElementById("create_item_info_frm").reset();
@@ -48,15 +56,15 @@ myApp.controller('item_control', function ($scope, $state, $http, $location) {
     };
 
     this.edit_item_info = function (ItemMasterId) {
-        $http.get('php/item/selectone.php?ItemMasterId=' + ItemMasterId).then(function (response) {
-            vm.item = response.data;
+        $http.get('php/DyamicOperation.php?getObject=ItemMaster&PrimaryKey=ItemMasterId&PrimaryValue='+ ItemMasterId).then(function (response) {
+            vm.dbdata.ItemMaster= response.data;
         });
     };
 
 
     this.updateStudent = function () {
 		
-        $http.post('php/item/update.php', vm.item).then(function (response) {
+        $http.post('php/DyamicOperation.php', vm.dbdata).then(function (response) {
             vm.msg = response.data.message;
             vm.alert_class = 'custom-alert';
             $('#edit_item_info_modal').modal('toggle');
@@ -65,19 +73,12 @@ myApp.controller('item_control', function ($scope, $state, $http, $location) {
     };
 
 
-    this.get_item_info = function (ItemMasterId) {
-        $http.get('php/item/selectone.php?ItemMasterId=' + ItemMasterId).then(function (response) {
-            vm.item = response.data;
-
-
-        });
-    };
-
+   
 
     this.deleteObject = function (ItemMasterId) {
 		         var yesno = confirm('Are you sure remove Record?');
                 if (yesno == true) {
-        $http.post('php/item/delete.php?ItemMasterId=' + ItemMasterId).then(function (response) {
+        $http.get('php/DyamicOperation.php?deleteObject=ItemMaster&PrimaryKey=ItemMasterId&PrimaryValue='+  ItemMasterId).then(function (response) {
             vm.msg = response.data.message;
             vm.alert_class = 'custom-alert';
             vm.loadData($scope.currentPage);

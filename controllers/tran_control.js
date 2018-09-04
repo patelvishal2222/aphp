@@ -27,17 +27,70 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
     $scope.currentPage = 1;
     $scope.maxSize = 3;
 	vm.TempTrandetails = {};
+	vm.dbdata={};
      vm.tran = {};
 	 vm.tran.TranId=$stateParams.TranId;
+	 vm.tran.VoucherTypeId=$stateParams.VoucherTypeId;
 	 vm.tran.TranDetailsIds="";
 	  vm.tran.BillDate=new Date();
-	 
+	  
+	 if(vm.tran.VoucherTypeId==1)
+	 {
+		vm.color="Red";
+		vm.Title="Purachase";
+	 }
+	 else if(vm.tran.VoucherTypeId==2)
+	 {
+		 vm.color="green";
+		 vm.Title="Sales";
+	 }
+	 else if(vm.tran.VoucherTypeId==3)
+	 {
+		 vm.color="skyblue";
+		 vm.Title="Purachase Return";
+	 }
+	 else if(vm.tran.VoucherTypeId==4)
+	 {
+		 vm.color="purple";
+		 vm.Title="Sales Return";
+		 
+	 }
+	 else if(vm.tran.VoucherTypeId==5)
+	 {
+		 vm.color="Green";
+		 vm.Title="Cash Receipt";
+		 
+	 }
+	 else if(vm.tran.VoucherTypeId==6)
+	 {
+		 vm.color="Red";
+		 vm.Title="Cash Payment";
+		 
+	 }
+	 else if(vm.tran.VoucherTypeId==7)
+	 {
+		 vm.color="Green";
+		 vm.Title="Bank Receipt";
+		 
+	 }
+	  else if(vm.tran.VoucherTypeId==8)
+	 {
+		 vm.color="Red";
+		 vm.Title="Bank Payment";
+		 
+	 }
+	  else if(vm.tran.VoucherTypeId==9)
+	 {
+		 vm.color="Yellow";
+		 vm.Title="Journal Vourcher";
+		 
+	 }
 	 //ItemMasterId
 	 
 	 
-        $http.get('php/item/select.php' ).then(function (response) {
+        $http.get('php/DyamicOperation.php?Query=select *  from ItemMaster' ).then(function (response) {
 		
-           $scope.ItemNames = response.data.item_list;
+           $scope.ItemNames = response.data.listdata;
 		
             
 		
@@ -45,14 +98,24 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
        });
 	   
 	   //ItemNames
-	   $http.get('php/accountmaster/select.php' ).then(function (response) {
+	   $http.get('php/DyamicOperation.php?Query=select *  from AccountMaster' ).then(function (response) {
 		
-           $scope.AccountMasters = response.data.account_list;
+           $scope.AccountMasters = response.data.listdata;
 		
             
 		
 			
        });
+	   //Menu
+	    $http.get('php/DyamicOperation.php?Query=select *  from vouchertype' ).then(function (response) {
+		
+           $scope.menulist = response.data.listdata;
+		
+            
+		
+			
+       });
+	   
 	   
 	   this.AddDirectRecord=function (TransactionDetails) 
 	   {
@@ -70,12 +133,14 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 	 //AddRecord
             this.AddRecord = function () {
 				
-                $scope.ModelButton = "Add";
-               vm.TempTrandetails = {};
-                vm.TempTrandetails.Srno = 0;
-				 vm.TempTrandetails.TranDetailsId=0;
+            $scope.ModelButton = "Add";
+            vm.TempTrandetails = {};
+            vm.TempTrandetails.Srno = 0;
+			vm.TempTrandetails.TranDetailsId=0;
+			vm.TempTrandetails.ItemMaster={};
+			vm.TempTrandetails.ItemMaster.QuantityTypeId=2;
+			
 
-                
 
             }
             //EditRecord
@@ -94,14 +159,24 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
             }
             //pushRecord
             this.PushRecord = function (formIndex) {
-				
-				vm.TempTrandetails.Quntity=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length);
-				vm.TempTrandetails.TotalQuntity=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length)*vm.TempTrandetails.Nos;
+				if(vm.TempTrandetails.ItemMaster.QuantityTypeId==2)
+				{
+				vm.TempTrandetails.Quantity=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length);
+				vm.TempTrandetails.TotalQuantity=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length)*vm.TempTrandetails.Nos;
 				vm.TempTrandetails.Amount=vm.countdata(vm.TempTrandetails.Height)*vm.countdata(vm.TempTrandetails.Length)*vm.TempTrandetails.Nos*vm.TempTrandetails.Rate;
+				}
+				else if(vm.TempTrandetails.ItemMaster.QuantityTypeId==1)
+				{
+					vm.TempTrandetails.Amount=vm.TempTrandetails.TotalQuantity*vm.TempTrandetails.Rate;
+				}
+				else
+				{
+				}
+				
 				if(formIndex==1)
 					 $('#myModal').modal('toggle');
 					else
-				 $('#myModalDirect').modal('toggle');
+$('#myModalDirect').modal('toggle');
 				
 				                if (vm.TempTrandetails.Srno == 0) {
 									
@@ -135,7 +210,8 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
                  vm.Total();
             }
 			this.SelectAccount = function () {
-				
+				vm.TempTrandetails.ItemMaster.QuantityTypeId=parseInt(vm.TempTrandetails.ItemMaster.QuantityTypeId);
+				console.log(vm.TempTrandetails.ItemMaster);
 				if(vm.TempTrandetails.TranDetailsId==0 ||  vm.TempTrandetails.Rate==0  || vm.TempTrandetails.Rate==undefined )
                 vm.TempTrandetails.Rate =vm.TempTrandetails.ItemMaster.SaleRate;
             }
@@ -185,13 +261,14 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
             }
 			
 			
-         this.addAccount = function (tempAccountMaster) {
+			
+			   this.addAccount = function (tempAccountMaster) {
         $http.post('php/accountmaster/insert.php', tempAccountMaster).then(function (response) {
             vm.msg = response.data.message;
             vm.alert_class = 'custom-alert';
             document.getElementById("create_account_info_frm").reset();
             $('#create_account_info_modal').modal('toggle');
-           $http.get('php/accountmaster/select.php' ).then(function (response) {
+           $http.get('php/accountmaster/select.php?page=0&search_input=' ).then(function (response) {
 		
            $scope.AccountMasters = response.data.account_list;
 		
@@ -203,7 +280,7 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 	
 	
         });
-    };
+};
 			this.countdata =function (a) 
 			{
 				
@@ -241,29 +318,10 @@ for(var index=indexend;index>=0;index--)
 	
 	return sum;
 }
-	/*
-	this.getAmount=function(indexend)
-{
-	var sum=0
-	var ItemMasterId=vm.tran.trandetails[indexend].ItemMasterId;
-	
-for(var index=indexend;index>=0;index--)
-	{
-		
-		if(ItemMasterId==vm.tran.trandetails[index].ItemMasterId)
-	sum=sum+parseFloat(vm.tran.trandetails[index].Amount);
-	else
-		break;
-	
-	}
-	
-	
-	return sum;
-}
-	*/
+
     this.search_data = function (search_input) {
 		
-        if (search_input.length > 0)
+        if (search_input.length >=0)
             vm.loadData(1);
 
     };
@@ -278,7 +336,7 @@ for(var index=indexend;index>=0;index--)
 		if(object==null)
 		{
 		
-			if(vm.tran.TranId>0)
+			if(vm.tran.TranId>=0)
 			vm.GetObject(vm.tran.TranId);
 		}
 	else
@@ -286,9 +344,9 @@ for(var index=indexend;index>=0;index--)
 		search_input=object.value;
 	
 		
-        $http.get('php/tran/select.php?page=' + page_number + '&search_input=' + search_input).then(function (response) {
+        $http.get(encodeURI("php/DyamicOperation.php?List=1&Sql=SELECT * FROM vwTranscation &TableName=vwTranscation&Page="+page_number+"&PageSize=10&OrderBy=TranId   desc&Search=AccountName like '%"+search_input+"%'")).then(function (response) {
 		
-            vm.tran_list = response.data.tran_list;
+            vm.tran_list = response.data.listdata;
 		
             $scope.total_row = response.data.total;
 		
@@ -370,8 +428,4 @@ for(var index=indexend;index>=0;index--)
 
 
 });
-
-
-
-
 
