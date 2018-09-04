@@ -11,7 +11,7 @@ myApp.controller('accountdetailsControl', function ($scope, $state, $http, $loca
        });
 	   console.log(vm.AccountMasterId);
 	   //AccountDetails
-	    $http.get(encodeURI('php/DyamicOperation.php?Query=select *,@balance:=@balance%2Bbal  as Balance from vwaccountdetails join (Select @balance:=0) x where AccountMasterId='+ vm.AccountMasterId.toString())).then(function (response) {
+	    $http.get('php/DyamicOperation.php?Query=select *,@balance:=@balance%2Bbal  as Balance from vwaccountdetails join (Select @balance:=0) x where AccountMasterId='+ vm.AccountMasterId.toString()).then(function (response) {
 		
            vm.AccountDetails= response.data.listdata;
 		
