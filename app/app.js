@@ -222,3 +222,122 @@ myApp.directive('exportToCsv',function(){
     	}
   	}
 });
+
+myApp.directive('myCustomer', function() {
+  return {
+    restrict: 'E',
+	 
+    scope: {
+      listdata: '=listdata'
+    },
+	link: function (scope, element, attrs) {
+  scope.rowIndex = -1;
+		scope.selectRow = function(index){
+			
+			 if(index == scope.rowIndex)
+        scope.rowIndex = -1;
+        else
+          scope.rowIndex = index;
+		}
+		
+		 scope.clicked = '';
+  scope.ShowContextMenu = function(){
+    alert('hello');
+  };
+  scope.edit = function() {
+    scope.clicked = 'edit was clicked';
+    console.log(scope.clicked);
+  };
+  
+  scope.properties = function() {
+    scope.clicked = 'properties was clicked';
+    console.log(scope.clicked);
+  };
+  
+  scope.link = function() {
+    scope.clicked = 'link was clicked';
+    console.log(scope.clicked);
+  };
+  
+  scope.delete = function() {
+    scope.clicked = 'delete was clicked';
+    console.log(scope.clicked);
+  };
+		
+		
+	},
+    templateUrl: 'templates/table.html'
+  };
+});
+
+
+
+
+ myApp.directive('cellHighlight', function() {
+    return {
+      restrict: 'C',
+      link: function postLink(scope, iElement, iAttrs) {
+        iElement.find('td')
+          .mouseover(function() {
+            $(this).parent('tr').css('opacity', '0.7');
+          }).mouseout(function() {
+            $(this).parent('tr').css('opacity', '1.0');
+          });
+      }
+    };
+  });
+  
+  myApp.directive('context', [
+
+    function() {
+      return {
+        restrict: 'A',
+        scope: '@&',
+        compile: function compile(tElement, tAttrs, transclude) {
+          return {
+            post: function postLink(scope, iElement, iAttrs, controller) {
+              var ul = $('#' + iAttrs.context),
+                last = null;
+
+              ul.css({
+                'display': 'none'
+              });
+              $(iElement).bind('contextmenu', function(event) {
+                event.preventDefault();
+                 ul.css({
+                  position: "fixed",
+                  display: "block",
+                  left: event.clientX + 'px',
+                  top: event.clientY + 'px'
+                });
+                last = event.timeStamp;
+              });
+              //$(iElement).click(function(event) {
+              //  ul.css({
+              //    position: "fixed",
+              //    display: "block",
+              //    left: event.clientX + 'px',
+              //    top: event.clientY + 'px'
+              //  });
+              //  last = event.timeStamp;
+              //});
+
+              $(document).click(function(event) {
+                var target = $(event.target);
+                if (!target.is(".popover") && !target.parents().is(".popover")) {
+                  if (last === event.timeStamp)
+                    return;
+                  ul.css({
+                    'display': 'none'
+                  });
+                }
+              });
+            }
+          };
+        }
+      };
+    }
+  ]);
+
+  
+  
