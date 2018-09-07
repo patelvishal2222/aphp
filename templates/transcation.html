@@ -145,6 +145,42 @@
 </div>
 </div>
 
+
+//start
+<table border=1 style="margin-top: 0px !important;">
+                            <thead>
+                                <tr>
+                                    <th ng-repeat="c in cols">{{c}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in data">
+                                    <td ng-repeat="(prop, value) in item" ng-init="isArr = isArray(value)">                                      
+                                        <table ng-if="isArr"  border=1>
+                                            <thead>
+                                                <tr>
+                                                    <td>
+                                                        <button ng-click="expanded = !expanded" expand>
+                                                            <span ng-bind="expanded ? '-' : '+'"></span>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th ng-repeat="(sh, sv) in value[0]">{{sh}}</th>
+                                                </tr>
+                                            </thead>                                           
+                                            <tbody>
+                                                <tr ng-repeat="sub in value" ng-show="expanded">
+                                                    <td  ng-repeat="(sk, sv) in sub">{{sv}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <span ng-if="!isArr">{{value}}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
 -->
 
  <my-customer listdata="tran_con.tran_list"></my-customer>
