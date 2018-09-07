@@ -1,0 +1,124 @@
+<style>
+success{
+  background-color:green;
+  }
+
+.warning{
+   background-color:yellow;
+  }
+
+.danger{
+  background-color:red;
+  }
+.bg-primary{
+ 
+   background-color:yellow;
+  }
+</style>
+<div class="col-lg-10">
+<table class="table" on-right-click="ShowContextMenu()" >
+            <thead>
+                <tr>
+             
+                    <th style="text-align:right">Bill No1</th>
+					
+					<th ng-click="sort('Bill Date')">Bill Date2
+								<span class="glyphicon sort-icon" ng-show="sortKey=='Bill Date'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+</th>
+					
+					<th>VoucherName
+					<span class="glyphicon sort-icon" ng-show="sortKey=='Bill Date'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+					</th>
+					<th>AccountName
+					<span class="glyphicon sort-icon" ng-show="sortKey=='Bill Date'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+					</th>
+					<th>Address
+					<span class="glyphicon sort-icon" ng-show="sortKey=='Bill Date'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+					</th>
+                    <th  class="text-right">Total
+					<span class="glyphicon sort-icon" ng-show="sortKey=='Bill Date'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+					</th>
+					 <th>Remarks
+					 <span class="glyphicon sort-icon" ng-show="sortKey=='Bill Date'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+					 </th>
+                    
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+          <!--orderBy:sortKey:reverse|filter:search
+		  ng-class="{'success': $index<= 0,'warning' :20<= $index,'danger' : 5<=$index,'bg-primary':rowIndex == $index }"
+		  -->
+		 
+                <tr ng-repeat="trn in listdata  "   ng-class="{'success':$index == rowIndex}" ng-click="selectRow($index)"   context="context1" >
+                   
+				   <td style="text-align:right">{{trn.BillNo}}</td>
+				   <td>{{trn.BillDate|  date:"dd-MMM-yyyy" }}</td>
+				   <td>{{trn.VoucherName}}</td>
+                    <td>{{trn.AccountName}}</td>
+                    <td>{{trn.Address}}</td>
+					<td style="text-align:right">{{trn.Total | number:2}}</td>
+					<td>{{trn.Remarks}}
+					
+					</td>
+                   
+                    
+                    
+                 
+                <td class="text-right">
+				    
+				
+			   
+			   
+			    <i ng-hide ="IsDelete" ng-click="tran_con.deleteObject(trn.TranId)" class="glyphicon glyphicon-trash"></i>
+				
+				
+				 <a ui-sref='{{trn.PrintTemplateName}}({VoucherTypeId:trn.VoucherTypeId,TranId:trn.TranId})' >
+				  <i class="glyphicon glyphicon-edit"></i><a/>
+				  <a ui-sref='{{trn.TemplateName}}({VoucherTypeId:trn.VoucherTypeId,TranId:trn.TranId})' >
+				    <i ng-click="ViewOrderDetail(obj)" class="glyphicon glyphicon-search"></i></a>
+                </td>
+                 <!--
+				  
+                     
+                  
+                     
+			   </a>
+
+
+-->
+                
+                      </tr>
+                    
+                    
+              
+                
+                
+                
+
+           </tbody>
+        </table>
+      <ul id="context1" class="dropdown-menu">
+      <li><a ng-click="edit()">Edit</a></li>
+      <li><a ng-click="link()">Link</a></li>
+      <li><a ng-click="delete()">Delete</a></li>
+      <li class="divider"></li>
+      <li><a ng-click="properties()">Properties</a></li>
+    </ul>
+    <ul id="context2" class="dropdown-menu">
+      <li><a ng-click="edit()">Edit</a></li>
+      <li class="divider"></li>
+      <li><a ng-click="properties()">Properties</a></li>
+    </ul>
+    <pre>clicked = {{clicked || json }}</pre>
+<div class="pull-right">
+
+    <pagination 
+      ng-model="currentPage"
+      total-items="total_row"
+      max-size="maxSize"  
+      boundary-links="true">
+    </pagination>
+</div>
+</div>
