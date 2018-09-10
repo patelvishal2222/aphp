@@ -228,9 +228,22 @@ myApp.directive('myCustomer', function() {
     restrict: 'E',
 	 
     scope: {
-      listdata: '=listdata'
+      listdata: '=listdata',
+	  deleteevent:'&deleteevent',
+	  editevent:'&',
+	  viewevent:'&',
     },
+	 
 	link: function (scope, element, attrs) {
+		
+		
+		scope.$watch('listdata', function(newVal,oldVal){
+   
+	  scope.listdata=newVal;
+      });
+	 
+	
+   
   scope.rowIndex = -1;
 		scope.selectRow = function(index){
 			
@@ -239,6 +252,22 @@ myApp.directive('myCustomer', function() {
         else
           scope.rowIndex = index;
 		}
+		
+		scope.deletedata=function(object,index){
+		  
+		  scope.deleteevent({object: object,index:index});
+	}
+		
+	
+	scope.editdata=function(object,index){
+		  scope.editevent({object: object,index:index});
+		
+	}
+	scope.viewdata=function(object,index){
+		
+		  scope.viewevent({object: object,index:index});
+	}
+	
 		
 		 scope.clicked = '';
   scope.ShowContextMenu = function(){
