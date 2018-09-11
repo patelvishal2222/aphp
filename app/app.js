@@ -1,4 +1,4 @@
-var myApp = angular.module('example_codeenable', ['ui.router', 'ui.bootstrap']);
+var myApp = angular.module('example_codeenable', ['ui.router', 'ui.bootstrap','angularjs-dropdown-multiselect']);
 
 myApp.config(function ($stateProvider, $locationProvider, $urlRouterProvider) {
 
@@ -225,18 +225,24 @@ myApp.directive('exportToCsv',function(){
 
 myApp.directive('myCustomer', function() {
   return {
-    restrict: 'E',
-	 
+    restrict: 'EA',
+	  transclude: true,
     scope: {
       listdata: '=listdata',
 	  deleteevent:'&deleteevent',
 	  editevent:'&',
-	  viewevent:'&',
+	  viewevent:'&'
+	
     },
 	 
 	link: function (scope, element, attrs) {
 		
-		
+		scope.sorting=function(data)
+		{
+		//scope.orderdata=data;
+			
+		}
+
 		scope.$watch('listdata', function(newVal,oldVal){
    
 	  scope.listdata=newVal;
@@ -368,5 +374,84 @@ myApp.directive('myCustomer', function() {
     }
   ]);
 
+  myApp.directive("sort", function() {
+return {
+    restrict: 'EA',
+    transclude: true,
+    template : 
+      '<a ng-click="onClick()">'+
+        '<span ng-transclude></span>'+ 
+        '<i class="glyphicon" ng-class="{\'glyphicon-sort-by-alphabet\' : order === by && !reverse,  \'glyphicon-sort-by-alphabet-alt\' : order===by && reverse}"></i>'+
+      '</a>',
+    scope: {
+	  sorting:'&',
+      order: '=',
+      by: '=',
+      reverse : '='
+	  
+    },
+    link: function(scope, element, attrs) {
+      scope.onClick = function () {
+		 
+        if( scope.order === scope.by ) {
+           scope.reverse = !scope.reverse 
+        } else {
+          scope.by = scope.order ;
+          scope.reverse = false; 
+        }
+		 
+		 scope.sorting({data:scope.by});
+	//	 console.log(scope.by);
+		 
+		// scope.$apply();
+		
+		scope.$watch('reverse', function(newVal,oldVal){
+   
+	  //scope.listdata=newVal;
+			//if(newVal)
+			scope.$parent.reverse= scope.reverse ;
+      });
+      }
+    }
+}
+});
   
   
+  myApp.directive("myEmployee", function() {
+
+		return {
+			scope:
+			{
+				role:"="
+			},
+			template: 'From Directive : <input type="text" ng-model="role">'
+		};
+	});
+  
+  
+  myApp.component('counter', {
+  bindings: {
+    count: '='
+  },
+  controller: function () {
+    function increment() {
+      this.count++;
+    }
+    function decrement() {
+      this.count--;
+    }
+    this.increment = increment;
+    this.decrement = decrement;
+  },
+  templateUrl: 'templates/counter.html'
+  /*
+  template: `
+    <div class="todo">
+      <input type="text" ng-model="$ctrl.count">
+      <button type="button" ng-click="$ctrl.decrement();">-</button>
+      <button type="button" ng-click="$ctrl.increment();">+</button>
+    </div>
+  `
+  */
+});
+   
