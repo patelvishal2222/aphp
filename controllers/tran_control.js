@@ -33,6 +33,9 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 	 vm.tran.VoucherTypeId=$stateParams.VoucherTypeId;
 	 vm.tran.TranDetailsIds="";
 	  vm.tran.BillDate=new Date();
+	 vm.example1data = [ {id: 1, name: "David"}, {id: 2, name: "Jhon"}, {id: 3, name: "Danny"} ];
+   vm.example1model = [];
+    vm.example8settings = { checkBoxes: true };
 	  
 	 if(vm.tran.VoucherTypeId==1)
 	 {
