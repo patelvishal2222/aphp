@@ -21,7 +21,7 @@ success{
 <table class="table" on-right-click="ShowContextMenu()" >
             <thead>
                 <tr>
-              <th ng-repeat="(key, value) in listdata[0]"   ng-hide=(key.endsWith('Id')) >
+              <th ng-repeat="(key, value) in listdata[0]"   ng-hide=(key.endsWith('Id'))  sort  by=listdata.orderdata reverse=listdata.reverse order=key sorting=sorting(data) >
 			  
 			  {{key}}
 			  </th>
@@ -35,7 +35,7 @@ success{
 		  ng-class="{'success': $index<= 0,'warning' :20<= $index,'danger' : 5<=$index,'bg-primary':rowIndex == $index }"
 		  -->
 		 
-                <tr ng-repeat="row in listdata  "   ng-class="{'success':$index == rowIndex}" ng-click="selectRow($index)"   context="context1" >
+                <tr ng-repeat="row in listdata| orderBy:listdata.orderdata:listdata.reverse"   ng-class="{'success':$index == rowIndex}" ng-click="selectRow($index)"   context="context1" >
                  
 					 <td ng-repeat="(key, value) in row"  ng-hide=(key.endsWith('Id')) >{{value}}</td>
                    
@@ -43,8 +43,9 @@ success{
                     
                  
                 <td class="text-right">
-				    
 				
+	
+ 
 			    <button  ng-click="deletedata(row,$index)" class="button button-red" type="button">
                                         <span class=" glyphicon glyphicon-trash"></span>
                                     </button>
@@ -53,7 +54,7 @@ success{
                                     </button>
 									<button  ng-click="viewdata(row,$index)" class="button button-purple" type="button">
                                         <span class=" glyphicon glyphicon-search"></span>
-            
+          
 				
                 </td>
                 
@@ -100,4 +101,6 @@ success{
       boundary-links="true">
     </pagination>
 </div>
+
+
 </div>
