@@ -17,7 +17,11 @@ success{
 </style>
 <div class="col-lg-10">
 
-
+<div class="row">
+	Search
+	 <input type=text ng-model=listdata.search  class="form control" />
+	 </div>
+<div class="row">
 <table class="table" on-right-click="ShowContextMenu()" >
             <thead>
                 <tr>
@@ -26,16 +30,22 @@ success{
 			  {{key}}
 			  </th>
                    
-                    <th class="text-right">Action</th>
+                    <th class="text-right">Action1</th>
                 </tr>
+				<tr>
+				 <th th ng-repeat="(key, value) in listdata[0]"   ng-hide=(key.endsWith('Id'))  >
+				 <input type="text" ng-model="listdata.record[key]" class="form control" placeholder="Enter {{key}}" />
+				 </th>
+				<th>
+				   
+				</th>
+				</tr>
             </thead>
             <tbody>
                 
-          <!--orderBy:sortKey:reverse|filter:search
-		  ng-class="{'success': $index<= 0,'warning' :20<= $index,'danger' : 5<=$index,'bg-primary':rowIndex == $index }"
-		  -->
+       
 		 
-                <tr ng-repeat="row in listdata| orderBy:listdata.orderdata:listdata.reverse"   ng-class="{'success':$index == rowIndex}" ng-click="selectRow($index)"   context="context1" >
+                <tr ng-repeat="row in listdata| filter:listdata.record| filter:listdata.search|orderBy:listdata.orderdata:listdata.reverse"   ng-class="{'success':$index == rowIndex}" ng-click="selectRow($index)"   context="context1" >
                  
 					 <td ng-repeat="(key, value) in row"  ng-hide=(key.endsWith('Id')) >{{value}}</td>
                    
@@ -77,6 +87,8 @@ success{
 
            </tbody>
         </table>
+		</div>
+		<div>
       <ul id="context1" class="dropdown-menu">
       <li><a ng-click="edit()">Edit</a></li>
       <li><a ng-click="link()">Link</a></li>
@@ -89,9 +101,12 @@ success{
       <li class="divider"></li>
       <li><a ng-click="properties()">Properties</a></li>
     </ul>
+</div>
+	<div class="row">
 	<div class="pull-left">  
     <button type="button" class="button button-purple mt-12 pull-right"  export-to-csv details=listdata >Export</button> 
 	</div>
+	
 <div class="pull-right">
 
     <pagination 
@@ -100,6 +115,7 @@ success{
       max-size="maxSize"  
       boundary-links="true">
     </pagination>
+</div>
 </div>
 
 
