@@ -18,6 +18,11 @@
 
         }
     });
+    
+       var str=object.TemplateName+"/"+object.VoucherTypeId+"/"+object.TranId;
+	   	console.log(str);
+	//	$location.path(str);
+	$state.go(object.TemplateName,({VoucherTypeId:object.VoucherTypeId,TranId:object.TranId}))
 	*/
 	
 myApp.controller('tran_control', function ($scope, $state, $http, $location,$stateParams) {
