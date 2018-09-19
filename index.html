@@ -24,11 +24,20 @@
   
   
   <script src="./app/app.js"></script>
+  <script src="./app/myCustomer.js"></script>
   <script src="./controllers/student_contrloer.js"></script>
   <script src="./controllers/item_control.js"></script>
   <script src="./controllers/account_control.js"></script>
   <script src="./controllers/tran_control.js"></script>
+  <script src="./controllers/accountdetailsControl.js"></script>
+  <script src="./controllers/itemdetailsControl.js"></script>
+  <script src="./controllers/unit_control.js"></script>
+  <script src="./controllers/master_control.js"></script>
+  <script src="./controllers/backup_control.js"></script>
   
+  
+  <script src="./jquery/pdfmake.min.js"></script>
+  <script src="./jquery/html2canvas.min.js"></script>
   
 </head>
 
@@ -48,12 +57,16 @@
                     <ul class="nav navbar-nav">
                     
                         <li class="active"><a ng-href=".">Home</a></li>
+						<li><a class="dropdown-item"  ng-href="master" >Master</a></li>
 						<li><a class="dropdown-item"  ng-href="account" >Account</a></li>
 						<li><a class="dropdown-item"  ng-href="item" >item</a></li>
-						<li><a class="dropdown-item"  ng-href="transcation" >transcation</a></li>
+						<li><a class="dropdown-item"  ng-href="unit" >unit</a></li>
+						<li><a class="dropdown-item"  ng-href="backup" >Backup</a></li>
+						
                     </ul>
 
                 </div>
+				
             </div>
         </nav>
 		
@@ -85,7 +98,7 @@
   </div>
 </nav>
 -->
-<div class="container " >
+<div class="container-fluid  " >
     <div class="row content">
 
           <div ui-view> .....</div>
