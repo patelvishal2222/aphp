@@ -10,8 +10,8 @@ myApp.controller('accountdetailsControl', function ($scope, $state, $http, $loca
 			
        });
 	   console.log(vm.AccountMasterId);
-	   //AccountDetails  if((@balance:=@balance%2Bbal)>0,concat(round(@balance,2),' Cr'),concat( round(@balance*-1,2),' Dr')) as Balance 
-	    $http.get("php/DyamicOperation.php?Query=select *, if((@balance:=@balance%2Bbal)>0,concat(round(@balance,2),' Cr'),concat( round(@balance*-1,2),' Dr')) as Balance from vwaccountdetails join (Select @balance:=0) x where AccountMasterId="+ vm.AccountMasterId.toString()).then(function (response) {
+	   //AccountDetails
+	     $http.get("php/DyamicOperation.php?Query=select *, if((@balance:=@balance%2Bbal)>0,concat(round(@balance,2),' Cr'),concat( round(@balance*-1,2),' Dr')) as Balance from vwaccountdetails join (Select @balance:=0) x where AccountMasterId="+ vm.AccountMasterId.toString()).then(function (response) {
 		
            vm.AccountDetails= response.data.listdata;
 		
