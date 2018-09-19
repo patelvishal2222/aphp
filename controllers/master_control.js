@@ -94,10 +94,7 @@ myApp.controller('master_control', function ($scope, $state, $http, $location,$f
 		  if(vm.LocationPath!='' && vm.LocationPath!=null )
 		  {
 			 
-		  //$location.path("master/itemdetails/9");
-		  var result = {'ItemMasterId':9};
-		  $state.transitionTo("/master.itemdetails",result,{   reload: true, inherit: false, notify: true});
-		 	//$state.reload();
+			 $location.path(vm.LocationPath+"/"+object[vm.MasterPrimaryKey].toString());
 			
 		   console.log($state.current);
 		  }
