@@ -1,8 +1,67 @@
-var myApp = angular.module('example_codeenable', ['ui.router', 'ui.bootstrap','angularjs-dropdown-multiselect']);
+var myApp = angular.module('example_codeenable', ['ui.router', 'ui.bootstrap']);
 
 myApp.config(function ($stateProvider, $locationProvider, $urlRouterProvider) {
 
     $urlRouterProvider.otherwise('/');
+	 $stateProvider
+            .state('/', {
+                url: '/',
+                templateUrl: 'templates/transcation.html',
+				controller: 'tran_control',
+				
+                  controllerAs: "tran_con",
+				  resolve: {
+                    'title': ['$rootScope', function ($rootScope) {
+                            $rootScope.title = "Transcation";
+                        }]
+                }
+
+            })
+			 $stateProvider
+            .state('/master', {
+                url: '/master',
+                templateUrl: 'templates/master.html',
+				controller: 'master_control',
+				
+                  controllerAs: "mas_con",
+				  resolve: {
+                    'title': ['$rootScope', function ($rootScope) {
+                            $rootScope.title = "Master";
+                        }]
+                }
+
+            })
+			
+			 $stateProvider
+			.state('/master.account', {
+            url: '/account',
+              templateUrl: 'templates/accountmaster.html',
+		  controller: 'account_control',
+             controllerAs: "acc_con"
+        })
+		$stateProvider
+			.state('/master.item', {
+            url: '/item',
+              
+		   templateUrl: 'templates/item.html',
+				 controller: 'item_control',
+                 controllerAs: "item_con"
+        })
+		
+			$stateProvider
+            .state('/backup', {
+                url: '/backup',
+                templateUrl: 'templates/backup.html',
+				controller: 'backup_control',
+				
+                  controllerAs: "back_con",
+				  resolve: {
+                    'title': ['$rootScope', function ($rootScope) {
+                            $rootScope.title = "backup";
+                        }]
+                }
+
+            })
 	
 	
     $stateProvider
@@ -32,20 +91,23 @@ myApp.config(function ($stateProvider, $locationProvider, $urlRouterProvider) {
                 }
 
             })
-			 $stateProvider
-            .state('/', {
-                url: '/',
-                templateUrl: 'templates/transcation.html',
-				controller: 'tran_control',
-				
-                  controllerAs: "tran_con",
-				  resolve: {
+			
+			
+			
+    $stateProvider
+            .state('unit', {
+                url: '/unit',
+                templateUrl: 'templates/unitmaster.html',
+                controller: 'unit_control',
+                 controllerAs: "uni_con",
+                 resolve: {
                     'title': ['$rootScope', function ($rootScope) {
-                            $rootScope.title = "Transcation";
+                            $rootScope.title = "Unit";
                         }]
                 }
 
             })
+			
 			 $stateProvider
             .state('/transcation', {
                 url: '/transcation',
@@ -130,6 +192,20 @@ myApp.config(function ($stateProvider, $locationProvider, $urlRouterProvider) {
                 
 
             })
+			$stateProvider
+            .state('CashPrint', {
+                url: '/CashPrint/:TranId',
+                templateUrl: 'templates/cashprint.html',
+				 controller: 'tran_control',
+				  controllerAs: "tran_con",
+				   resolve: {
+                    'title': ['$rootScope', function ($rootScope) {
+                            $rootScope.title = "InventaryView";
+                        }]
+                }
+                
+
+            })
 			
             $stateProvider
             .state('itemdetails', {
@@ -145,6 +221,25 @@ myApp.config(function ($stateProvider, $locationProvider, $urlRouterProvider) {
                 
 
             })
+			
+			$stateProvider
+			.state('/master.itemdetails', {
+            url: '/itemdetails/:ItemMasterId',
+              
+		   templateUrl: 'templates/itemdetails.html',
+				 controller: 'itemdetailsControl',
+                 controllerAs: "itemdet_con"
+        })
+			
+			$stateProvider
+			.state('/master.accountdetails', {
+            url: '/accountdetails/:AccountMasterId',
+              
+		   templateUrl: 'templates/accountdetails3.html',
+				 controller: 'accountdetailsControl',
+                 controllerAs: "accdet_con"
+        })
+			
 			$stateProvider
             .state('accountdetails', {
                 url: '/accountdetails/:AccountMasterId',
@@ -194,7 +289,9 @@ myApp.directive('exportToCsv',function(){
 				{
 	        		for (data in rowData) 
 					{
-						if(data!='$$hashKey')
+						if(data=='$$hashKey' ||  data.endsWith('Id') )
+							;
+							else
 	        			csvString = csvString + data+ ",";
 							
 	        		}
@@ -203,7 +300,9 @@ myApp.directive('exportToCsv',function(){
 				}
 						for (data in rowData) 
 					{
-						if(data!='$$hashKey')
+						if(data=='$$hashKey'  ||  data.endsWith('Id'))
+							;
+						else
 	        			csvString = csvString + rowData[data]+ ",";
 							
 	        		}
@@ -223,88 +322,242 @@ myApp.directive('exportToCsv',function(){
   	}
 });
 
-myApp.directive('myCustomer', function() {
-  return {
-    restrict: 'EA',
-	  transclude: true,
-    scope: {
-      listdata: '=listdata',
-	  deleteevent:'&deleteevent',
-	  editevent:'&',
-	  viewevent:'&'
-	
-    },
-	 
-	link: function (scope, element, attrs) {
-		
-		scope.sorting=function(data)
-		{
-		//scope.orderdata=data;
-			
-		}
 
-		scope.$watch('listdata', function(newVal,oldVal){
-   
-	  scope.listdata=newVal;
-      });
-	 
-	
-   
-  scope.rowIndex = -1;
-		scope.selectRow = function(index){
+myApp.directive('exportToExcel',function(){
+  	return {
+    	restrict: 'A',
+    	link: function (scope, element, attrs) {
+    		var el = element[0];
+			if(attrs.details){
+				scope.details = attrs.details;
+                
+				
+            }
+	        element.bind('click', function(e){
+				
+				
+	        	var table = e.target.nextElementSibling;
+				 scope.details = scope.$eval(attrs.details);
 			
-			 if(index == scope.rowIndex)
-        scope.rowIndex = -1;
-        else
-          scope.rowIndex = index;
-		}
-		
-		scope.deletedata=function(object,index){
-		  
-		  scope.deleteevent({object: object,index:index});
-	}
-		
-	
-	scope.editdata=function(object,index){
-		  scope.editevent({object: object,index:index});
-		
-	}
-	scope.viewdata=function(object,index){
-		
-		  scope.viewevent({object: object,index:index});
-	}
-	
-		
-		 scope.clicked = '';
-  scope.ShowContextMenu = function(){
-    alert('hello');
-  };
-  scope.edit = function() {
-    scope.clicked = 'edit was clicked';
-    console.log(scope.clicked);
-  };
-  
-  scope.properties = function() {
-    scope.clicked = 'properties was clicked';
-    console.log(scope.clicked);
-  };
-  
-  scope.link = function() {
-    scope.clicked = 'link was clicked';
-    console.log(scope.clicked);
-  };
-  
-  scope.delete = function() {
-    scope.clicked = 'delete was clicked';
-    console.log(scope.clicked);
-  };
-		
-		
-	},
-    templateUrl: 'templates/table.html'
-  };
+					var csvString = '<table >';
+						
+	        	for(var i=0; i<scope.details.length;i++){
+	        		var rowData =  scope.details[i];
+					
+				if(i==0)
+				{
+					csvString = csvString + "<tr>";
+	        		for (data in rowData) 
+					{
+						if(data=='$$hashKey'  ||  data.endsWith('Id'))
+							;
+						else
+	        			csvString = csvString +"<td>"+data+ " </td>";
+							
+	        		}
+					
+	        		csvString = csvString + "</tr>";
+				}
+				csvString = csvString + "<tr>";
+						for (data in rowData) 
+					{
+						if(data=='$$hashKey'  ||  data.endsWith('Id'))
+							;
+						else
+	        			csvString = csvString +"<td> " +rowData[data]+ " </td>";
+							
+	        		}
+	        		
+	        		csvString = csvString + " </tr>";
+			    }
+	         	
+				csvString=csvString+"</table>";
+				
+				
+					
+                       
+                        var fileName = 'report.xls'                            
+                        var exceldata = new Blob([csvString], { type: "application/vnd.ms-excel;charset=utf-8" }) 
+
+                        if (window.navigator.msSaveBlob) { // IE 10+
+                            window.navigator.msSaveOrOpenBlob(exceldata, fileName);
+                            //$scope.DataNullEventDetails = true;
+                        } else {
+                            var link = document.createElement('a'); //create link download file
+                            link.href = window.URL.createObjectURL(exceldata); // set url for link download
+                            link.setAttribute('download', fileName); //set attribute for link created
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+							
+							
+                        }   
+						
+						
+	        });
+    	}
+  	}
 });
 
+myApp.directive('exportToJson',function(){
+  	return {
+    	restrict: 'A',
+    	link: function (scope, element, attrs) {
+    		var el = element[0];
+			if(attrs.details){
+				scope.details = attrs.details;
+                
+				
+            }
+	        element.bind('click', function(e){
+					var table = e.target.nextElementSibling;
+				 scope.details = scope.$eval(attrs.details);
+				var data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(scope.details));
+	console.log(data);
+            var downloader = document.createElement('a');
+
+            downloader.setAttribute('href', data);
+            downloader.setAttribute('download', 'file.json');
+			document.body.appendChild(downloader);
+			downloader.click();
+			document.body.removeChild(downloader);
+				
+	        
+			
+				
+						
+						
+			 });
+		}
+    	
+  	}
+});
+
+
+myApp.directive('exportToXml',function(){
+  	return {
+    	restrict: 'A',
+    	link: function (scope, element, attrs) {
+    		var el = element[0];
+			if(attrs.details){
+				scope.details = attrs.details;
+                
+				
+            }
+	        element.bind('click', function(e){
+				
+				
+					
+	function objectToXml(obj) {
+        var xml = '';
+
+        for (var prop in obj) {
+            if (!obj.hasOwnProperty(prop)) {
+                continue;
+            }
+
+            if (obj[prop] == undefined)
+                continue;
+
+            xml += "<" + prop + ">";
+            if (typeof obj[prop] == "object")
+                xml += objectToXml(new Object(obj[prop]));
+            else
+                xml += obj[prop];
+
+            xml += "<!--" + prop + "-->";
+        }
+
+        return xml;
+    }
+					var table = e.target.nextElementSibling;
+				 scope.details = scope.$eval(attrs.details);
+			 var data= encodeURIComponent(objectToXml( scope.details));
+	var data = "data:text/xml;charset=utf-8," +data;
+	console.log(data);
+            var downloader = document.createElement('a');
+
+            downloader.setAttribute('href', data);
+            downloader.setAttribute('download', 'file.xml');
+			document.body.appendChild(downloader);
+			downloader.click();
+			document.body.removeChild(downloader);
+				
+	        
+			
+				
+						
+						
+			 });
+		}
+    	
+  	}
+});
+
+
+myApp.directive('exportToPrint',function(){
+  	return {
+    	restrict: 'A',
+    	link: function (scope, element, attrs) {
+    		var el = element[0];
+			if(attrs.details){
+				//scope.details = attrs.details;
+                
+				
+            }
+	        element.bind('click', function(e){
+				
+					  var printContents= document.getElementById(attrs.details);
+ var popupWin = window.open('', '_blank', 'width=600,height=600,scrollbars=no,menubar=no,toolbar=no,location=no,status=no,titlebar=no');
+ popupWin.window.focus();
+    popupWin.document.write('<!DOCTYPE html><html><head>' +
+                       '<link rel="stylesheet" type="text/css" href="style.css" />' +
+					    
+   
+
+                       '</head><body onload="window.print()"><div class="reward-body"><div style="height:70px"></div>' + printContents.outerHTML + '</div></html>');
+			   
+	popupWin.print();
+	popupWin.close();
+	        	
+						
+	        });
+    	}
+  	}
+});
+
+myApp.directive('exportToPdf',function(){
+  	return {
+    	restrict: 'A',
+    	link: function (scope, element, attrs) {
+    		var el = element[0];
+			if(attrs.details){
+				//scope.details = attrs.details;
+                
+				
+            }
+			  element.bind('click', function(e){
+			
+	        html2canvas(document.getElementById('printdata'), {
+            onrendered: function (canvas) {
+                var data = canvas.toDataURL();
+                var docDefinition = {
+                    content: [{
+                        image: data,
+                        width: 500,
+                    }]
+                };
+                pdfMake.createPdf(docDefinition).download("test.pdf");
+            }
+ 
+			 });
+ 
+	        	
+						
+	        });
+    	}
+  	}
+});
 
 
 
@@ -372,9 +625,10 @@ myApp.directive('myCustomer', function() {
         }
       };
     }
-  ]);
+]);
 
-  myApp.directive("sort", function() {
+
+ myApp.directive("sort", function() {
 return {
     restrict: 'EA',
     transclude: true,
@@ -400,7 +654,7 @@ return {
           scope.reverse = false; 
         }
 		 
-		 scope.sorting({data:scope.by});
+		// scope.sorting({data:scope.by});
 	//	 console.log(scope.by);
 		 
 		// scope.$apply();
@@ -409,49 +663,107 @@ return {
    
 	  //scope.listdata=newVal;
 			//if(newVal)
-			scope.$parent.reverse= scope.reverse ;
+			//scope.$parent.reverse= scope.reverse ;
       });
       }
     }
 }
 });
-  
-  
-  myApp.directive("myEmployee", function() {
 
-		return {
-			scope:
-			{
-				role:"="
-			},
-			template: 'From Directive : <input type="text" ng-model="role">'
-		};
+myApp.directive('masterForm', function() {
+	return {
+    restrict: 'EA',
+	  
+    scope: {
+		title:"=",
+      datamodel: '=',
+	  formfields:'=',
+	  insertupdate:'&',
+	  showform:'=',
+	  hideform:'='
+	 },
+	link: function (scope, element, attrs) {
+  
+		scope.$watch('showform', function(newVal,oldVal){
+		$('#formmodel').modal({ show: 'true'});
 	});
-  
-  
-  myApp.component('counter', {
-  bindings: {
-    count: '='
-  },
-  controller: function () {
-    function increment() {
-      this.count++;
-    }
-    function decrement() {
-      this.count--;
-    }
-    this.increment = increment;
-    this.decrement = decrement;
-  },
-  templateUrl: 'templates/counter.html'
-  /*
-  template: `
-    <div class="todo">
-      <input type="text" ng-model="$ctrl.count">
-      <button type="button" ng-click="$ctrl.decrement();">-</button>
-      <button type="button" ng-click="$ctrl.increment();">+</button>
-    </div>
-  `
-  */
+	scope.$watch('hideform', function(newVal,oldVal){
+   	$('#formmodel').modal('toggle');
+	});
+	},
+    templateUrl: 'templates/masterform.html'
+  };
 });
-   
+
+
+myApp.directive('downloadAsExcel', function($compile, $sce, $templateRequest) {
+  return {
+    restrict: 'E',
+    scope: {
+      template: '@',
+      object: '='
+    },
+    replace: true,
+    template: '<a class="xls">Download as Excel</a>',
+    link: function(scope, element, attrs) {
+      var contentType = 'data:application/vnd.ms-excel;base64';
+      var htmlS = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" ><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{sheetname}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>{table}</body></html>';
+      var format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) };
+      
+      var blobbed = function(data) {
+        var blob = new Blob([format(htmlS, data)], { type: contentType });
+        var blobURL = window.URL.createObjectURL(blob);
+        if (blobURL) {
+          element.attr('href', blobURL);
+          element.attr('download', data['name']);
+        }
+      };
+      
+      scope.$watch('object', function(nv, ov) {
+        var tUrl = $sce.getTrustedResourceUrl(scope.template);
+console.log(tUrl);
+        $templateRequest(tUrl)
+        .then(function(tmpl) {
+          var t = $('<div/>').append($compile(tmpl)(scope));
+		
+          setTimeout(function() {
+            scope.$apply();
+            blobbed({ 
+              sheetname: attrs.sheetname, 
+              name: attrs.xlname, 
+              table: t.html()
+            });
+          }, 100);
+        });
+      }, true);
+    }
+  };
+})
+
+/*
+
+myApp.directive('myTag', ['$http', function($http) {
+return {
+    restrict: 'E',
+    transclude: true,
+    replace: true,     
+    scope:{
+        src:"="       
+    },
+    controller:function($scope){
+        console.info("enter directive controller");
+        $scope.gallery = [];
+
+    console.log($scope.src);
+
+        $http({method: 'GET', url:$scope.src}).then(function (result) {
+                           console.log(result);                              
+                        }, function (result) {
+                            alert("Error: No data returned");
+                        });
+    }
+}
+}]);
+*/
+
+
