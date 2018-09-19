@@ -1,0 +1,91 @@
+ <div   >
+ <div  class="modal fade" id="formmodel"     role="dialog">
+ <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{{title}}</h4>
+        </div>
+        <div class="modal-body">
+                    
+
+    <form name="myForm" ng-submit=insertupdate() >
+	
+            <div class="form-group" ng-repeat="field in formfields">
+			
+                <div ng-if="field.type=='hideen'">
+
+				  <input   ng-model=datamodel[field.value]
+				  type="hidden" />
+                    
+                </div>
+                <div ng-if="field.type=='text'  || field.type=='email' || field.type=='password'">
+				
+				{{field.name}}
+                    <input class="form-control"
+                           dynamic-name="field.name"
+                           type="{{ field.type }}"
+                           
+                           ng-model=datamodel[field.value]
+                           required=field.required />
+
+                </div>
+                <div ng-if="field.type=='checkbox'">
+                    <input ng-repeat="choice in field.choices"
+                           type="checkbox"
+                           dynamic-name="field.name"
+                           ng-value="choice.name" />
+
+                </div>
+                <div ng-if="field.type=='textarea'">
+
+                    <textarea row="50"></textarea>
+                </div>
+				 <div ng-if="field.type=='comBoboxFix'">
+				{{field.name}}
+                 <select class="form-control" 
+				 ng-model=datamodel[field.value]
+				dynamic-name="field.name"
+				 required=field.required >
+                    <option value="" selected>Select</option>
+                    <option value="1" >TotalQuantity</option>
+                    <option value="2" >Lenth and Heigth</option>
+                </select>
+                </div>
+                <div ng-if="field.type=='comBobox'">
+
+                    <select>
+                        <option ng-repeat="v in field.value" value={{v.name}}>{{v.name}}</option>
+                    </select>
+                </div>
+                <div ng-if="field.type=='table'">
+                    <div>
+                        <button ng-click="AddRecord()">Add</button>
+                    </div>
+                    <div>
+                        <table border="1">
+                            <tr>
+                                <th ng-repeat="col  in field.Columns">{{col.name}} </th>
+                                <th> </th>
+                                <th> </th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+          <div class="form-group mb-50">
+            <input type="submit" class="button button-green  pull-right"  value="Submit"/>
+                </div>
+</form>
+            
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div> 
+  <div>

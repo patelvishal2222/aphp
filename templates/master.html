@@ -1,0 +1,61 @@
+<style>
+.vertical-menu {
+    width: 200px;
+}
+.vertical-menu a {
+    background-color: #eee;
+    color: black;
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+}
+.vertical-menu a:hover {
+    background-color: #ccc;
+}
+.vertical-menu a.active {
+    background-color: #4CAF50;
+    color: white;
+}
+</style>
+
+<div class="col-lg-2">
+
+           <div class="vertical-menu" ng-repeat="master in mas_con.master">
+		
+		  
+		   <a ui-sref='#'  ng-click="mas_con.selectmaster(master)"  >{{master.MasterName}}</a> 
+		   
+		
+		
+		  
+
+        </div>
+</div>
+<div class="col-lg-10">
+
+<div  ng-show='mas_con.HyperLink==0' >
+<div  class="row"   >
+
+ <master-Form title=mas_con.title datamodel=mas_con.dbdata[mas_con.MasterTableName] insertupdate=mas_con.InsertUpdate() showform=mas_con.showform  hideform=mas_con.hideform  formfields=mas_con.formFields  ></master-Form>
+   
+
+
+</div>
+
+<div  class="row" >
+<my-customer title=mas_con.title listdata="mas_con.listdata"  addmode="mas_con.addmode()"  editmode="mas_con.editmode(object,index)" deletemode="mas_con.deletemode(object,index)"   doubleclick1="mas_con.doubleclick(object,index)"  ></my-customer>
+
+</div>
+</div>
+
+
+<div class="container-fluid " ng-show="mas_con.HyperLink=='1'"   >
+    <div class="row content">
+
+          <div ui-view> .....</div>
+           </div>
+
+</div>
+
+
+</div>

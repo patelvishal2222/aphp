@@ -1,0 +1,36 @@
+<table class="table" id=PrintData  >
+            <thead>
+                <tr >
+             
+                    <th  ng-repeat="(key,value) in listdata[0]"  >
+					{{key}}
+					</th>
+                    
+                    
+                </tr>
+            </thead>
+            <tbody>
+                
+         
+		  
+		   <tr ng-repeat="row in listdata"  >
+						
+                                <td ng-repeat="(key,value) in row" >
+								
+                                    {{value}}
+								</td>
+			
+                </tr >
+                   
+				  
+                    
+                    
+               
+                    
+              
+                
+                
+                
+
+           </tbody>
+        </table>
