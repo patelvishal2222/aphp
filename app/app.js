@@ -1,3 +1,34 @@
+/*
+$stateProvider
+			.state('master.itemdetails', {
+            url: '/itemdetails/:ItemMasterId',
+              
+				  views: {
+			'@master': {
+		   templateUrl: 'templates/master.itemdetails.html',
+				 controller: 'itemdetailsControl',
+                 controllerAs: "itemdet_con"
+			}
+				  }
+        })
+		
+			
+			$stateProvider
+			.state('master.accountdetails', {
+            url: '/accountdetails/:AccountMasterId',
+               views: {
+			'@master': {
+		   templateUrl: 'templates/accountdetails3.html',
+				 controller: 'accountdetailsControl',
+                 controllerAs: "accdet_con"
+			}
+			   }
+        })
+
+
+*/
+
+
 var myApp = angular.module('example_codeenable', ['ui.router', 'ui.bootstrap']);
 
 myApp.config(function ($stateProvider, $locationProvider, $urlRouterProvider) {
