@@ -54,7 +54,19 @@
                     <option value="2" >Lenth and Heigth</option>
                 </select>
                 </div>
-                <div ng-if="field.type=='comBobox'">
+		     <div ng-if="field.type=='ComboBox'">
+				{{field.name}}
+				<!--ng-options="y.GroupName for (x,y) in GroupMasters track by y.GroupMasterId "-->
+				<div  ng-init="getData(field.Query,field.TableName )" >
+				 <select required class="form-control" data-ng-model="datamodel[field.TableName]"
+                                            ng-options="{{field.ComboQuery}}"
+											
+                                            >
+												 <option value="">{{field.ValidationMessage}}</option> 
+											</select>
+                </div>
+                </div>
+                <div ng-if="field.type=='comBoboxdata'">
 
                     <select>
                         <option ng-repeat="v in field.value" value={{v.name}}>{{v.name}}</option>
