@@ -127,12 +127,31 @@ myApp.controller('master_control', function ($scope, $state, $http, $location,$f
             vm.msg = response.data.message;
             vm.alert_class = 'custom-alert';
            vm.load();
+					vm.Index=vm.findIndex(vm.listdata ,vm.MasterPrimaryKey ,object[ vm.MasterPrimaryKey])
+		   console.log(vm.Index);
+		   if(vm.Index>=0)
+		   vm.listdata.splice(vm.Index, 1);  
         });
 				}
 	 }
 	 
 	
-	  
+	  	vm.findIndex=function (arraydata,PrimaryKey,PrimaryKeyValue)
+		{
+			var index=-1;
+			var ans=-1;
+			angular.forEach(arraydata,function(object)
+			{
+				index++;
+				  console.log(object[vm.MasterPrimaryKey]+"   "+PrimaryKeyValue+  "   "+(object[vm.MasterPrimaryKey].toString()==PrimaryKeyValue.toString()) );
+				if(object[vm.MasterPrimaryKey].toString()==PrimaryKeyValue.toString())
+					ans=index;
+				
+			});
+			  
+			  return ans;
+			 
+		}
 	
 	
 	});
