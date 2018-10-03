@@ -1,4 +1,5 @@
 //Reference File app.js
+//https://stackoverflow.com/questions/24248098/angularjs-dynamic-form-from-json-data-different-types
 myApp.controller('student_contrloer', function ($scope, $state, $http, $location) {
     var vm = this;
 		vm.dbdata={};
