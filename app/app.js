@@ -1,4 +1,5 @@
 /*
+https://github.com/justechn/angular-barcode/blob/master/examples/index.html
 $stateProvider
 			.state('master.itemdetails', {
             url: '/itemdetails/:ItemMasterId',
