@@ -1,5 +1,5 @@
 
-<html lang="en" ng-app="example_codeenable">
+<html lang="en" ng-app="DeluxSystem">
 <head>
 
    <title ng-bind-template="Delux Account | {{title}}"></title>
@@ -13,31 +13,45 @@
 
 
   <link rel="stylesheet" href="./css/bootstrap.min.css">
-  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./css/style.css">
   
 <script src="./jquery/jquery.min.js"></script>
 <script src="./jquery/bootstrap.min.js"></script>
   <script src="./jquery/angular.js"></script>
   <script src="./jquery/angular-ui-router.js"></script>
+  <script src="./jquery/pdfmake.min.js"></script>
+  <script src="./jquery/html2canvas.min.js"></script>
     <script data-require="ui-bootstrap@*" data-semver="0.12.1" src="./jquery/ui-bootstrap-tpls-0.12.1.min.js"></script>
 
-  
+  <script src="./delux/js/masterMind.js"></script>
   
   <script src="./app/app.js"></script>
-  <script src="./app/myCustomer.js"></script>
-  <script src="./controllers/student_contrloer.js"></script>
-  <script src="./controllers/item_control.js"></script>
-  <script src="./controllers/account_control.js"></script>
+  
+  
+  
+ 
+   
+   
+  
+  
+  <script src="./controllers/tran_control.js"></script>
+  <script src="./controllers/TranDyamic_Control.js"></script>
+  
+  
   <script src="./controllers/tran_control.js"></script>
   <script src="./controllers/accountdetailsControl.js"></script>
   <script src="./controllers/itemdetailsControl.js"></script>
   <script src="./controllers/unit_control.js"></script>
   <script src="./controllers/master_control.js"></script>
+  <script src="./controllers/report_control.js"></script>
   <script src="./controllers/backup_control.js"></script>
   
   
-  <script src="./jquery/pdfmake.min.js"></script>
-  <script src="./jquery/html2canvas.min.js"></script>
+  
+  
+  
+  
+  
   
 </head>
 
@@ -57,10 +71,10 @@
                     <ul class="nav navbar-nav">
                     
                         <li class="active"><a ng-href=".">Home</a></li>
-						<li><a class="dropdown-item"  ng-href="master" >Master</a></li>
-						<li><a class="dropdown-item"  ng-href="account" >Account</a></li>
-						<li><a class="dropdown-item"  ng-href="item" >item</a></li>
-						<li><a class="dropdown-item"  ng-href="unit" >unit</a></li>
+						<li><a class="dropdown-item"  ng-href="delux/0" >Master</a></li>
+						
+						
+						<!--<li><a class="dropdown-item"  ng-href="Report" >Report</a></li>-->
 						<li><a class="dropdown-item"  ng-href="backup" >Backup</a></li>
 						
                     </ul>
@@ -111,7 +125,7 @@
 
 
 <footer class="container-fluid text-center">
-<p>delux Account System</p>
+<p>Delux Account System Version 1.0.0.3 </p>
 </footer>
 
 
