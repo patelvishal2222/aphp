@@ -1,0 +1,53 @@
+ 
+ <div class="table table-responsive">
+                    <table class="table table-bordered">
+                        <tr style="background-color:#428bca"      >
+						<th   ng-repeat="tabledata in $ctrl.formfields" >
+						  <div  data-ng-if="tabledata.Caption!=null">
+						  {{tabledata.Caption}}
+						  </div>
+						  <div  data-ng-if="tabledata.Caption==null">
+						  {{tabledata.ColumnName}}
+						  </div>
+						</th>
+                          
+                            <th></th>
+                            <th></th>
+                        </tr>
+
+                        <tr ng-repeat="datarow  in $ctrl.datamodel ">
+						<div >
+						<td  ng-repeat="tabledata in $ctrl.formfields"  >
+						<div ng-if="tabledata.type=='subtype'">
+						  {{datarow[tabledata.ColumnName][tabledata.SubName]}}
+						
+						</div>
+						<div ng-if="tabledata.type=='number'"  style="text-align:right"  >
+						  {{datarow[tabledata.ColumnName] }}
+						
+						</div>
+						<div ng-if="tabledata.type=='number2'"  style="text-align:right"  >
+						  {{datarow[tabledata.ColumnName] | number:2}}
+						
+						</div>
+						
+						 <div ng-if="tabledata.type==null">
+						  {{datarow[tabledata.ColumnName]}}
+						  </div>
+						</td>
+						</div>
+                          
+                            <td><input type="Button" value="Edit" ng-click="$ctrl.editrecord({object:datarow,index:$index})"  /> </td>
+                            <td><input type="Button" value="Delete" ng-click="$ctrl.deleterecord({object:datarow,index:$index})" /> </td>
+
+                        </tr>
+						<tfoot>
+							<tr>
+							<td colspan={{$ctrl.formfields.length-1}} style="text-align:center" >Total</td>
+							<td style="text-align:right" > {{$ctrl.datamodel |  arraysum :"Amount"| number:2}} </td>
+							<td></td>
+							<td></td>
+							</tr>
+						</tfoot>
+                    </table>
+                </div>
