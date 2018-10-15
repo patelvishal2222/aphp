@@ -49,55 +49,14 @@
         type: 'text',
 		value:'Remarks'
     },
-	
-	 ],
+	{
+        name: 'Total',
+        type: 'text',
+		value:'Total'
+    }
+	 ]
 	 
-	 TransctionModel:[
-	{
-        name: 'Item Name',
-        type: 'ComboBox',
-		value:'VirtualItemMaster',
-		TableName:'ItemMaster',
-		Query:"select *  from ItemMaster",
-	   ComboQuery :"y.ItemName for (x,y) in ItemMaster track by y.ItemMasterId",
-	   ValidationMessage:"Select Item Name",
-	   selectvalue:"Rate,PurRate"
-		
-    }
-	,
-	{
-        name: 'TotalQuantity',
-        type: 'text',
-		value:'TotalQuantity',
-		
-		operation:'Nos*Quantity'
-		
-    },
-	
-	{
-        name: 'Rate',
-        type: 'text',
-		value:'Rate',
-		onchange:'Amount=Rate*TotalQuantity'
-    }
-	,
-	{
-        name: 'Amount',
-        type: 'label',
-		value:'Amount',
-		operation:'TotalQuantity*Rate'
-		
-    }
-	],
-	TransctionTable:[
-{ColumnName:'Srno',Caption: 'SrNo'},
-{ColumnName:'VirtualItemMaster',Caption: 'ItemName',SubName:'ItemName' ,type:'subtype'},
-
-{ColumnName:'TotalQuantity',Caption: 'TotalQuantity',type:'number2'},
-{ColumnName:'Rate',Caption: 'Rate',type:'number2'},
-{ColumnName:'Amount',Caption: 'Amount',type:'number2'}	
-
-]
+	 
 	 
 }
 	 ;
