@@ -1,11 +1,465 @@
-
 <?php
 
-include 'DyamicClass.php';
-include 'DataBaseLayer.php';
+ class Database
+{
+	
+	    //public $conn;
+		public $servername = "localhost";
+   public $dbname = "account";
+ public   $username = "root";
+   public $password = "root";
+
+}
+
+class DyamicClass  extends Database
+	{
+		
+	
+    function __construct() {
+
+  
+    
+
+    // Create connection
+    $conn = new mysqli($this->servername, $this->username, $this->password, $this->dbname);
+    // Check connection
+      if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+       }else{
+        $this->conn=$conn;
+       }
+
+    }
+	
+	public function getForeginkeyQuery($TableName)
+	{
+		$Query="SELECT  COLUMN_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME  FROM information_schema.KEY_COLUMN_USAGE   where  TABLE_NAME='$TableName'  and  table_schema='$this->dbname' and REFERENCED_COLUMN_NAME is not null";
+		return $Query;
+	}
+	public function getPrimaryKey($TableName)
+	{
+	$Query="SELECT * FROM information_schema.KEY_COLUMN_USAGE where  CONSTRAINT_name='PRIMARY' and CONSTRAINT_schema='$this->dbname' and table_Name='$TableName'";
+		return $Query;
+	}
+	 
+	  public function getQuery($Query){
+       
+//echo "getQuery<br/>";
+       $Result=  $this->conn->query($Query);
+	  
+       $listdata=array();
+	   if($Result)
+	   { 
+				$rows=array();
+				while( $row=$Result->fetch_assoc())
+				{
+					$rows[]=$row;
+					
+					
+				}
+		return $rows;
+	   }
+	   else
+	   {
+		   echo "Error";
+		   return "";
+	   }
+	   
+	   
+	  }
+       
+      
+	   
+	   public  function getList($rows)
+	   {
+		    $listdata=array();
+		
+		
+          $listdata['listdata']= $rows;
+     
+	   
+	   
+
+    return $listdata;
+    }
+	
+	public function getValue($Query)
+	{
+		
+		
+    $Result=  $this->conn->query($Query);
+	
+    $value = mysqli_fetch_row($Result);
+	return $value;
+    
+	}
+	
+
+	
+	public function executeQuery($Query)
+	{
+		$Result=  $this->conn->query($Query);
+      
+	   if($Result)
+	   
+			return true;
+			else
+			{
+				$this->conn->rollback();
+				return "Error ".$Query;
+			}
+			
+				
+	}
+	public function beginTran()
+	{
+	
+		$this->conn->autocommit(false);
+	}
+	public function commit()
+	{
+		
+		 $this->conn->commit();
+	}
+
+	public function  backupdb()
+	{
+		$date_string   = date("Y-m-d-H-i-s");
+		       //C:\Program Files\MySQL\MySQL Workbench SE 6.1.6
+		$cmd = "C:\Program Files\MySQL\MySQL Workbench SE 6.1.6\mysqldump   -h {$this->servername} -u {$this->username} -p {$this->password} {$this->dbname} > " . 'h:\\'.$this->dbname . '_'.$date_string.'.sql';
+			  echo $cmd.'<br/>';
+   
+   exec($cmd);
+   echo "Backup Sucessfully";
+   
+  
+				
+	}
+	
+	
+		
+		 function __destruct() {
+    mysqli_close($this->conn);
+    }
+	
+	
+	
 
 
-	$request_method=$_SERVER["REQUEST_METHOD"];
+
+
+
+		
+	}
+
+//DataLayer
+
+	function getTableValue($TableName,$PrimaryKey,$PrimaryValue,$MasterTable)
+	{
+		
+				$Query="Select *  FROM $TableName WHERE $PrimaryKey=$PrimaryValue";
+				//echo $Query;
+				$obj=new DyamicClass();
+				
+				$rows=$obj->getQuery($Query);
+				
+				//echo $Query;
+				$Query=$obj->getForeginkeyQuery($TableName);
+				$ForeginKeyTables=$obj->getQuery($Query);
+				
+					
+					for($index=0;$index<count($rows);$index++)
+					{
+				foreach(  $ForeginKeyTables as $fktable )
+				{
+					//echo json_encode($fktable);
+					$FkName=$fktable["COLUMN_NAME"];
+					
+					$FkData=$rows[$index][$fktable["COLUMN_NAME"]];;
+					 $inMaster=false;
+					if(count( $MasterTable)>0)
+					{
+						
+							if(in_array(   $fktable["REFERENCED_TABLE_NAME"],$MasterTable))
+							$inMaster=true;
+							
+					//echo "check  ".in_array(   $fktable[REFERENCED_TABLE_NAME],$MasterTable)." -->  ".  $fktable[REFERENCED_TABLE_NAME] ." --> ".json_encode($MasterTable)."-->".$inMaster.  "<br/>";
+					
+					
+					}
+					if( $FkData!=null  &&   $inMaster==false )
+					{
+  				$Query="select  *  from $fktable[REFERENCED_TABLE_NAME]  where $fktable[REFERENCED_COLUMN_NAME] =$FkData;";
+			
+				$FkTableData=$obj->getQuery($Query);
+				unset($rows[$index][$FkName]);
+				$rows[$index]["Virtual".substr($FkName,0,-2)]=$FkTableData[0];
+					}
+				
+			   }
+					}
+			   return $rows;
+			   
+	}
+	
+	  function InsertUpdate($tb,$data,&$DetailTable)
+	{
+		$f="";
+		$v="";
+		$fv="";
+		$PrimaryKey=$tb.'Id';
+		$PrimaryKey=GetPrimaryKey($tb);
+		
+		$PrimaryKeyValue=0;
+		
+		foreach( $data as $key=>$value){
+			
+				
+				if($key==$PrimaryKey)
+				{
+					$PrimaryKeyValue=$value;
+				}
+				
+				
+				else if(isfield($key,$tb)  &&  !$data[substr($key,0,-2)])
+				{
+					if(isset($value)  && trim($value)!="" )
+					{
+					$f=$f.$key.",";
+					if($key=='BillDate')
+					{
+						$value=substr($value,0,strpos($value,"T"));
+							$v=$v."'".$value."',";
+					$fv=$fv.$key."='".$value."',";
+					}
+					else{
+					$v=$v."'".$value."',";
+					$fv=$fv.$key."='".$value."',";
+					}
+					}
+				}
+				else if(isVirtualTable($key))
+				{
+				
+			   $VirtualTable=substr($key,7);
+					//echo "VirtualTable=>$VirtualTable <br/>";
+				
+			    $f=$f.$VirtualTable."Id,";
+				$v=$v."'".$value[$VirtualTable."Id"]."',";
+				$fv=$fv.$VirtualTable."Id='".$value[$VirtualTable."Id"]."',";
+				
+				
+				}
+				else if(substr($key,-3)=="Ids")
+				{
+					  if($value!=""  )
+					  {
+						  
+					   $DeleteTable=substr($key,0,-3);
+					   $DetailTable[$key]="Delete FROM $DeleteTable WHERE ".$DeleteTable."Id in( ".$value.")";
+					   //echo  $DeleteTable." ".$value."<br/>";
+					  }
+					 
+					
+				}
+				else if(isTable($key))
+			   {
+				  // echo $key."  --> ".count($value)."<br/>";
+				   if(is_array($value))
+					  if(count($value)>0)
+				   $DetailTable[$key]=$value;
+				   
+				}
+		}
+		$f1=rtrim($f,",");
+		$v1=rtrim($v,",");
+		$fv=rtrim($fv,",");
+		
+		
+		$Query="";
+	
+		if($PrimaryKeyValue==0)
+			$Query= "INSERT INTO $tb ($f1) values ($v1)";
+		else
+			$Query= "UPDATE $tb SET $fv where $PrimaryKey= $PrimaryKeyValue";
+		//echo $Query;
+		//echo $key."<br/>start-->  ".json_encode($DetailTable)."<br/>";
+		return $Query;
+	}
+	
+	
+		  function InsertUpdate2($tb,$data,$insertKey,$insertValue,&$DetailTable)
+	{
+		
+		
+		
+		$f="";
+		$f=$insertKey.",";
+	
+		$v="";
+	    $v=$insertValue.",";
+	  
+		$fv="";
+		$PrimaryKey=$tb.'Id';
+		
+		$PrimaryKey=GetPrimaryKey($tb);
+	
+		$PrimaryKeyValue=0;
+		//Remove Id MasterTable
+		if( array_search($insertKey,$data))
+		{
+				
+			unset($data[$insertKey]);
+			
+		}
+		
+		foreach( $data as $key=>$value){
+			
+				
+				
+				if($key==$PrimaryKey)
+				{
+					$PrimaryKeyValue=$value;
+				}
+				
+				
+				else if(isfield($key,$tb)  &&  !$data[substr($key,0,-2)])
+				{
+					if(isset($value)  && trim($value)!="" )
+					{
+					$f=$f.$key.",";
+					if($key=='BillDate')
+					{
+						$value=substr($value,0,strpos($value,"T"));
+							$v=$v."'".$value."',";
+					$fv=$fv.$key."='".$value."',";
+					}
+					else{
+					$v=$v."'".$value."',";
+					$fv=$fv.$key."='".$value."',";
+					}
+					}
+				}
+				else if(isVirtualTable($key))
+				{
+					$VirtualTable=substr($key,7);
+					//echo "VirtualTable=>$VirtualTable <br/>";
+				
+			    $f=$f.$VirtualTable."Id,";
+				$v=$v."'".$value[$VirtualTable."Id"]."',";
+				$fv=$fv.$VirtualTable."Id='".$value[$VirtualTable."Id"]."',";
+				
+				
+				}
+				else if(isTable($key))
+			   {
+				   if(is_array($value))
+					  if(count($value)>0)
+				   $DetailTable[$key]=$value;
+				   
+				}
+		}
+		$f1=rtrim($f,",");
+		$v1=rtrim($v,",");
+		$fv=rtrim($fv,",");
+		
+		
+		$Query="";
+	
+		if($PrimaryKeyValue==0)
+			$Query= "INSERT INTO $tb ($f1) values ($v1)";
+		else
+			$Query= "UPDATE $tb SET $fv where $PrimaryKey= $PrimaryKeyValue";
+		//echo $Query."<br/>";
+		
+		return $Query;
+		
+	}
+	
+	  function isfield($key,$tb)
+	{
+		
+		$Query="select *  from information_schema.COLUMNS  where table_name='$tb' and column_name='$key'";
+		$obj=new DyamicClass();
+		
+		$rows=$obj->getQuery($Query);
+		
+			if(count($rows)>0)
+			return true;
+		else
+			return false;
+		
+	}
+	  function GetPrimaryKey($tableName)
+	{
+		
+		
+		$obj=new DyamicClass();
+	$Query=$obj->getPrimaryKey($tableName);
+	//echo $Query;
+		$rows=$obj->getQuery($Query);
+			
+			if(count($rows)>0)
+			return $rows[0]['COLUMN_NAME'];
+		else
+			return "";
+		
+	}
+		function isVirtualTable($tableName)
+		{
+			//echo "TestisVirtualTable  :".$tableName."   ".substr($tableName,0,7)."<br/>";
+			
+			if(substr($tableName,0,7)=="Virtual")
+			{
+				
+				return true;
+			
+			}
+			else
+				return false;
+		}
+	
+	  function isTable($key)
+	{
+		$Query="select *  from information_schema.tables where table_Name='$key'";
+		
+		$obj=new DyamicClass();
+		$rows=$obj->getQuery($Query);
+	
+	
+			if(count($rows)>0)
+			return true;
+		else
+			return false;
+		
+		
+	}
+	  function isTables($key)
+	{
+		return false;
+	}
+
+	//DataLayer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$request_method=$_SERVER["REQUEST_METHOD"];
 	
 	//echo $request_method;
 	switch($request_method)
@@ -190,8 +644,6 @@ include 'DataBaseLayer.php';
 			 
 			break;
 		case 'POST':
-			// Insert Product
-			//insert_product();
 				$data = json_decode(file_get_contents('php://input'), true);
 				
 				foreach( $data as $key=>$value){
@@ -205,6 +657,7 @@ include 'DataBaseLayer.php';
 							$obj=new DyamicClass();
 							$PrimaryKey=GetPrimaryKey($key);
 							//echo "ParimaryKey: $PrimaryKey<br/>";
+							$obj->beginTran();
 							$value1=$obj->executeQuery($Query);
 							$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
 							$Id=$obj->getValue($LastInsertIdSql);
@@ -234,7 +687,9 @@ include 'DataBaseLayer.php';
 									 echo $Query;
 									$value=$obj->executeQuery($Query);
 								}
-														}
+								
+							}
+							$obj->commit();	
 							echo   $Id[0];
 						}
 					else if(is_object($value)) 
@@ -250,24 +705,19 @@ include 'DataBaseLayer.php';
 //echo "End";
 			break;
 		case 'PUT':
-			// Update Product
-			//$product_id=intval($_GET["product_id"]);
-			//update_product($product_id);
+		
 			echo "PUT";
 			break;
 		case 'DELETE':
-			// Delete Product
-			//$product_id=intval($_GET["product_id"]);
-			//delete_product($product_id);
+			
 			echo "DELETE";
 			break;
 		default:
-			// Invalid Request Method
+		
 			header("HTTP/1.0 405 Method Not Allowed");
 			break;
 	}
 	
 	
 	
-
 ?>
