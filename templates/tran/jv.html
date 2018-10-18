@@ -1,0 +1,207 @@
+
+
+ <div  id="sales" >
+<!-- Form -->
+           <div class="row">
+            <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+			<form   id="myModalDirect_frm" ng-submit="tran_con.PushAccount()" >
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Modal Header</h4>
+							
+                        </div>
+                        <div class="modal-body" >
+                            <div>
+							<div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Cr Dr Type</label>
+									</div>
+                    <div class="col-lg-8" > 
+                                    <select required class="form-control" data-ng-model="tran_con.TempTranFin.VirtualCrDrMaster"
+                                            ng-options="y.CrDrName for (x,y) in CrDrMasters track by y.CrDrMasterId "
+											
+                                            >
+												 <option value="">Select Cr Dr</option> 
+											</select>
+										
+											</div>
+                                </div>
+                                <div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Account&nbsp;Name</label>
+									</div>
+                    <div class="col-lg-8" > 
+                                    <select required class="form-control" data-ng-model="tran_con.TempTranFin.VirtualAccountMaster"
+                                            ng-options="y.AccountName for (x,y) in AccountMasters track by y.AccountMasterId "
+											
+                                            >
+												 <option value="">Select Account</option> 
+											</select>
+										
+											</div>
+                                </div>
+
+								<div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Amount</label>
+									</div>
+									<div class="col-lg-8" > 
+                                    <input type="number"  class="form-control"  ng-model="tran_con.TempTranFin.Amount" required />
+									</div>
+                                </div>
+							
+                                <div class="row">
+								<div class="col-lg-2" > 
+                                    <label>Remark</label>
+									</div>
+									<div class="col-lg-8" > 
+                                    <input type="text"   class="form-control"   ng-model="tran_con.TempTranFin.Remark"  />
+									</div>
+                                </div>
+								
+								
+								
+								
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" >{{ModelButton}}</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+				</form>
+                </div>
+            </div>
+        </div>
+        
+  
+           
+               
+
+
+	
+		
+        <div  class="modal-header"    ng-style="{'background-color': tran_con.color}"   >
+		<a  ng-href="transcation"  >
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+		  </a>
+          <h4    class="modal-title">{{tran_con.Title}} </h4>
+		
+		  
+        </div>
+		 
+
+
+        <div class="modal-body">
+         
+           <form method="post"  id="sales_frm" ng-submit="tran_con.addTran()" >
+		   <div id="printsave">
+		  
+		   
+			<div class="row ">
+			<div class="col-lg-2" > 
+                <label for="BillNo">Bill NO:</label>
+                
+				</div>
+				<div class="col-lg-2" > 
+				<input type="text" ng-model="tran_con.dbdata.tran.BillNo" id="BillNo" class="form-control"  required  maxlength="10">
+				</div>
+				<div class="col-lg-4" > 
+				</div>
+				<div class="col-lg-2" > 
+				<label for="BillDate">Bill Date:</label>
+				</div>
+				<div class="col-lg-2" >
+				
+                <input type="date" ng-model="tran_con.dbdata.tran.BillDate" id="BillDate" class="form-control "  required  format="dd-MMM-yyyy"  maxlength="10">
+				
+				
+				</div>
+            </div>
+			
+          
+             
+            
+               <div class="row">
+			   <div class="col-lg-2">
+                <label for="Remark">Refrecence:</label>
+				</div>
+				<div class="col-lg-8">
+                <input type="text" class="form-control" ng-model="tran_con.dbdata.tran.Remarks" id="Remarks"   maxlength="50">
+				</div>
+            </div>
+			<div class="form-group">
+			</div>
+			
+			 <div class="form-group">
+                    <button type="button" class="btn btn-primary" value="Add" data-toggle="modal" data-target="#myModal" ng-click="tran_con.AddAccount()"> Add</button>
+                </div>
+                <div class="table table-responsive">
+                    <table class="table table-bordered">
+                        <tr style="background-color:#428bca">
+                            <th>Srno</th>
+                            <th>Dr/Cr</th>
+							<th>Account Name </th>
+							<th>Debit </th>
+							<th>Credit </th>
+							<th>Remark</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+		
+                        <tr ng-repeat="tranfin  in tran_con.dbdata.tran.tranfin ">
+                            <td>{{tranfin.Srno}}</td>
+							
+							<td>{{tranfin.VirtualCrDrMaster.CrDrName}}</td>
+							<td>{{tranfin.VirtualAccountMaster.AccountName}}</td>
+							<td><div data-ng-if="tranfin.VirtualCrDrMaster.CrDrMasterId==2">{{tranfin.Amount}}</div></td>
+							<td><div data-ng-if="tranfin.VirtualCrDrMaster.CrDrMasterId==1">{{tranfin.Amount}}</div></td>
+							<td>{{tranfin.Remark}}</td>
+                            
+							
+							
+                            <td><input type="Button" value="Edit" ng-click="tran_con.EditAccount(tranfin)" data-toggle="modal" data-target="#myModal" /> </td>
+                            <td><input type="Button" value="Delete" ng-click="tran_con.DeleteAccount($index)" /> </td>
+
+                        </tr>
+                    </table>
+                </div>
+			
+               <div class="row">
+			   <div class="col-lg-7">
+			   </div>
+			    <div class="col-lg-2">
+                <label for="Total">Total:</label>
+				
+				</div>
+				 <div class="col-lg-3">
+				
+				{{tran_con.dbdata.tran.Total|number:2}}
+				</div>
+				
+            </div>
+			  </div>
+            <div class="form-group">
+			</div>
+                <div class="row">
+			
+            
+                </div>
+             
+        
+    
+            
+       
+        <div class="modal-footer">
+		  <input type="submit" class="button button-green  pull-right"  value="Submit"/>
+        </div>
+		</form> 
+    
+      
+
+  
+  
+</div>
