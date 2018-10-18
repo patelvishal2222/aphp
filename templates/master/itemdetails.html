@@ -1,0 +1,63 @@
+
+ <div >
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+		 <a  ng-href="delux/0"  >
+		<button type="button" class="close" data-dismiss="modal">&times;</button>
+		</a>
+          <h4 class="modal-title">Item Info </h4>
+        </div>
+        <div class="modal-body" >
+         
+                 <div>
+		 
+		 </div>
+            <div class="form-group">
+                <label >Item Name:</label>
+                {{itemdet_con.dbdata.ItemMaster.ItemName}}
+               
+            </div>
+            <div class="form-group">
+                <label >Purchase Rate:</label>
+                  {{itemdet_con.dbdata.ItemMaster.PurRate}}
+              
+            </div>
+            <div class="form-group">
+                <label >Sales Rate:</label>
+                     {{itemdet_con.dbdata.ItemMaster.SaleRate}}
+             
+            </div>
+           
+        
+    
+            
+        </div>
+		<!--
+        <div class="modal-footer">
+		
+          <div class="col-lg-2" >
+Start Date
+</div>
+<div class="col-lg-2" >
+<input type="date" ng-model="itemdet_con.StartDate" id="BillDate" class="form-control "  required  format="dd-MMM-yyyy"  >
+</div>
+<div class="col-lg-2" >
+End Date
+</div>
+<div class="col-lg-2" >
+<input type="date" ng-model="itemdet_con.EndDate" id="BillDate" class="form-control "  required  format="dd-MMM-yyyy"  >
+</div>
+<div class="col-lg-2" >
+<button type="button" class="button button-purple mt-12 pull-right" ng-click=itemdet_con.Serach() > Search</button> 
+</div>
+        </div>
+		
+      </div>
+      -->
+    </div>
+ </div>
+<div>
+<table-report listdata="itemdet_con.ItemDetails"   ></table-report>
+</div>
