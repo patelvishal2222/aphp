@@ -202,115 +202,27 @@ class DyamicClass  extends Database
 			   
 	}
 	
-	  function InsertUpdate($tb,$data,&$DetailTable)
+	
+		  function InsertUpdate($tb,$data,$MasterKeyValue,&$DetailTable)
 	{
+		
 		$f="";
 		$v="";
 		$fv="";
 		$PrimaryKey=$tb.'Id';
 		$PrimaryKey=GetPrimaryKey($tb);
-		
-		$PrimaryKeyValue=0;
-		
-		foreach( $data as $key=>$value){
-			
-				
-				if($key==$PrimaryKey)
-				{
-					$PrimaryKeyValue=$value;
-				}
-				
-				
-				else if(isfield($key,$tb)  &&  !$data[substr($key,0,-2)])
-				{
-					if(isset($value)  && trim($value)!="" )
-					{
-					$f=$f.$key.",";
-					if($key=='BillDate')
-					{
-						$value=substr($value,0,strpos($value,"T"));
-							$v=$v."'".$value."',";
-					$fv=$fv.$key."='".$value."',";
-					}
-					else{
-					$v=$v."'".$value."',";
-					$fv=$fv.$key."='".$value."',";
-					}
-					}
-				}
-				else if(isVirtualTable($key))
-				{
-				
-			   $VirtualTable=substr($key,7);
-					//echo "VirtualTable=>$VirtualTable <br/>";
-				
-			    $f=$f.$VirtualTable."Id,";
-				$v=$v."'".$value[$VirtualTable."Id"]."',";
-				$fv=$fv.$VirtualTable."Id='".$value[$VirtualTable."Id"]."',";
-				
-				
-				}
-				else if(substr($key,-3)=="Ids")
-				{
-					  if($value!=""  )
-					  {
-						  
-					   $DeleteTable=substr($key,0,-3);
-					   $DetailTable[$key]="Delete FROM $DeleteTable WHERE ".$DeleteTable."Id in( ".$value.")";
-					   //echo  $DeleteTable." ".$value."<br/>";
-					  }
-					 
-					
-				}
-				else if(isTable($key))
-			   {
-				  // echo $key."  --> ".count($value)."<br/>";
-				   if(is_array($value))
-					  if(count($value)>0)
-				   $DetailTable[$key]=$value;
-				   
-				}
-		}
-		$f1=rtrim($f,",");
-		$v1=rtrim($v,",");
-		$fv=rtrim($fv,",");
-		
-		
-		$Query="";
-	
-		if($PrimaryKeyValue==0)
-			$Query= "INSERT INTO $tb ($f1) values ($v1)";
-		else
-			$Query= "UPDATE $tb SET $fv where $PrimaryKey= $PrimaryKeyValue";
-		//echo $Query;
-		//echo $key."<br/>start-->  ".json_encode($DetailTable)."<br/>";
-		return $Query;
-	}
-	
-	
-		  function InsertUpdate2($tb,$data,$insertKey,$insertValue,&$DetailTable)
-	{
-		
-		
-		
-		$f="";
-		$f=$insertKey.",";
-	
-		$v="";
-	    $v=$insertValue.",";
-	  
-		$fv="";
-		$PrimaryKey=$tb.'Id';
-		
-		$PrimaryKey=GetPrimaryKey($tb);
-	
 		$PrimaryKeyValue=0;
 		//Remove Id MasterTable
+		foreach( $MasterKeyValue as $insertKey=>$insertValue){
+			//echo json_encode($MasterKeyValue);
 		if( array_search($insertKey,$data))
 		{
 				
 			unset($data[$insertKey]);
 			
+		}
+				$f=$insertKey.",";
+			 $v=$insertValue.",";
 		}
 		
 		foreach( $data as $key=>$value){
@@ -351,6 +263,18 @@ class DyamicClass  extends Database
 				
 				
 				}
+				else if(substr($key,-3)=="Ids")
+				{
+					  if($value!=""  )
+					  {
+						  
+					   $DeleteTable=substr($key,0,-3);
+					   $DetailTable[$key]="Delete FROM $DeleteTable WHERE ".$DeleteTable."Id in( ".$value.")";
+					   //echo  $DeleteTable." ".$value."<br/>";
+					  }
+					 
+					
+				}
 				else if(isTable($key))
 			   {
 				   if(is_array($value))
@@ -375,6 +299,180 @@ class DyamicClass  extends Database
 		return $Query;
 		
 	}
+	/*
+	
+	  function InsertUpdate3($tb,$data,&$DetailTable)
+	{
+		$f="";
+		$v="";
+		$fv="";
+		$PrimaryKey=$tb.'Id';
+		$PrimaryKey=GetPrimaryKey($tb);
+		$PrimaryKeyValue=0;
+		
+		foreach( $data as $key=>$value){
+			
+				
+				if($key==$PrimaryKey)
+				{
+					$PrimaryKeyValue=$value;
+				}
+				
+				
+				else if(isfield($key,$tb)  &&  !$data[substr($key,0,-2)])
+				{
+					if(isset($value)  && trim($value)!="" )
+					{
+					$f=$f.$key.",";
+					if($key=='BillDate')
+					{
+						$value=substr($value,0,strpos($value,"T"));
+							$v=$v."'".$value."',";
+					$fv=$fv.$key."='".$value."',";
+					}
+					else{
+					$v=$v."'".$value."',";
+					$fv=$fv.$key."='".$value."',";
+					}
+					}
+				}
+				else if(isVirtualTable($key))
+				{
+				
+			   $VirtualTable=substr($key,7);
+					
+				
+			    $f=$f.$VirtualTable."Id,";
+				$v=$v."'".$value[$VirtualTable."Id"]."',";
+				$fv=$fv.$VirtualTable."Id='".$value[$VirtualTable."Id"]."',";
+				
+				
+				}
+				else if(substr($key,-3)=="Ids")
+				{
+					  if($value!=""  )
+					  {
+						  
+					   $DeleteTable=substr($key,0,-3);
+					   $DetailTable[$key]="Delete FROM $DeleteTable WHERE ".$DeleteTable."Id in( ".$value.")";
+					   
+					  }
+					 
+					
+				}
+				else if(isTable($key))
+			   {
+				 
+				   if(is_array($value))
+					  if(count($value)>0)
+				   $DetailTable[$key]=$value;
+				   
+				}
+		}
+		$f1=rtrim($f,",");
+		$v1=rtrim($v,",");
+		$fv=rtrim($fv,",");
+		
+		
+		$Query="";
+	
+		if($PrimaryKeyValue==0)
+			$Query= "INSERT INTO $tb ($f1) values ($v1)";
+		else
+			$Query= "UPDATE $tb SET $fv where $PrimaryKey= $PrimaryKeyValue";
+		
+		return $Query;
+	}
+	
+	
+		  function InsertUpdate2($tb,$data,$insertKey,$insertValue,&$DetailTable)
+	{
+		
+		
+		
+		$f="";
+		$f=$insertKey.",";
+	
+		$v="";
+	    $v=$insertValue.",";
+	  
+		$fv="";
+		$PrimaryKey=$tb.'Id';
+		
+		$PrimaryKey=GetPrimaryKey($tb);
+	
+		$PrimaryKeyValue=0;
+		
+		if( array_search($insertKey,$data))
+		{
+				
+			unset($data[$insertKey]);
+			
+		}
+		
+		foreach( $data as $key=>$value){
+			
+				
+				
+				if($key==$PrimaryKey)
+				{
+					$PrimaryKeyValue=$value;
+				}
+				
+				
+				else if(isfield($key,$tb)  &&  !$data[substr($key,0,-2)])
+				{
+					if(isset($value)  && trim($value)!="" )
+					{
+					$f=$f.$key.",";
+					if($key=='BillDate')
+					{
+						$value=substr($value,0,strpos($value,"T"));
+							$v=$v."'".$value."',";
+					$fv=$fv.$key."='".$value."',";
+					}
+					else{
+					$v=$v."'".$value."',";
+					$fv=$fv.$key."='".$value."',";
+					}
+					}
+				}
+				else if(isVirtualTable($key))
+				{
+					$VirtualTable=substr($key,7);
+					
+				
+			    $f=$f.$VirtualTable."Id,";
+				$v=$v."'".$value[$VirtualTable."Id"]."',";
+				$fv=$fv.$VirtualTable."Id='".$value[$VirtualTable."Id"]."',";
+				
+				
+				}
+				else if(isTable($key))
+			   {
+				   if(is_array($value))
+					  if(count($value)>0)
+				   $DetailTable[$key]=$value;
+				   
+				}
+		}
+		$f1=rtrim($f,",");
+		$v1=rtrim($v,",");
+		$fv=rtrim($fv,",");
+		
+		
+		$Query="";
+	
+		if($PrimaryKeyValue==0)
+			$Query= "INSERT INTO $tb ($f1) values ($v1)";
+		else
+			$Query= "UPDATE $tb SET $fv where $PrimaryKey= $PrimaryKeyValue";
+	
+		return $Query;
+		
+	}
+	
+	*/
 	
 	  function isfield($key,$tb)
 	{
@@ -649,15 +747,18 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				foreach( $data as $key=>$value){
 						if( is_array($value))
 						{
+							$MasterKeyValue=array();
 						//echo 'array'.$key . " = " . $value. "<br>";
 						$DetailTable=array();
-							$Query=InsertUpdate($key,$value,$DetailTable);
+							$Query=InsertUpdate($key,$value,$MasterKeyValue,$DetailTable);
 							
 						//	echo $Query;
 							$obj=new DyamicClass();
 							$PrimaryKey=GetPrimaryKey($key);
 							//echo "ParimaryKey: $PrimaryKey<br/>";
-							$obj->beginTran();
+					       $obj->beginTran();
+							echo  $Query;
+							
 							$value1=$obj->executeQuery($Query);
 							$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
 							$Id=$obj->getValue($LastInsertIdSql);
@@ -666,8 +767,10 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 								//echo $Id[0]."<br/>".json_encode($value);
 								$Id[0]=$value[$PrimaryKey];
 								//echo "<br/>".$key. "==>".$PrimaryKey." :".$Id[0]."<br/>";
+								
+								
 							}
-							
+							$MasterKeyValue[$PrimaryKey]=$Id[0];
 							foreach($DetailTable as  $Table=>$TableDatas)
 							{
 								
@@ -676,8 +779,9 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 									foreach($TableDatas as $TableData)
 									{
 										$DetailTable2=array();
-									$Query=InsertUpdate2($Table,$TableData,$PrimaryKey,$Id[0],$DetailTable2);
+									$Query=InsertUpdate($Table,$TableData,$MasterKeyValue,$DetailTable2);
 									 echo $Query;
+									
 									$value=$obj->executeQuery($Query);
 									}
 								}
@@ -689,7 +793,7 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 								}
 								
 							}
-							$obj->commit();	
+						$obj->commit();	
 							echo   $Id[0];
 						}
 					else if(is_object($value)) 
