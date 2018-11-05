@@ -536,6 +536,100 @@ class DyamicClass  extends Database
 	{
 		return false;
 	}
+	function SaveData($data)
+	{
+		
+		foreach( $data as $key=>$value){
+						$obj=new DyamicClass();
+						if( is_array($value))
+						{
+							$MasterKeyValue=array();
+							
+								$obj->beginTran();
+						
+						
+						
+							$DetailTable=array();
+							
+							//$DetailTable=SaveRecord($obj,$Table,$TableData,$MasterKeyValue);
+							$Query=InsertUpdate($key,$value,$MasterKeyValue,$DetailTable);
+							echo  $Query;
+							$value1=$obj->executeQuery($Query);
+							
+							$PrimaryKey=GetPrimaryKey($key);
+					        $MasterKeyValue[$PrimaryKey]=$value[$PrimaryKey];
+							if($MasterKeyValue[$PrimaryKey]==0)
+							{
+								$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
+							$tempData=$obj->getValue($LastInsertIdSql);
+							$MasterKeyValue[$PrimaryKey]=$tempData[0];
+							}
+							SaveDetail($obj,$DetailTable,$MasterKeyValue);
+							
+							
+							
+							$obj->commit();	
+							echo   $Id[0];
+						}
+						
+							
+					else if(is_object($value)) 
+					{
+					//echo 'OBject'.$key . " = " . $value. "<br>";
+					}
+					
+					else
+					{
+						//echo 'Other'.$key . " = " . $value. "<br>";
+					}
+				}
+	}
+	
+	function SaveDetail($obj,$DetailTable,$MasterKeyValue)
+	{
+		foreach($DetailTable as  $Table=>$TableDatas)
+							{
+								
+								if( is_array($TableDatas))
+								{
+									foreach($TableDatas as $TableData)
+									{
+									$DetailTable2=array();
+								     $DetailTable2=SaveRecord($obj,$Table,$TableData,$MasterKeyValue);
+									}
+								}
+								else
+								{
+									$Query=$TableDatas;
+									 echo $Query;
+									$value=$obj->executeQuery($Query);
+								}
+								
+							}
+		
+	}
+	function SaveRecord($obj,$Table,$TableData,$MasterKeyValue)
+	{
+		
+									$DetailTable2=array();
+									
+									
+									echo $PrimaryKey;
+									$Query=InsertUpdate($Table,$TableData,$MasterKeyValue,$DetailTable2);
+									echo $Query;
+									$value=$obj->executeQuery($Query);
+									/*$PrimaryKey=GetPrimaryKey($Table);	
+									$MasterKeyValue[$PrimaryKey]=$value[$PrimaryKey];
+										if($MasterKeyValue[$PrimaryKey]==0)
+										{
+										$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
+										$tempData=$obj->getValue($LastInsertIdSql);
+										$MasterKeyValue[$PrimaryKey]=$tempData[0];
+										}
+										*/
+										
+										return DetailTable2;
+	}
 
 	//DataLayer
 
@@ -743,69 +837,8 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 			break;
 		case 'POST':
 				$data = json_decode(file_get_contents('php://input'), true);
+				SaveData($data);
 				
-				foreach( $data as $key=>$value){
-						if( is_array($value))
-						{
-							$MasterKeyValue=array();
-						//echo 'array'.$key . " = " . $value. "<br>";
-						$DetailTable=array();
-							$Query=InsertUpdate($key,$value,$MasterKeyValue,$DetailTable);
-							
-						//	echo $Query;
-							$obj=new DyamicClass();
-							$PrimaryKey=GetPrimaryKey($key);
-							//echo "ParimaryKey: $PrimaryKey<br/>";
-					       $obj->beginTran();
-							echo  $Query;
-							
-							$value1=$obj->executeQuery($Query);
-							$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
-							$Id=$obj->getValue($LastInsertIdSql);
-							if($Id[0]==0)
-							{
-								//echo $Id[0]."<br/>".json_encode($value);
-								$Id[0]=$value[$PrimaryKey];
-								//echo "<br/>".$key. "==>".$PrimaryKey." :".$Id[0]."<br/>";
-								
-								
-							}
-							$MasterKeyValue[$PrimaryKey]=$Id[0];
-							foreach($DetailTable as  $Table=>$TableDatas)
-							{
-								
-								if( is_array($TableDatas))
-								{
-									foreach($TableDatas as $TableData)
-									{
-										$DetailTable2=array();
-									$Query=InsertUpdate($Table,$TableData,$MasterKeyValue,$DetailTable2);
-									 echo $Query;
-									
-									$value=$obj->executeQuery($Query);
-									}
-								}
-								else
-								{
-									$Query=$TableDatas;
-									 echo $Query;
-									$value=$obj->executeQuery($Query);
-								}
-								
-							}
-						$obj->commit();	
-							echo   $Id[0];
-						}
-					else if(is_object($value)) 
-					{
-					//echo 'OBject'.$key . " = " . $value. "<br>";
-					}
-					
-					else
-					{
-						//echo 'Other'.$key . " = " . $value. "<br>";
-					}
-				}
 //echo "End";
 			break;
 		case 'PUT':
