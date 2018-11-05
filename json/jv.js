@@ -18,7 +18,7 @@
         name: 'Refernce',
         type: 'text',
 		value:'Remarks'
-    },
+    }
 	
 	 ],
 	 
