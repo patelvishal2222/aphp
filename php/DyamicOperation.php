@@ -549,9 +549,10 @@ class DyamicClass  extends Database
 						
 						
 						
-							$DetailTable=array();
+						
 							
-							//$DetailTable=SaveRecord($obj,$Table,$TableData,$MasterKeyValue);
+							 $Id=SaveRecord($obj,$key,$value,$MasterKeyValue);
+							/*
 							$Query=InsertUpdate($key,$value,$MasterKeyValue,$DetailTable);
 							echo  $Query;
 							$value1=$obj->executeQuery($Query);
@@ -564,12 +565,13 @@ class DyamicClass  extends Database
 							$tempData=$obj->getValue($LastInsertIdSql);
 							$MasterKeyValue[$PrimaryKey]=$tempData[0];
 							}
-							SaveDetail($obj,$DetailTable,$MasterKeyValue);
+							*/
+							//SaveDetail($obj,$DetailTable,$MasterKeyValue);
 							
 							
 							
 							$obj->commit();	
-							echo   $Id[0];
+							echo    $Id;
 						}
 						
 							
@@ -594,14 +596,14 @@ class DyamicClass  extends Database
 								{
 									foreach($TableDatas as $TableData)
 									{
-									$DetailTable2=array();
-								     $DetailTable2=SaveRecord($obj,$Table,$TableData,$MasterKeyValue);
+									
+								     SaveRecord($obj,$Table,$TableData,$MasterKeyValue);
 									}
 								}
 								else
 								{
 									$Query=$TableDatas;
-									 echo $Query;
+									 //echo $Query;
 									$value=$obj->executeQuery($Query);
 								}
 								
@@ -611,24 +613,26 @@ class DyamicClass  extends Database
 	function SaveRecord($obj,$Table,$TableData,$MasterKeyValue)
 	{
 		
-									$DetailTable2=array();
+									$DetailTable=array();
 									
 									
 									echo $PrimaryKey;
-									$Query=InsertUpdate($Table,$TableData,$MasterKeyValue,$DetailTable2);
-									echo $Query;
+									$Query=InsertUpdate($Table,$TableData,$MasterKeyValue,$DetailTable);
+									//echo $Query;
 									$value=$obj->executeQuery($Query);
-									/*$PrimaryKey=GetPrimaryKey($Table);	
-									$MasterKeyValue[$PrimaryKey]=$value[$PrimaryKey];
+									$PrimaryKey=GetPrimaryKey($Table);	
+									$MasterKeyValue[$PrimaryKey]=$TableData[$PrimaryKey];
+									
+									
 										if($MasterKeyValue[$PrimaryKey]==0)
 										{
 										$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
 										$tempData=$obj->getValue($LastInsertIdSql);
 										$MasterKeyValue[$PrimaryKey]=$tempData[0];
 										}
-										*/
-										
-										return DetailTable2;
+										//echo json_encode($MasterKeyValue);
+										SaveDetail($obj,$DetailTable,$MasterKeyValue);
+										return $MasterKeyValue[$PrimaryKey];
 	}
 
 	//DataLayer
