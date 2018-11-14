@@ -1,4 +1,5 @@
 <?php
+
  class Database
 {
 	
@@ -7,14 +8,18 @@
    public $dbname = "account";
  public   $username = "root";
    public $password = "root";
+
 }
+
 class DyamicClass  extends Database
 	{
 		
 	
     function __construct() {
+
   
     
+
     // Create connection
     $conn = new mysqli($this->servername, $this->username, $this->password, $this->dbname);
     // Check connection
@@ -23,6 +28,7 @@ class DyamicClass  extends Database
        }else{
         $this->conn=$conn;
        }
+
     }
 	
 	public function getForeginkeyQuery($TableName)
@@ -73,6 +79,7 @@ class DyamicClass  extends Database
      
 	   
 	   
+
     return $listdata;
     }
 	
@@ -87,6 +94,7 @@ class DyamicClass  extends Database
     
 	}
 	
+
 	
 	public function executeQuery($Query)
 	{
@@ -113,6 +121,7 @@ class DyamicClass  extends Database
 		
 		 $this->conn->commit();
 	}
+
 	public function  backupdb()
 	{
 		$date_string   = date("Y-m-d-H-i-s");
@@ -135,9 +144,18 @@ class DyamicClass  extends Database
 	
 	
 	
+
+
+
+
+
 		
 	}
+ 
 //DataLayer
+class DataLayer 
+{
+//getObject
 	function getTableValue($TableName,$PrimaryKey,$PrimaryValue,$MasterTable)
 	{
 		
@@ -185,6 +203,89 @@ class DyamicClass  extends Database
 			   return $rows;
 			   
 	}
+
+	//SaveData
+	function SaveData($data)
+	{
+		
+		foreach( $data as $key=>$value){
+						$obj=new DyamicClass();
+						if( is_array($value))
+						{
+							$MasterKeyValue=array();
+							
+								$obj->beginTran();
+								
+							 $Id=$this->SaveRecord($obj,$key,$value,$MasterKeyValue);
+								
+							$obj->commit();	
+							echo    $Id;
+						}
+						
+							
+					else if(is_object($value)) 
+					{
+					//echo 'OBject'.$key . " = " . $value. "<br>";
+					}
+					
+					else
+					{
+						//echo 'Other'.$key . " = " . $value. "<br>";
+					}
+				}
+	}
+	function SaveRecord($obj,$Table,$TableData,$MasterKeyValue)
+	{
+		
+									$DetailTable=array();
+									
+									
+									//echo $PrimaryKey;
+								
+									$Query=$this->InsertUpdate($Table,$TableData,$MasterKeyValue,$DetailTable);
+									
+									//echo $Query;
+									$value=$obj->executeQuery($Query);
+										
+									$PrimaryKey=$this->GetPrimaryKey($Table);	
+									$MasterKeyValue[$PrimaryKey]=$TableData[$PrimaryKey];
+									
+								
+										if($MasterKeyValue[$PrimaryKey]==0)
+										{
+										$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
+										$tempData=$obj->getValue($LastInsertIdSql);
+										$MasterKeyValue[$PrimaryKey]=$tempData[0];
+										}
+										//echo json_encode($MasterKeyValue);
+										$this->SaveDetail($obj,$DetailTable,$MasterKeyValue);
+										
+										return $MasterKeyValue[$PrimaryKey];
+	}
+	function SaveDetail($obj,$DetailTable,$MasterKeyValue)
+	{
+		foreach($DetailTable as  $Table=>$TableDatas)
+							{
+								
+								if( is_array($TableDatas))
+								{
+									foreach($TableDatas as $TableData)
+									{
+									
+								   $this->SaveRecord($obj,$Table,$TableData,$MasterKeyValue);
+									}
+								}
+								else
+								{
+									$Query=$TableDatas;
+									 //echo $Query;
+									$value=$obj->executeQuery($Query);
+								}
+								
+							}
+		
+	}
+	
 	
 	
 		  function InsertUpdate($tb,$data,$MasterKeyValue,&$DetailTable)
@@ -194,7 +295,7 @@ class DyamicClass  extends Database
 		$v="";
 		$fv="";
 		$PrimaryKey=$tb.'Id';
-		$PrimaryKey=GetPrimaryKey($tb);
+		$PrimaryKey=$this->GetPrimaryKey($tb);
 		$PrimaryKeyValue=0;
 		//Remove Id MasterTable
 		foreach( $MasterKeyValue as $insertKey=>$insertValue){
@@ -209,6 +310,12 @@ class DyamicClass  extends Database
 			 $v=$insertValue.",";
 		}
 		
+		
+		$Query="select column_name  from information_schema.COLUMNS  where table_name='$tb' ";
+		$obj=new DyamicClass();
+		
+		$tabledata=$obj->getQuery($Query);
+		
 		foreach( $data as $key=>$value){
 			
 				
@@ -219,16 +326,22 @@ class DyamicClass  extends Database
 				}
 				
 				
-				else if(isfield($key,$tb)  &&  !$data[substr($key,0,-2)])
+				else if($this->isfield($key,$tb,$tabledata)  &&  !$data[substr($key,0,-2)])
 				{
 					if(isset($value)  && trim($value)!="" )
 					{
 					$f=$f.$key.",";
-					if($key=='BillDate'  || $key=='ExpireDate' )
+					if($key=='BillDate')
 					{
+					
+				
+				
 						$value=substr($value,0,strpos($value,"T"));
 							$v=$v."'".$value."',";
 					$fv=$fv.$key."='".$value."',";
+					
+					//echo $value."<br/>";
+				
 					}
 					else{
 					$v=$v."'".$value."',";
@@ -236,7 +349,7 @@ class DyamicClass  extends Database
 					}
 					}
 				}
-				else if(isVirtualTable($key))
+				else if($this->isVirtualTable($key))
 				{
 					$VirtualTable=substr($key,7);
 					//echo "VirtualTable=>$VirtualTable <br/>";
@@ -259,7 +372,7 @@ class DyamicClass  extends Database
 					 
 					
 				}
-				else if(isTable($key))
+				else if($this->isTable($key))
 			   {
 				   if(is_array($value))
 					  if(count($value)>0)
@@ -283,193 +396,27 @@ class DyamicClass  extends Database
 		return $Query;
 		
 	}
-	/*
 	
-	  function InsertUpdate3($tb,$data,&$DetailTable)
+	  function isfield($key,$tb,$tabledata)
 	{
-		$f="";
-		$v="";
-		$fv="";
-		$PrimaryKey=$tb.'Id';
-		$PrimaryKey=GetPrimaryKey($tb);
-		$PrimaryKeyValue=0;
-		
-		foreach( $data as $key=>$value){
-			
-				
-				if($key==$PrimaryKey)
-				{
-					$PrimaryKeyValue=$value;
-				}
-				
-				
-				else if(isfield($key,$tb)  &&  !$data[substr($key,0,-2)])
-				{
-					if(isset($value)  && trim($value)!="" )
-					{
-					$f=$f.$key.",";
-					if($key=='BillDate')
-					{
-						$value=substr($value,0,strpos($value,"T"));
-							$v=$v."'".$value."',";
-					$fv=$fv.$key."='".$value."',";
-					}
-					else{
-					$v=$v."'".$value."',";
-					$fv=$fv.$key."='".$value."',";
-					}
-					}
-				}
-				else if(isVirtualTable($key))
-				{
-				
-			   $VirtualTable=substr($key,7);
-					
-				
-			    $f=$f.$VirtualTable."Id,";
-				$v=$v."'".$value[$VirtualTable."Id"]."',";
-				$fv=$fv.$VirtualTable."Id='".$value[$VirtualTable."Id"]."',";
-				
-				
-				}
-				else if(substr($key,-3)=="Ids")
-				{
-					  if($value!=""  )
-					  {
-						  
-					   $DeleteTable=substr($key,0,-3);
-					   $DetailTable[$key]="Delete FROM $DeleteTable WHERE ".$DeleteTable."Id in( ".$value.")";
-					   
-					  }
-					 
-					
-				}
-				else if(isTable($key))
-			   {
-				 
-				   if(is_array($value))
-					  if(count($value)>0)
-				   $DetailTable[$key]=$value;
-				   
-				}
-		}
-		$f1=rtrim($f,",");
-		$v1=rtrim($v,",");
-		$fv=rtrim($fv,",");
+		//echo json_encode($tabledata);
 		
 		
-		$Query="";
+		
+		if( array_search($insertKey,$tabledata))
 	
-		if($PrimaryKeyValue==0)
-			$Query= "INSERT INTO $tb ($f1) values ($v1)";
+		return true;
 		else
-			$Query= "UPDATE $tb SET $fv where $PrimaryKey= $PrimaryKeyValue";
-		
-		return $Query;
-	}
-	
-	
-		  function InsertUpdate2($tb,$data,$insertKey,$insertValue,&$DetailTable)
-	{
-		
-		
-		
-		$f="";
-		$f=$insertKey.",";
-	
-		$v="";
-	    $v=$insertValue.",";
-	  
-		$fv="";
-		$PrimaryKey=$tb.'Id';
-		
-		$PrimaryKey=GetPrimaryKey($tb);
-	
-		$PrimaryKeyValue=0;
-		
-		if( array_search($insertKey,$data))
-		{
-				
-			unset($data[$insertKey]);
-			
-		}
-		
-		foreach( $data as $key=>$value){
-			
-				
-				
-				if($key==$PrimaryKey)
-				{
-					$PrimaryKeyValue=$value;
-				}
-				
-				
-				else if(isfield($key,$tb)  &&  !$data[substr($key,0,-2)])
-				{
-					if(isset($value)  && trim($value)!="" )
-					{
-					$f=$f.$key.",";
-					if($key=='BillDate')
-					{
-						$value=substr($value,0,strpos($value,"T"));
-							$v=$v."'".$value."',";
-					$fv=$fv.$key."='".$value."',";
-					}
-					else{
-					$v=$v."'".$value."',";
-					$fv=$fv.$key."='".$value."',";
-					}
-					}
-				}
-				else if(isVirtualTable($key))
-				{
-					$VirtualTable=substr($key,7);
-					
-				
-			    $f=$f.$VirtualTable."Id,";
-				$v=$v."'".$value[$VirtualTable."Id"]."',";
-				$fv=$fv.$VirtualTable."Id='".$value[$VirtualTable."Id"]."',";
-				
-				
-				}
-				else if(isTable($key))
-			   {
-				   if(is_array($value))
-					  if(count($value)>0)
-				   $DetailTable[$key]=$value;
-				   
-				}
-		}
-		$f1=rtrim($f,",");
-		$v1=rtrim($v,",");
-		$fv=rtrim($fv,",");
-		
-		
-		$Query="";
-	
-		if($PrimaryKeyValue==0)
-			$Query= "INSERT INTO $tb ($f1) values ($v1)";
-		else
-			$Query= "UPDATE $tb SET $fv where $PrimaryKey= $PrimaryKeyValue";
-	
-		return $Query;
-		
-	}
-	
-	*/
-	
-	  function isfield($key,$tb)
-	{
-		
+			return false;
+		/*
 		$Query="select *  from information_schema.COLUMNS  where table_name='$tb' and column_name='$key'";
-		$obj=new DyamicClass();
-		
-		$rows=$obj->getQuery($Query);
-		
+		$obj=new DyamicClass();	
+			$rows=$obj->getQuery($Query);
 			if(count($rows)>0)
 			return true;
 		else
 			return false;
+		*/
 		
 	}
 	  function GetPrimaryKey($tableName)
@@ -520,105 +467,30 @@ class DyamicClass  extends Database
 	{
 		return false;
 	}
-	function SaveData($data)
-	{
-		
-		foreach( $data as $key=>$value){
-						$obj=new DyamicClass();
-						if( is_array($value))
-						{
-							$MasterKeyValue=array();
-							
-								$obj->beginTran();
-						
-						
-						
-						
-							
-							 $Id=SaveRecord($obj,$key,$value,$MasterKeyValue);
-							/*
-							$Query=InsertUpdate($key,$value,$MasterKeyValue,$DetailTable);
-							echo  $Query;
-							$value1=$obj->executeQuery($Query);
-							
-							$PrimaryKey=GetPrimaryKey($key);
-					        $MasterKeyValue[$PrimaryKey]=$value[$PrimaryKey];
-							if($MasterKeyValue[$PrimaryKey]==0)
-							{
-								$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
-							$tempData=$obj->getValue($LastInsertIdSql);
-							$MasterKeyValue[$PrimaryKey]=$tempData[0];
-							}
-							*/
-							//SaveDetail($obj,$DetailTable,$MasterKeyValue);
-							
-							
-							
-							$obj->commit();	
-							echo    $Id;
-						}
-						
-							
-					else if(is_object($value)) 
-					{
-					//echo 'OBject'.$key . " = " . $value. "<br>";
-					}
-					
-					else
-					{
-						//echo 'Other'.$key . " = " . $value. "<br>";
-					}
-				}
-	}
 	
-	function SaveDetail($obj,$DetailTable,$MasterKeyValue)
-	{
-		foreach($DetailTable as  $Table=>$TableDatas)
-							{
-								
-								if( is_array($TableDatas))
-								{
-									foreach($TableDatas as $TableData)
-									{
-									
-								     SaveRecord($obj,$Table,$TableData,$MasterKeyValue);
-									}
-								}
-								else
-								{
-									$Query=$TableDatas;
-									 //echo $Query;
-									$value=$obj->executeQuery($Query);
-								}
-								
-							}
-		
-	}
-	function SaveRecord($obj,$Table,$TableData,$MasterKeyValue)
-	{
-		
-									$DetailTable=array();
-									
-									
-									echo $PrimaryKey;
-									$Query=InsertUpdate($Table,$TableData,$MasterKeyValue,$DetailTable);
-									echo $Query;
-									$value=$obj->executeQuery($Query);
-									$PrimaryKey=GetPrimaryKey($Table);	
-									$MasterKeyValue[$PrimaryKey]=$TableData[$PrimaryKey];
-									
-									
-										if($MasterKeyValue[$PrimaryKey]==0)
-										{
-										$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
-										$tempData=$obj->getValue($LastInsertIdSql);
-										$MasterKeyValue[$PrimaryKey]=$tempData[0];
-										}
-										//echo json_encode($MasterKeyValue);
-										SaveDetail($obj,$DetailTable,$MasterKeyValue);
-										return $MasterKeyValue[$PrimaryKey];
-	}
+	
+	
+}
 	//DataLayer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 $request_method=$_SERVER["REQUEST_METHOD"];
 	
 	//echo $request_method;
@@ -630,12 +502,8 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 			{
 				
 				$Query=$_GET["Query"];
-				//$Query=str_replace("@plus@","+",$Query);
-				
 				$obj=new DyamicClass();
-				//echo $Query;
 				$rows=$obj->getQuery($Query);
-				
 				$listdata=$obj->getList($rows);
 				echo json_encode($listdata);
 			}
@@ -645,33 +513,24 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				$PrimaryKey=$_GET["PrimaryKey"];
 				$PrimaryValue=$_GET["PrimaryValue"];
 				$Query="Select *  FROM $TableName WHERE $PrimaryKey=$PrimaryValue";
-				//echo $Query;
 				$obj=new DyamicClass();
-				
 				$rows=$obj->getQuery($Query);
-				
 				$Query=$obj->getForeginkeyQuery($TableName);
-				//echo $Query;
 				$ForeginKeyTables=$obj->getQuery($Query);
-				
 				foreach(  $ForeginKeyTables as $fktable )
 				{
-					//echo json_encode($fktable);
 					$FkName=$fktable["COLUMN_NAME"];
 					$FkData=$rows[0][$fktable["COLUMN_NAME"]];;
 					if( $FkData!=null)
 					{
-  				$Query="select  *  from $fktable[REFERENCED_TABLE_NAME]  where $fktable[REFERENCED_COLUMN_NAME] =$FkData;";
-			
-				$FkTableData=$obj->getQuery($Query);
-				unset($rows[0][$FkName]);
-				$rows[0][substr($FkName,0,-2)]=$FkTableData[0];
+						$Query="select  *  from $fktable[REFERENCED_TABLE_NAME]  where $fktable[REFERENCED_COLUMN_NAME] =$FkData;";
+						$FkTableData=$obj->getQuery($Query);
+						unset($rows[0][$FkName]);
+						$rows[0][substr($FkName,0,-2)]=$FkTableData[0];
 					}
 				
 			   }
 				echo json_encode($rows[0]);
-				
-				
 	
 			}
 			else if(!empty($_GET["getObject1"]))
@@ -682,10 +541,9 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				$PrimaryValue=$MainObject["PrimaryValue"];
 				$PrimaryKey=$MainObject["PrimaryKey"];
 				$TableNames=$MainObject["TableNames"];
-				//echo json_encode($TableNames);
 				$rows=array();
 				$MasterTable=array();
-				
+				$objDataLayer=new DataLayer();
 					foreach( $TableNames as $key=>$value){
 							if( is_array($value))
 								{
@@ -695,7 +553,7 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 												
 												{
 													$TableName=$object["TableName"];
-													$rows[0][$TableName]=getTableValue($TableName,$PrimaryKey,$PrimaryValue,$MasterTable);
+													$rows[0][$TableName]=$objDataLayer->getTableValue($TableName,$PrimaryKey,$PrimaryValue,$MasterTable);
 													
 												}
 												
@@ -705,7 +563,7 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 								else
 								{
 								$TableName=$value;
-								$rows=getTableValue($TableName,$PrimaryKey,$PrimaryValue,$MasterTable);
+								$rows=$objDataLayer->getTableValue($TableName,$PrimaryKey,$PrimaryValue,$MasterTable);
 								$MasterTable=array($TableName);
 						
 						
@@ -805,7 +663,8 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 			break;
 		case 'POST':
 				$data = json_decode(file_get_contents('php://input'), true);
-				SaveData($data);
+				$objDataLayer=new DataLayer();
+				$objDataLayer->SaveData($data);
 				
 //echo "End";
 			break;
