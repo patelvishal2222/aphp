@@ -1,25 +1,18 @@
+
 <?php
+
 
  class Database
 {
-	
 	    //public $conn;
 		public $servername = "localhost";
-   public $dbname = "account";
- public   $username = "root";
-   public $password = "root";
-
+		public $dbname = "account";
+		public   $username = "root";
+		public $password = "root";
 }
-
 class DyamicClass  extends Database
 	{
-		
-	
     function __construct() {
-
-  
-    
-
     // Create connection
     $conn = new mysqli($this->servername, $this->username, $this->password, $this->dbname);
     // Check connection
@@ -28,7 +21,6 @@ class DyamicClass  extends Database
        }else{
         $this->conn=$conn;
        }
-
     }
 	
 	public function getForeginkeyQuery($TableName)
@@ -43,10 +35,8 @@ class DyamicClass  extends Database
 	}
 	 
 	  public function getQuery($Query){
-       
-//echo "getQuery<br/>";
+		  //echo  $Query;
        $Result=  $this->conn->query($Query);
-	  
        $listdata=array();
 	   if($Result)
 	   { 
@@ -54,8 +44,6 @@ class DyamicClass  extends Database
 				while( $row=$Result->fetch_assoc())
 				{
 					$rows[]=$row;
-					
-					
 				}
 		return $rows;
 	   }
@@ -64,56 +52,34 @@ class DyamicClass  extends Database
 		   echo "Error";
 		   return "";
 	   }
-	   
-	   
-	  }
-       
-      
-	   
-	   public  function getList($rows)
+	}	
+  public  function getList($rows)
 	   {
 		    $listdata=array();
-		
-		
           $listdata['listdata']= $rows;
-     
-	   
-	   
-
-    return $listdata;
+			return $listdata;
     }
-	
 	public function getValue($Query)
 	{
-		
-		
+				
     $Result=  $this->conn->query($Query);
-	
     $value = mysqli_fetch_row($Result);
 	return $value;
-    
 	}
-	
-
-	
 	public function executeQuery($Query)
 	{
+		//	echo  $Query;
 		$Result=  $this->conn->query($Query);
-      
 	   if($Result)
-	   
 			return true;
 			else
 			{
 				$this->conn->rollback();
 				return "Error ".$Query;
 			}
-			
-				
 	}
 	public function beginTran()
 	{
-	
 		$this->conn->autocommit(false);
 	}
 	public function commit()
@@ -121,378 +87,301 @@ class DyamicClass  extends Database
 		
 		 $this->conn->commit();
 	}
-
 	public function  backupdb()
 	{
 		$date_string   = date("Y-m-d-H-i-s");
-		       //C:\Program Files\MySQL\MySQL Workbench SE 6.1.6
 		$cmd = "C:\Program Files\MySQL\MySQL Workbench SE 6.1.6\mysqldump   -h {$this->servername} -u {$this->username} -p {$this->password} {$this->dbname} > " . 'h:\\'.$this->dbname . '_'.$date_string.'.sql';
 			  echo $cmd.'<br/>';
-   
-   exec($cmd);
+		exec($cmd);
    echo "Backup Sucessfully";
-   
-  
 				
 	}
-	
-	
-		
 		 function __destruct() {
     mysqli_close($this->conn);
     }
-	
-	
-	
-
-
-
-
-
 		
-	}
- 
-//DataLayer
+}
+
 class DataLayer 
 {
-//getObject
 	function getTableValue($TableName,$PrimaryKey,$PrimaryValue,$MasterTable)
 	{
 		
 				$Query="Select *  FROM $TableName WHERE $PrimaryKey=$PrimaryValue";
-				//echo $Query;
 				$obj=new DyamicClass();
-				
 				$rows=$obj->getQuery($Query);
-				
-				//echo $Query;
 				$Query=$obj->getForeginkeyQuery($TableName);
 				$ForeginKeyTables=$obj->getQuery($Query);
-				
-					
 					for($index=0;$index<count($rows);$index++)
 					{
-				foreach(  $ForeginKeyTables as $fktable )
-				{
-					//echo json_encode($fktable);
-					$FkName=$fktable["COLUMN_NAME"];
-					
-					$FkData=$rows[$index][$fktable["COLUMN_NAME"]];;
-					 $inMaster=false;
-					if(count( $MasterTable)>0)
-					{
-						
-							if(in_array(   $fktable["REFERENCED_TABLE_NAME"],$MasterTable))
-							$inMaster=true;
+							foreach(  $ForeginKeyTables as $fktable )
+							{
+							$FkName=$fktable["COLUMN_NAME"];
+							$FkData=$rows[$index][$fktable["COLUMN_NAME"]];;
+							$inMaster=false;
+								if(count( $MasterTable)>0)
+								{
+								if(in_array(   $fktable["REFERENCED_TABLE_NAME"],$MasterTable))
+								$inMaster=true;
+								}
 							
-					//echo "check  ".in_array(   $fktable[REFERENCED_TABLE_NAME],$MasterTable)." -->  ".  $fktable[REFERENCED_TABLE_NAME] ." --> ".json_encode($MasterTable)."-->".$inMaster.  "<br/>";
-					
-					
-					}
-					if( $FkData!=null  &&   $inMaster==false )
-					{
-  				$Query="select  *  from $fktable[REFERENCED_TABLE_NAME]  where $fktable[REFERENCED_COLUMN_NAME] =$FkData;";
-			
-				$FkTableData=$obj->getQuery($Query);
-				unset($rows[$index][$FkName]);
-				$rows[$index]["Virtual".substr($FkName,0,-2)]=$FkTableData[0];
-					}
-				
-			   }
+								if( $FkData!=null  &&   $inMaster==false )
+								{
+								$Query="select  *  from $fktable[REFERENCED_TABLE_NAME]  where $fktable[REFERENCED_COLUMN_NAME] =$FkData;";
+								$FkTableData=$obj->getQuery($Query);
+								unset($rows[$index][$FkName]);
+								$rows[$index]["Virtual".substr($FkName,0,-2)]=$FkTableData[0];
+								}
+							}
 					}
 			   return $rows;
-			   
 	}
 
 	//SaveData
 	function SaveData($data)
 	{
-		
-		foreach( $data as $key=>$value){
-						$obj=new DyamicClass();
-						if( is_array($value))
-						{
-							$MasterKeyValue=array();
-							
-								$obj->beginTran();
-								
-							 $Id=$this->SaveRecord($obj,$key,$value,$MasterKeyValue);
-								
-							$obj->commit();	
-							echo    $Id;
-						}
-						
-							
-					else if(is_object($value)) 
-					{
-					//echo 'OBject'.$key . " = " . $value. "<br>";
-					}
-					
-					else
-					{
-						//echo 'Other'.$key . " = " . $value. "<br>";
-					}
-				}
+		foreach( $data as $key=>$value)
+		{
+			$obj=new DyamicClass();
+			if( is_array($value))
+			{
+			$MasterKeyValue=array();
+			$obj->beginTran();
+			$Id=$this->SaveRecord($obj,$key,$value,$MasterKeyValue);
+			$obj->commit();	
+			echo    $Id;
+			}
+			else if(is_object($value)) 
+			{
+			//echo 'OBject'.$key . " = " . $value. "<br>";
+			}
+			else
+			{
+			//echo 'Other'.$key . " = " . $value. "<br>";
+			}
+		}
 	}
 	function SaveRecord($obj,$Table,$TableData,$MasterKeyValue)
 	{
-		
-									$DetailTable=array();
-									
-									
-									//echo $PrimaryKey;
-								
-									$Query=$this->InsertUpdate($Table,$TableData,$MasterKeyValue,$DetailTable);
-									
-									//echo $Query;
-									$value=$obj->executeQuery($Query);
-										
-									$PrimaryKey=$this->GetPrimaryKey($Table);	
-									$MasterKeyValue[$PrimaryKey]=$TableData[$PrimaryKey];
-									
-								
-										if($MasterKeyValue[$PrimaryKey]==0)
-										{
-										$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
-										$tempData=$obj->getValue($LastInsertIdSql);
-										$MasterKeyValue[$PrimaryKey]=$tempData[0];
-										}
-										//echo json_encode($MasterKeyValue);
-										$this->SaveDetail($obj,$DetailTable,$MasterKeyValue);
-										
-										return $MasterKeyValue[$PrimaryKey];
+			$DetailTable=array();
+			$Query=$this->InsertUpdate($Table,$TableData,$MasterKeyValue,$DetailTable);
+			$value=$obj->executeQuery($Query);
+			$PrimaryKey=$this->GetPrimaryKey($Table);	
+			$MasterKeyValue[$PrimaryKey]=$TableData[$PrimaryKey];
+				if($MasterKeyValue[$PrimaryKey]==0)
+				{
+				$LastInsertIdSql = "SELECT  LAST_INSERT_ID()";
+				$tempData=$obj->getValue($LastInsertIdSql);
+				$MasterKeyValue[$PrimaryKey]=$tempData[0];
+				}
+				
+			$this->SaveDetail($obj,$DetailTable,$MasterKeyValue);
+		return $MasterKeyValue[$PrimaryKey];
 	}
 	function SaveDetail($obj,$DetailTable,$MasterKeyValue)
 	{
 		foreach($DetailTable as  $Table=>$TableDatas)
-							{
-								
+		{
 								if( is_array($TableDatas))
 								{
 									foreach($TableDatas as $TableData)
 									{
-									
 								   $this->SaveRecord($obj,$Table,$TableData,$MasterKeyValue);
 									}
 								}
 								else
 								{
 									$Query=$TableDatas;
-									 //echo $Query;
 									$value=$obj->executeQuery($Query);
 								}
 								
-							}
+		}
 		
 	}
 	
 	
 	
-		  function InsertUpdate($tb,$data,$MasterKeyValue,&$DetailTable)
+function InsertUpdate($tb,$data,$MasterKeyValue,&$DetailTable)
 	{
-		
+		$LoginId=1;
 		$f="";
 		$v="";
 		$fv="";
 		$PrimaryKey=$tb.'Id';
 		$PrimaryKey=$this->GetPrimaryKey($tb);
 		$PrimaryKeyValue=0;
-		//Remove Id MasterTable
-		foreach( $MasterKeyValue as $insertKey=>$insertValue){
-			//echo json_encode($MasterKeyValue);
-		if( array_search($insertKey,$data))
+		foreach( $MasterKeyValue as $insertKey=>$insertValue)
 		{
-				
+			if( array_search($insertKey,$data))
+			{
 			unset($data[$insertKey]);
-			
-		}
-				$f=$insertKey.",";
+			}
+			$f=$insertKey.",";
 			 $v=$insertValue.",";
 		}
-		
-		
-		$Query="select column_name  from information_schema.COLUMNS  where table_name='$tb' ";
+		$Query="select *  from information_schema.COLUMNS  where table_name='$tb' ";
 		$obj=new DyamicClass();
-		
 		$tabledata=$obj->getQuery($Query);
-		
-		foreach( $data as $key=>$value){
-			
-				
-				
+		foreach( $data as $key=>$value)
+		{
 				if($key==$PrimaryKey)
 				{
 					$PrimaryKeyValue=$value;
 				}
-				
-				
 				else if($this->isfield($key,$tb,$tabledata)  &&  !$data[substr($key,0,-2)])
 				{
-					if(isset($value)  && trim($value)!="" )
+					if($key=="InsertedBy")
 					{
-					$f=$f.$key.",";
-					if($key=='BillDate')
+						$f=$f.$key.",";
+						$v=$v."'".$LoginId."',";
+						
+					}
+					else if($key=="InsertedDate")
 					{
-					
-				
-				
+						$f=$f.$key.",";
+						$v=$v."'NOW()',";
+					}
+					else if($key=="ModifiedBy")
+					{
+						$fv=$fv.$key."='".$LoginId."',";
+					}
+					else if($key=="ModifiedDate")
+					{
+						$fv=$fv.$key."='NOW()',";
+					}
+					else if(isset($value)  && trim($value)!="" )
+					{
+						$f=$f.$key.",";
+						if($this->isDate($key)  )
+						{
 						$value=substr($value,0,strpos($value,"T"));
-							$v=$v."'".$value."',";
-					$fv=$fv.$key."='".$value."',";
-					
-					//echo $value."<br/>";
-				
-					}
-					else{
-					$v=$v."'".$value."',";
-					$fv=$fv.$key."='".$value."',";
-					}
+						$v=$v."'".$value."',";
+						$fv=$fv.$key."='".$value."',";
+						}
+						else
+						{
+						$v=$v."'".$value."',";
+						$fv=$fv.$key."='".$value."',";
+						}
 					}
 				}
 				else if($this->isVirtualTable($key))
 				{
 					$VirtualTable=substr($key,7);
-					//echo "VirtualTable=>$VirtualTable <br/>";
-				
-			    $f=$f.$VirtualTable."Id,";
-				$v=$v."'".$value[$VirtualTable."Id"]."',";
-				$fv=$fv.$VirtualTable."Id='".$value[$VirtualTable."Id"]."',";
-				
-				
+					$f=$f.$VirtualTable."Id,";
+					$v=$v."'".$value[$VirtualTable."Id"]."',";
+					$fv=$fv.$VirtualTable."Id='".$value[$VirtualTable."Id"]."',";
 				}
 				else if(substr($key,-3)=="Ids")
 				{
 					  if($value!=""  )
 					  {
-						  
 					   $DeleteTable=substr($key,0,-3);
 					   $DetailTable[$key]="Delete FROM $DeleteTable WHERE ".$DeleteTable."Id in( ".$value.")";
-					   //echo  $DeleteTable." ".$value."<br/>";
 					  }
-					 
-					
 				}
 				else if($this->isTable($key))
 			   {
-				   if(is_array($value))
-					  if(count($value)>0)
-				   $DetailTable[$key]=$value;
-				   
+					if(is_array($value))
+					if(count($value)>0)
+					$DetailTable[$key]=$value;
 				}
 		}
+		if (!strpos($f, 'InsertedBy') ) 
+		{
+			$key='InsertedBy';
+			if($this->isfield($key,$tb,$tabledata))
+			{$f=$f.$key.",";
+			$v=$v."'".$LoginId."',";
+			}
+			
+		}
+		if (!strpos($f, 'InsertedDate') ) 
+		{
+			$key='InsertedDate';
+			if($this->isfield($key,$tb,$tabledata))
+			{$f=$f.$key.",";
+			$v=$v."'NOW()',";
+			}
+		}
+		
 		$f1=rtrim($f,",");
 		$v1=rtrim($v,",");
 		$fv=rtrim($fv,",");
-		
-		
 		$Query="";
-	
 		if($PrimaryKeyValue==0)
 			$Query= "INSERT INTO $tb ($f1) values ($v1)";
 		else
 			$Query= "UPDATE $tb SET $fv where $PrimaryKey= $PrimaryKeyValue";
-		//echo $Query."<br/>";
-		
 		return $Query;
-		
 	}
 	
+	
+	function searcharray($value, $key, $array) {
+   foreach ($array as $k => $val) {
+       if ($val[$key] == $value) {
+           return $k;
+       }
+   }
+   return null;
+}
 	  function isfield($key,$tb,$tabledata)
 	{
-		//echo json_encode($tabledata);
-		
-		
-		
-		if( array_search($insertKey,$tabledata))
-	
+		$datarow=$this->searcharray($key,'COLUMN_NAME',$tabledata);
+		if($datarow!=null )
 		return true;
 		else
+		{
+			
 			return false;
-		/*
-		$Query="select *  from information_schema.COLUMNS  where table_name='$tb' and column_name='$key'";
-		$obj=new DyamicClass();	
-			$rows=$obj->getQuery($Query);
-			if(count($rows)>0)
-			return true;
+		}
+	}
+	
+	  function isDate($key,$tb,$tabledata)
+	{
+		$datarow=$this->searcharray($key,'COLUMN_NAME',$tabledata);
+		if($datarow['Data_Type']=='Date' )
+		return true;
 		else
+		{
+			
 			return false;
-		*/
-		
+		}
 	}
 	  function GetPrimaryKey($tableName)
 	{
-		
-		
 		$obj=new DyamicClass();
-	$Query=$obj->getPrimaryKey($tableName);
-	//echo $Query;
+		$Query=$obj->getPrimaryKey($tableName);
 		$rows=$obj->getQuery($Query);
-			
-			if(count($rows)>0)
+		if(count($rows)>0)
 			return $rows[0]['COLUMN_NAME'];
 		else
 			return "";
-		
 	}
-		function isVirtualTable($tableName)
-		{
-			//echo "TestisVirtualTable  :".$tableName."   ".substr($tableName,0,7)."<br/>";
-			
+	function isVirtualTable($tableName)
+	{
 			if(substr($tableName,0,7)=="Virtual")
-			{
-				
 				return true;
-			
-			}
 			else
 				return false;
-		}
-	
-	  function isTable($key)
+	}
+   function isTable($key)
 	{
 		$Query="select *  from information_schema.tables where table_Name='$key'";
-		
 		$obj=new DyamicClass();
 		$rows=$obj->getQuery($Query);
-	
-	
-			if(count($rows)>0)
+		if(count($rows)>0)
 			return true;
 		else
 			return false;
-		
-		
 	}
-	  function isTables($key)
-	{
-		return false;
-	}
-	
-	
 	
 }
 	//DataLayer
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 $request_method=$_SERVER["REQUEST_METHOD"];
-	
+
 	//echo $request_method;
 	switch($request_method)
 	{
@@ -547,42 +436,29 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 					foreach( $TableNames as $key=>$value){
 							if( is_array($value))
 								{
-												
-											
 												foreach(  $value as $object )
 												
 												{
 													$TableName=$object["TableName"];
 													$rows[0][$TableName]=$objDataLayer->getTableValue($TableName,$PrimaryKey,$PrimaryValue,$MasterTable);
-													
 												}
-												
-						
-					
 								}
 								else
 								{
 								$TableName=$value;
 								$rows=$objDataLayer->getTableValue($TableName,$PrimaryKey,$PrimaryValue,$MasterTable);
 								$MasterTable=array($TableName);
-						
-						
 								}
 					}
-			
-					
-					echo  json_encode($rows[0]);
+			echo  json_encode($rows[0]);
 			}
 			else if(!empty($_GET["List"]))
 			{
-				
-				
 				$TableName=$_GET["TableName"];
 				$Page=$_GET["Page"];
 				$PageSize=$_GET["PageSize"];
 				$Search=$_GET["Search"];
 				$OrderBy=$_GET["OrderBy"];
-				
 				if(isset($Search))
 				{
 					if($Search=='')
@@ -597,24 +473,14 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				{
 					$OrderBy=' Order By '.$OrderBy;
 				}
-				
 				$Page=($Page-1)*$PageSize;
-				
-			$Query=$_GET["Sql"].$Search.$OrderBy.' Limit '.$Page.','.$PageSize;
-				
-			//echo $Query;
-			
-				
+				$Query=$_GET["Sql"].$Search.$OrderBy.' Limit '.$Page.','.$PageSize;
 				$obj=new DyamicClass();
 				$rows=$obj->getQuery($Query);
 				$listdata=$obj->getList($rows);
-				
 				$value=$obj->getValue("select count(1)  from $TableName $Search");
-				
 				$listdata['total'][]= $value;
 				echo json_encode($listdata);
-				
-				
 			}
 			else if(!empty($_GET["deleteObject"]))
 			{
@@ -622,17 +488,15 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				$PrimaryKey=$_GET["PrimaryKey"];
 				$PrimaryValue=$_GET["PrimaryValue"];
 				$Query="DELETE  FROM $TableName WHERE $PrimaryKey=$PrimaryValue";
-				
 				$obj=new DyamicClass();
 				$value=$obj->executeQuery($Query);
 				echo  $value;
-				//echo json_encode($rows[0]);
 			}
 			else if(!empty($_GET["deleteObject1"]))
 			{
 				
 				$MainObject = $_GET["deleteObject1"];
-				 $MainObject=json_decode($MainObject,true);
+				$MainObject=json_decode($MainObject,true);
 				$PrimaryValue=$MainObject["PrimaryValue"];
 				$PrimaryKey=$MainObject["PrimaryKey"];
 				$TableNames=$MainObject["TableNames"];
@@ -643,14 +507,11 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				$TableName= $TableNames[$index]["TableName"];
 					$Query="DELETE  FROM $TableName WHERE $PrimaryKey=$PrimaryValue";
 					$value=$obj->executeQuery($Query);
-				echo $Query."<br />";
-				
+					echo $Query."<br />";
 				}
-							
 			}
 			else if(!empty($_GET["backupdb"]))
 			{
-				
 				$obj=new DyamicClass();
 				$value=$obj->backupdb();
 			}
@@ -658,8 +519,6 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 			{
 			 echo "get Not work";	
 			}
-			
-			 
 			break;
 		case 'POST':
 				$data = json_decode(file_get_contents('php://input'), true);
@@ -685,3 +544,4 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 	
 	
 ?>
+
