@@ -34,18 +34,17 @@
 <div class="col-lg-10">
 
 <div  ng-show='mas_con.HyperLink==0' >
+
 <div  class="row"   >
-
- <master-Form title=mas_con.title datamodel=mas_con.dbdata[mas_con.MasterTableName] insertupdate=mas_con.InsertUpdate() showform=mas_con.showform  hideform=mas_con.hideform  formfields=mas_con.formFields  ></master-Form>
-   
-
-
+<master-Form title=mas_con.title datamodel=mas_con.dbdata[mas_con.MasterTableName] insertupdate=mas_con.InsertUpdate() model=mas_con.editDialog formfields=mas_con.formFields  ></master-Form>
 </div>
-
 <div  class="row" >
-<table-report title=mas_con.title listdata="mas_con.listdata"  addmode="mas_con.addmode()"  editmode="mas_con.editmode(object,index)" deletemode="mas_con.deletemode(object,index)"   doubleclick1="mas_con.doubleclick(object,index)"  tableview=mas_con.Tableview  ></table-report>
-
+<table-report title=mas_con.title listdata="mas_con.listdata"  addmode="mas_con.addmode()"  editmode="mas_con.editmode(object,index)" deletemode="mas_con.deletemode(object,index)"   doubleclick1="mas_con.doubleclick(object,index)"  displaydata=mas_con.Tableview  ></table-report>
 </div>
+
+<!--
+<table-entry2  editindex=mas_con.editindex title=mas_con.title  datamodel=mas_con.listdata  tempmodel=mas_con.dbdata[mas_con.MasterTableName]   deleterecord=mas_con.deletemode(object,index)   addmode=mas_con.addmode() updatemode=mas_con.updatemode(object) ></table-entry2>
+-->
 </div>
 
 
