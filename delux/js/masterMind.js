@@ -20,44 +20,31 @@ angular.module('masterMind').directive('masterForm',  ['$http','URL', function($
 		{
 			$http.get(URL+'?Query='+Query ).then(function (response) {
            scope[TableName]= response.data.listdata;
-		
 				});
-  
-
 		}
-		
-			
       scope.$watch('model.visible', function(newValue) {
         var modalElement = element.find('.modal');
         modalElement.modal(newValue ? 'show' : 'hide');
       });
-      
       element.on('shown.bs.modal', function() {
         scope.$apply(function() {
           scope.model.visible = true;
         });
       });
-
       element.on('hidden.bs.modal', function() {
         scope.$apply(function() {
           scope.model.visible = false;
         });
       });
-	
-	
-	
 	},
     templateUrl: 'delux/js/masterform.html'
   };
 }]);
 
-
-
 angular.module('masterMind').
  directive('tableReport', function() {
   return {
     restrict: 'E',
-	  
     scope: {
 	addbutton:'=',
 	editbutton:'=',
@@ -69,48 +56,27 @@ angular.module('masterMind').
 	  editmode:'&',
 	  deletemode:'&',
 	  doubleclick1:'&'
-	  
-	
     },
-	
-    
 	link: function (scope, element, attrs) {
-		
-		
-	
-		
-		
-
-
-	
-	
 
  scope.clearAll=function(record)
  {
-	
 	 	for (column in record) 
 					{
 						if(column!='$$hashKey')
 							 record[column]='';
-	        			
-							
 	        		}
  }
 		scope.adddata=function()
 		{
-			 
 			scope.addmode();
-			//console.log('add mode');
 		}
-		
 		scope.editedata1=function(object,index)
 		{
-			//console.log('editedata1');
 			scope.editmode({object:object,index:index});
 		}
 		scope.deletemode1=function(object,index)
 		{
-			//console.log('deletemode');
 			scope.deletemode({object:object,index:index});
 		}
 		scope.viewdata1=function(object,index)
@@ -119,53 +85,37 @@ angular.module('masterMind').
 			 scope.doubleclick1({object:object,index:index});
 			 
 		}
-	
-  scope.rowIndex = -1;
+		scope.rowIndex = -1;
 		scope.selectRow = function(index){
 			
           scope.rowIndex = index;
 		}
-		
 		scope.dblclick = function(object,index){
-			
-			
-	
 	  scope.doubleclick1({object:object,index:index});
-	
 		}
 		 scope.clicked = '';
-  scope.ShowContextMenu = function(){
-   // alert('hello');
+		scope.ShowContextMenu = function(){
   };
   scope.edit = function() {
     scope.clicked = 'edit was clicked';
 	scope.dataone();
-    //console.log("edit");
   };
   
   scope.properties = function() {
     scope.clicked = 'properties was clicked';
-    //console.log(scope.clicked);
+
   };
-  
   scope.link = function() {
     scope.clicked = 'link was clicked';
-   // console.log(scope.clicked);
   };
-  
   scope.delete = function() {
     scope.clicked = 'delete was clicked';
-   // console.log(scope.clicked);
   };
-		
 		
 	},
     templateUrl: 'delux/js/tableReport.html'
   };
 });
-
-
-
 angular.module('masterMind').directive('cellHighlight', function() {
     return {
       restrict: 'C',
@@ -205,16 +155,6 @@ angular.module('masterMind').directive('cellHighlight', function() {
                 });
                 last = event.timeStamp;
               });
-              //$(iElement).click(function(event) {
-              //  ul.css({
-              //    position: "fixed",
-              //    display: "block",
-              //    left: event.clientX + 'px',
-              //    top: event.clientY + 'px'
-              //  });
-              //  last = event.timeStamp;
-              //});
-
               $(document).click(function(event) {
                 var target = $(event.target);
                 if (!target.is(".popover") && !target.parents().is(".popover")) {
@@ -768,15 +708,12 @@ angular.module('masterMind').component('tableEntry2', {
 	  
   }
 });
-
-
 function dynamicDetailsController($scope, $element, $attrs,$http) {
 	
-	var ctrl = this;
+		var ctrl = this;
 		ctrl.editDialog = new EditPersonDialogModel();
 		 //AddRecord
             ctrl.AddRecord = function () {
-				
             $scope.ModelButton = "Add";
             ctrl["Temp"+ctrl.tablename] = {};
 			ctrl["Temp"+ctrl.tablename]["Srno"]=0;
@@ -785,7 +722,6 @@ function dynamicDetailsController($scope, $element, $attrs,$http) {
 			{
 				ctrl["Temp"+ctrl.tablename]["VirtualCrDrMaster"]={};
 				ctrl["Temp"+ctrl.tablename]["VirtualCrDrMaster"]["CrDrMasterId"]=ctrl.crdrmasterid;
-				
 				if(ctrl.crdrmasterid==1)
 				ctrl["Temp"+ctrl.tablename]["VirtualCrDrMaster"]["CrDrName"]="Cr";
 				if(ctrl.crdrmasterid==2)
@@ -793,75 +729,53 @@ function dynamicDetailsController($scope, $element, $attrs,$http) {
 			
 			}
 			ctrl.editDialog.open(ctrl["Temp"+ctrl.tablename] , ctrl.modelfields,"Add Item","Add");
-
-
-
             } 
 			
 			this.editrecord1=function(object,index)
-	{
-            
+			{
               $scope.ModelButton = "Edit";
               ctrl.TempTrandetails = {};
 			  ctrl["Temp"+ctrl.tablename] = {};
               ctrl["Temp"+ctrl.tablename]= angular.copy(object);
 		      ctrl.editDialog.open(  ctrl["Temp"+ctrl.tablename], ctrl.modelfields,"Edit Item","Edit");
-		
-	}
-	this.deleterecord1=function(object,index)
-	{
-		
-					if(ctrl.detailsids!=undefined)
+			}
+			this.deleterecord1=function(object,index)
+			{
+				if(ctrl.detailsids!=undefined)
 					{
 						if( ctrl.datamodel[index][ctrl.tablename+"Id"]>0)
 						{
-							
 							if(ctrl.detailsids=="")
 							ctrl.detailsids=ctrl.datamodel[index][ctrl.tablename+"Id"];
-								else
-									ctrl.detailsids=ctrl.detailsids+","+ctrl.datamodel[index][ctrl.tablename+"Id"];
-								
-							}
+							else
+							ctrl.detailsids=ctrl.detailsids+","+ctrl.datamodel[index][ctrl.tablename+"Id"];
+						}
 					}
-					
-                 ctrl.datamodel.splice(index, 1);
+				ctrl.datamodel.splice(index, 1);
                 for (; index <  ctrl.datamodel.length; index++) {
 						ctrl.datamodel[index].Srno = index + 1;
                 }
-                  ctrl.total= ctrl.TotalAccount(ctrl.datamodel,"Amount");
-				 
-	}
-	  
-	  
+                ctrl.total= ctrl.TotalAccount(ctrl.datamodel,"Amount");
+			}
 	   //pushRecord
-            ctrl.pushrecord = function (object) {
-					ctrl.editDialog.close();
-				
-				
-				                if (ctrl["Temp"+ctrl.tablename]["Srno"] == 0) {
-									
-                    if ( ctrl.datamodel == null)
+           ctrl.pushrecord = function (object) 
+		   {
+				ctrl.editDialog.close();
+				if (ctrl["Temp"+ctrl.tablename]["Srno"] == 0) {
+				    if ( ctrl.datamodel == null)
                        ctrl.datamodel = [];
-					 
                   ctrl["Temp"+ctrl.tablename]["Srno"] =  ctrl.datamodel.length + 1;
                     ctrl.datamodel.push(ctrl["Temp"+ctrl.tablename]);
                 }
                 else {
                    ctrl.datamodel[ctrl["Temp"+ctrl.tablename]["Srno"]- 1] =ctrl["Temp"+ctrl.tablename];
-               }
-			   
+				}
 			    ctrl.total=ctrl.TotalAccount(ctrl.datamodel,"Amount");
-				
-			   
-
             }
 	  
-	  
-	  this.TotalAccount=function(datalist,key)
+		this.TotalAccount=function(datalist,key)
 			{
 				var total = 0;
-
-
                 for (var index = 0; index < datalist.length; index++)
 				{
 					 if(ctrl.crdrmasterid==undefined)
@@ -873,20 +787,14 @@ function dynamicDetailsController($scope, $element, $attrs,$http) {
 						 if(datalist[index]["VirtualCrDrMaster"]["CrDrMasterId"]==ctrl.crdrmasterid )
 							 total = total + parseFloat(datalist[index][key]);
 					 }
-					
-                    
 				}
 				return total;
-                
 			}
-	  
-	  
 }
 
 angular.module('masterMind').component('dynamicDetails', {
   templateUrl: 'delux/js/DynamicDetails.html',
-  
-   controller: dynamicDetailsController,
+  controller: dynamicDetailsController,
   bindings: {
 	  crdrmasterid:'=',
 	  rate:'=',
@@ -896,12 +804,8 @@ angular.module('masterMind').component('dynamicDetails', {
       datamodel: '=',
 	  modelfields:'=',
 	  formfields:'='
-	  
-  }
+	  }
 });
-
-
-
 
 	var EditPersonDialogModel = function () {
   this.visible = false;
@@ -954,12 +858,8 @@ angular.module('masterMind').directive('editPersonDialog', [function() {
     templateUrl: 'delux/js/dialog.html',
   };
 }]);
-
-
-
 //filter
 angular.module('masterMind')
-
 .filter('convertToWord', function() {
     return function(amt) {
 		if(amt==undefined)
@@ -1050,44 +950,23 @@ angular.module('masterMind')
 
             return function (object,values) {
 				
-				/*
-				var value=values.split('*');
-				
-				
-				var sum=1;
-				for(i=0;i<value.length;i++)
-				{
-				
-					sum=sum*object[value[i]];
-					
-				}
-				*/
 			 var parseFun = $parse(values);
 						 var   sum= parseFun(object);
                 return sum;
             }
         });
-		
-		
 		angular.module('masterMind').filter("arraysum", function ($parse) {
-
             return function (object,fieldName,Condition) {
-				
-			
 				if(fieldName==undefined || object==undefined )
 				return 0;
 			else{
-				
-				
 				var sum=0;
 				for(i=0;i<object.length;i++)
 				{
-					
-					  
 					if(Condition==undefined)
 					{
 							if(object[i][fieldName]!=undefined)
-					sum=sum+parseFloat(object[i][fieldName]);
+							sum=sum+parseFloat(object[i][fieldName]);
 					}
 				     else 
 					 {
@@ -1104,13 +983,8 @@ angular.module('masterMind')
 			}
             }
         });
-		
-		
 		angular.module('masterMind').filter("countNotAggregate", function () {
-
             return function (object) {
-				
-			
 				if( object==undefined )
 				return 0;
 			else{
@@ -1129,54 +1003,35 @@ angular.module('masterMind')
 					}
 				
 				}
-				
                 return count;
 			}
             }
         });
-		
  angular.module('masterMind').filter("MyCondition", function ($parse) {
-
             return function (object,values) {
-				
-				
 				if(values==undefined ||  object==undefined)
 				{
 					return true;
 				}
 					else
 					{
-						
 						var parseFun = $parse(values);
 						    return  flag= parseFun(object);
-							
-							
-				
-
-                
 					}
             }
         });
-		
-	
-
 //service
-
 angular.module('masterMind').service("ServiceMaster",function()
 {
 	  return function()
 	  {
-		  
 			this.TotalArrayObject=function(datalist,key)
 			{
 				var total = 0;
-
-
                 for (var index = 0; index < datalist.length; index++)
                     total = total + parseFloat(datalist[index][key]);
 				
 				return total;
-                
 			}
 	  };
 });
