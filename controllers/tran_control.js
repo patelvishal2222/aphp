@@ -73,6 +73,19 @@ myApp.controller('tran_control', function ($scope, $state, $http, $location,$sta
 
 
             }
+	    
+	    
+	    	$('#myModal').on('shown.bs.modal', function () {
+    $('#cmbItem').focus();
+})  
+
+$('#myModalDirect').on('shown.bs.modal', function () {
+    $('#Length').focus();
+})  
+
+$('#create_account_info_modal').on('shown.bs.modal', function () {
+    $('#AccountName').focus();
+}) 
 			//AddAccount
 			this.AddAccount = function () {
 				
