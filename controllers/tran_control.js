@@ -453,7 +453,7 @@ $('#create_account_info_modal').on('shown.bs.modal', function () {
     };
 
 
-    
+     $('#BillNo').focus();
 
 });
 
