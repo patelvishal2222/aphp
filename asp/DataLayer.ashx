@@ -25,7 +25,7 @@ public class DataLayer:IHttpHandler
 {
 
 string connectionstring="Data Source=ADV-WKS-IN-0285\\TEST;Initial Catalog=Account;Persist Security Info=True;User ID=sa;password=Rinal@2018";
-string    mysqlconnectionString="Server=localhost;userid=root;password=root;Database=Account"  ;
+string    mysqlconnectionString="Server=localhost;userid=root;password=root;Database=Account;Convert Zero Datetime=True"  ;
     public bool IsReusable
     {
         get { return false; }
@@ -40,7 +40,7 @@ string    mysqlconnectionString="Server=localhost;userid=root;password=root;Data
 		HttpRequest Request = context.Request;
             HttpResponse Response = context.Response;
              
-         Response.Write( Request.HttpMethod);
+       //  Response.Write( Request.HttpMethod);
 		  if(context.Request.QueryString["Query"]!=null)
             {
 			  
@@ -53,11 +53,12 @@ string    mysqlconnectionString="Server=localhost;userid=root;password=root;Data
 			}
 			else  if(context.Request.QueryString["getObject"]!=null)
 			{
-			String TableName=context.Request.QueryString["getObject"];
+			String TableName=context.Request.QueryString["getObject"].Trim();
 			String PrimaryKey=context.Request.QueryString["PrimaryKey"];
 			String PrimaryValue=context.Request.QueryString["PrimaryValue"];
 			String Query="Select *  FROM "+TableName+" WHERE "+PrimaryKey+"="+PrimaryValue;
 				 MySqlDB objMsSqlDB=new MySqlDB(mysqlconnectionString);
+				 
 				 DataTable dt=objMsSqlDB.getQuery(Query);
 				
 				/*
@@ -79,8 +80,35 @@ string    mysqlconnectionString="Server=localhost;userid=root;password=root;Data
 				
 			   }
 			   */
-			string  webdata =DabaseManager.DataTableTOJson(dt);
-				  Response.Write(webdata);
+			
+			dynamic  dyamicobejct=new  DynamicJsonObject();
+			dyamicobejct.setDataTable(dt);
+			   
+			
+				
+			   Query =objMsSqlDB.getForeginkeyQuery(TableName);
+			   
+			   dt=objMsSqlDB.getQuery(Query);
+				foreach(DataRow  dr in dt.Rows)
+				{
+				  String  FkName=dr["COLUMN_NAME"].ToString();
+				  string FkData=dyamicobejct[FkName];
+				  if(FkData!="")
+				  {
+				  Query="select  *  from   "+ dr["REFERENCED_TABLE_NAME"] +" where  "+dr["REFERENCED_COLUMN_NAME"]+" ="+FkData  ;
+				     dt=objMsSqlDB.getQuery(Query);
+					 dynamic  dyamicsubobejct=new  DynamicJsonObject();
+					 
+					 dyamicsubobejct.setDataTable(dt);
+				  dyamicobejct["Virtual"+FkName.Substring(0,FkName.Length-2)]=dyamicsubobejct;
+				 // Response.Write(Query);
+				  	dyamicobejct.RemoveObject(FkName);
+					}
+				  
+				}
+				
+				  Response.Write(dyamicobejct.ToString());
+				 // Response.Write(webdata);
 			}
 			else  if(context.Request.QueryString["getObject1"]!=null)
 			{
@@ -362,6 +390,7 @@ public class  MySqlDB
 {
 string _connectionstr;
         MySqlConnection objSqlConnection;
+		string Schema="Account";
         public MySqlDB(string connectionstr)
         {
             _connectionstr = connectionstr;
@@ -380,6 +409,11 @@ string _connectionstr;
             return dt;
 
         }
+		public string getForeginkeyQuery(String TableName)
+		{
+		string  Query="SELECT  COLUMN_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME  FROM information_schema.KEY_COLUMN_USAGE   where  TABLE_NAME='"+TableName+"'  and  table_schema='"+Schema+"' and REFERENCED_COLUMN_NAME is not null";
+		return Query;
+		}
 		
 }
 
@@ -402,13 +436,42 @@ string _connectionstr;
         {
             _dictionary = new Dictionary<string, object>();
         }
-
+		// public static void RemoveMember(object dynamicObject, string memberName);
+  //public static bool TryRemoveMember(object dynamicObject, string memberName, out object removedMember);
+		
+		public  void RemoveObject(string columnName)
+		{
+		
+			_dictionary.Remove(columnName);
+		}
         public override string ToString()
         {
             var sb = new StringBuilder("{");
             ToString(sb);
             return sb.ToString();
         }
+		public void setDataTable(DataTable dt)
+		{
+		
+		
+		 for(int i=0;i<dt.Rows.Count;i++)
+				{
+					for( int j=0;j<dt.Columns.Count;j++)
+					{
+						if(dt.Rows[i][j].GetType()==  typeof(DateTime) )
+                        {
+                          _dictionary.Add(dt.Columns[j].ColumnName, Convert.ToDateTime(dt.Rows[i][j]).ToString("dd-MMM-yyyy"));
+                        }
+                        else
+						{
+							 _dictionary.Add(dt.Columns[j].ColumnName,dt.Rows[i][j].ToString());
+						}
+					}
+				
+				}
+				
+				
+		}
 
         private void ToString(StringBuilder sb)
         {
@@ -570,3 +633,5 @@ string _connectionstr;
     }
 
     #endregion
+
+	
