@@ -1,12 +1,9 @@
-
 <?php
-
-
  class Database
 {
 	    //public $conn;
 		public $servername = "localhost";
-		public $dbname = "account";
+		public $dbname = "Account";
 		public   $username = "root";
 		public $password = "root";
 }
@@ -68,7 +65,7 @@ class DyamicClass  extends Database
 	}
 	public function executeQuery($Query)
 	{
-		//	echo  $Query;
+   echo  $Query;
 		$Result=  $this->conn->query($Query);
 	   if($Result)
 			return true;
@@ -101,7 +98,6 @@ class DyamicClass  extends Database
     }
 		
 }
-
 class DataLayer 
 {
 	function getTableValue($TableName,$PrimaryKey,$PrimaryValue,$MasterTable)
@@ -136,7 +132,6 @@ class DataLayer
 					}
 			   return $rows;
 	}
-
 	//SaveData
 	function SaveData($data)
 	{
@@ -203,7 +198,7 @@ class DataLayer
 	
 function InsertUpdate($tb,$data,$MasterKeyValue,&$DetailTable)
 	{
-		$LoginId=1;
+		
 		$f="";
 		$v="";
 		$fv="";
@@ -230,29 +225,10 @@ function InsertUpdate($tb,$data,$MasterKeyValue,&$DetailTable)
 				}
 				else if($this->isfield($key,$tb,$tabledata)  &&  !$data[substr($key,0,-2)])
 				{
-					if($key=="InsertedBy")
+					if(isset($value)  && trim($value)!="" )
 					{
 						$f=$f.$key.",";
-						$v=$v."'".$LoginId."',";
-						
-					}
-					else if($key=="InsertedDate")
-					{
-						$f=$f.$key.",";
-						$v=$v."'NOW()',";
-					}
-					else if($key=="ModifiedBy")
-					{
-						$fv=$fv.$key."='".$LoginId."',";
-					}
-					else if($key=="ModifiedDate")
-					{
-						$fv=$fv.$key."='NOW()',";
-					}
-					else if(isset($value)  && trim($value)!="" )
-					{
-						$f=$f.$key.",";
-						if($this->isDate($key)  )
+						if($key=='BillDate' || $key=='ExpireDate' )
 						{
 						$value=substr($value,0,strpos($value,"T"));
 						$v=$v."'".$value."',";
@@ -287,24 +263,6 @@ function InsertUpdate($tb,$data,$MasterKeyValue,&$DetailTable)
 					$DetailTable[$key]=$value;
 				}
 		}
-		if (!strpos($f, 'InsertedBy') ) 
-		{
-			$key='InsertedBy';
-			if($this->isfield($key,$tb,$tabledata))
-			{$f=$f.$key.",";
-			$v=$v."'".$LoginId."',";
-			}
-			
-		}
-		if (!strpos($f, 'InsertedDate') ) 
-		{
-			$key='InsertedDate';
-			if($this->isfield($key,$tb,$tabledata))
-			{$f=$f.$key.",";
-			$v=$v."'NOW()',";
-			}
-		}
-		
 		$f1=rtrim($f,",");
 		$v1=rtrim($v,",");
 		$fv=rtrim($fv,",");
@@ -329,18 +287,6 @@ function InsertUpdate($tb,$data,$MasterKeyValue,&$DetailTable)
 	{
 		$datarow=$this->searcharray($key,'COLUMN_NAME',$tabledata);
 		if($datarow!=null )
-		return true;
-		else
-		{
-			
-			return false;
-		}
-	}
-	
-	  function isDate($key,$tb,$tabledata)
-	{
-		$datarow=$this->searcharray($key,'COLUMN_NAME',$tabledata);
-		if($datarow['Data_Type']=='Date' )
 		return true;
 		else
 		{
@@ -378,10 +324,8 @@ function InsertUpdate($tb,$data,$MasterKeyValue,&$DetailTable)
 	
 }
 	//DataLayer
-
-
 $request_method=$_SERVER["REQUEST_METHOD"];
-
+	
 	//echo $request_method;
 	switch($request_method)
 	{
@@ -396,7 +340,7 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				$listdata=$obj->getList($rows);
 				echo json_encode($listdata);
 			}
-			else if(!empty($_GET["getObject"]))
+			else if(!empty($_GET["getObject2"]))
 			{
 				$TableName=$_GET["getObject"];
 				$PrimaryKey=$_GET["PrimaryKey"];
@@ -422,10 +366,10 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				echo json_encode($rows[0]);
 	
 			}
-			else if(!empty($_GET["getObject1"]))
+			else if(!empty($_GET["getObject"]))
 			{
 				
-				$MainObject = $_GET["getObject1"];
+				$MainObject = $_GET["getObject"];
 				 $MainObject=json_decode($MainObject,true);
 				$PrimaryValue=$MainObject["PrimaryValue"];
 				$PrimaryKey=$MainObject["PrimaryKey"];
@@ -482,7 +426,7 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				$listdata['total'][]= $value;
 				echo json_encode($listdata);
 			}
-			else if(!empty($_GET["deleteObject"]))
+			else if(!empty($_GET["deleteObject2"]))
 			{
 				$TableName=$_GET["deleteObject"];
 				$PrimaryKey=$_GET["PrimaryKey"];
@@ -492,10 +436,10 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				$value=$obj->executeQuery($Query);
 				echo  $value;
 			}
-			else if(!empty($_GET["deleteObject1"]))
+			else if(!empty($_GET["deleteObject"]))
 			{
 				
-				$MainObject = $_GET["deleteObject1"];
+				$MainObject = $_GET["deleteObject"];
 				$MainObject=json_decode($MainObject,true);
 				$PrimaryValue=$MainObject["PrimaryValue"];
 				$PrimaryKey=$MainObject["PrimaryKey"];
@@ -544,4 +488,3 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 	
 	
 ?>
-
