@@ -53,7 +53,9 @@ string    mysqlconnectionString="Server=localhost;userid=root;password=root;Data
 			}
 			else  if(context.Request.QueryString["getObject"]!=null)
 			{
-			String TableName=context.Request.QueryString["getObject"].Trim();
+			String getObject=context.Request.QueryString["getObject"].Trim();
+			dynamic  dyamicobejct=new  DynamicJsonObject(getObject);
+			string TableName="";
 			String PrimaryKey=context.Request.QueryString["PrimaryKey"];
 			String PrimaryValue=context.Request.QueryString["PrimaryValue"];
 			String Query="Select *  FROM "+TableName+" WHERE "+PrimaryKey+"="+PrimaryValue;
@@ -61,26 +63,7 @@ string    mysqlconnectionString="Server=localhost;userid=root;password=root;Data
 				 
 				 DataTable dt=objMsSqlDB.getQuery(Query);
 				
-				/*
-				$obj=new DyamicClass();
-				$rows=$obj->getQuery($Query);
-				$Query=$obj->getForeginkeyQuery($TableName);
-				$ForeginKeyTables=$obj->getQuery($Query);
-				foreach(  $ForeginKeyTables as $fktable )
-				{
-					$FkName=$fktable["COLUMN_NAME"];
-					$FkData=$rows[0][$fktable["COLUMN_NAME"]];;
-					if( $FkData!=null)
-					{
-						$Query="select  *  from $fktable[REFERENCED_TABLE_NAME]  where $fktable[REFERENCED_COLUMN_NAME] =$FkData;";
-						$FkTableData=$obj->getQuery($Query);
-						unset($rows[0][$FkName]);
-						$rows[0][substr($FkName,0,-2)]=$FkTableData[0];
-					}
 				
-			   }
-			   */
-			
 			dynamic  dyamicobejct=new  DynamicJsonObject();
 			dyamicobejct.setDataTable(dt);
 			   
@@ -101,26 +84,30 @@ string    mysqlconnectionString="Server=localhost;userid=root;password=root;Data
 					 
 					 dyamicsubobejct.setDataTable(dt);
 				  dyamicobejct["Virtual"+FkName.Substring(0,FkName.Length-2)]=dyamicsubobejct;
-				 // Response.Write(Query);
+			
 				  	dyamicobejct.RemoveObject(FkName);
 					}
 				  
 				}
 				
 				  Response.Write(dyamicobejct.ToString());
-				 // Response.Write(webdata);
+				
 			}
-			else  if(context.Request.QueryString["getObject1"]!=null)
+			else  if(context.Request.QueryString["List"]!=null)
 			{
-			String getObject=context.Request.QueryString["getObject1"];
-				context.Response.Write(getObject);
+			String TableName=context.Request.QueryString["List"];
+				String  Query=context.Request.QueryString["Sql"];
+				
+				
+				 MySqlDB objMsSqlDB=new MySqlDB(mysqlconnectionString);
+				 DataTable dt=objMsSqlDB.getQuery(Query);
+				 string  webdata =DabaseManager.DataTableTOJson(dt);
+				  Response.Write(webdata);
 			}
 			else  if(context.Request.QueryString["deleteObject"]!=null)
 			{
 			}
-			else  if(context.Request.QueryString["deleteObject1"]!=null)
-			{
-			}
+			
 			else  if(context.Request.QueryString["saveObject"]!=null)
 			{
 			}
@@ -144,7 +131,7 @@ string    mysqlconnectionString="Server=localhost;userid=root;password=root;Data
 	
 	 
 				String webdata = string.Empty;
-            webdata = webdata + "{\"records\":[";
+            webdata = webdata + "{\"listdata\":[";
 				
                   
                 foreach(DataRow  dr in dt.Rows)
@@ -452,24 +439,28 @@ string _connectionstr;
         }
 		public void setDataTable(DataTable dt)
 		{
-		
+		ArrayList arrayList=new ArrayList();
 		
 		 for(int i=0;i<dt.Rows.Count;i++)
 				{
+					dynamic objDynamicJsonObject=new DynamicJsonObject();
 					for( int j=0;j<dt.Columns.Count;j++)
 					{
 						if(dt.Rows[i][j].GetType()==  typeof(DateTime) )
                         {
                           _dictionary.Add(dt.Columns[j].ColumnName, Convert.ToDateTime(dt.Rows[i][j]).ToString("dd-MMM-yyyy"));
+						  objDynamicJsonObject[dt.Columns[j].ColumnName]= Convert.ToDateTime(dt.Rows[i][j]).ToString("dd-MMM-yyyy");
                         }
                         else
 						{
 							 _dictionary.Add(dt.Columns[j].ColumnName,dt.Rows[i][j].ToString());
+							 objDynamicJsonObject[dt.Columns[j].ColumnName]= dt.Rows[i][j].ToString();
 						}
 					}
+					arrayList.Add(objDynamicJsonObject);
 				
 				}
-				
+				 
 				
 		}
 
