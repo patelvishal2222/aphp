@@ -419,12 +419,76 @@ string _connectionstr;
             _dictionary = dictionary;
             count = _dictionary.Count; 
         }
+		
+		
+		
         public DynamicJsonObject()
         {
             _dictionary = new Dictionary<string, object>();
         }
+		
+		
+		
 		// public static void RemoveMember(object dynamicObject, string memberName);
   //public static bool TryRemoveMember(object dynamicObject, string memberName, out object removedMember);
+		
+		 public DynamicJsonObject(string strjson)
+        {
+            _dictionary = jsonToObject(strjson);
+        }
+
+		
+		  public dynamic jsonToObject(string strjson)
+    {
+        ExpandoJSONConverter d = new ExpandoJSONConverter();
+        System.Web.Script.Serialization.JavaScriptSerializer j = new System.Web.Script.Serialization.JavaScriptSerializer();
+        dynamic objectdata = j.Deserialize(strjson, typeof(object));
+
+        dynamic result = new Dictionary<string, object>();
+        foreach (dynamic obj in objectdata)
+        {
+
+          
+            dynamic dictionary = obj.Value as IDictionary<string, object>;
+            if (dictionary==null)
+            result.Add(obj.Key,obj.Value) ;
+            else
+            {
+                dynamic objectData = dynamicobject(dictionary);
+                result.Add(obj.Key, objectData);
+            }
+            
+        }
+       // result = dynamicobject(objectdata);
+        return result;
+
+
+    }
+
+
+    public dynamic dynamicobject(dynamic objectdata )
+    {
+         Dictionary<string, object> result = new Dictionary<string, object>();
+        foreach (dynamic obj in objectdata)
+        {
+
+            dynamic dictionary = obj.Value as IDictionary<string, object>;
+            if (dictionary == null)
+                result.Add(obj.Key, obj.Value);
+            else
+            {
+                dynamic objectData = dynamicobject(obj.Value);
+                result.Add(obj.Key, objectData);
+            }
+
+            
+         
+
+        }
+        return result;
+
+    }
+
 		
 		public  void RemoveObject(string columnName)
 		{
