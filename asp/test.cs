@@ -57,7 +57,7 @@
                         DynamicJsonObject obj1 = new DynamicJsonObject();
 
                          obj1.setObject(obj.Value);
-                        objDynamicJsonObject =objDynamicJsonObject+ GetObject(PrimaryKey, PrimaryValue,obj1);
+                         resultDynamicJsonObject = resultDynamicJsonObject + GetObject(PrimaryKey, PrimaryValue, obj1);
                     }
                     else if (obj.Value.GetType().ToString() == "System.String")
                     {
@@ -167,8 +167,11 @@
     }
         public static DynamicJsonObject operator +(DynamicJsonObject First, DynamicJsonObject Secoend)
         {
+            System.Collections.Generic.IDictionary<string, object> keydata = Secoend._dictionary;
 
-            ((dynamic)First)["Secoend"] =Secoend;
+
+
+                ((dynamic)First)[keydata.First().Key] = keydata.First().Value;
             return First;
         }
            
