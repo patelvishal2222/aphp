@@ -266,16 +266,22 @@
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 dynamic objDynamicJsonObject = new DynamicJsonObject();
+                
                 for (int j = 0; j < dt.Columns.Count; j++)
                 {
                     if (dt.Rows[i][j].GetType() == typeof(DateTime))
                     {
-                       // _dictionary.Add(dt.Columns[j].ColumnName, Convert.ToDateTime(dt.Rows[i][j]).ToString("dd-MMM-yyyy"));
+
+                        if (dt.Rows.Count == 1)
+                        _dictionary.Add(dt.Columns[j].ColumnName, Convert.ToDateTime(dt.Rows[i][j]).ToString("dd-MMM-yyyy"));
+                        else
                         objDynamicJsonObject[dt.Columns[j].ColumnName] = Convert.ToDateTime(dt.Rows[i][j]).ToString("dd-MMM-yyyy");
                     }
                     else
                     {
-                       // _dictionary.Add(dt.Columns[j].ColumnName, dt.Rows[i][j].ToString());
+                        if (dt.Rows.Count == 1)
+                        _dictionary.Add(dt.Columns[j].ColumnName, dt.Rows[i][j].ToString());
+                        else
                         objDynamicJsonObject[dt.Columns[j].ColumnName] = dt.Rows[i][j].ToString();
                     }
                 }
@@ -284,7 +290,7 @@
             }
             if (dt.Rows.Count == 1)
             {
-                _dictionary[tableName] = arrayList[0];
+                //_dictionary = ((DynamicJsonObject)arrayList[0])._dictionary;
             }
             else if (dt.Rows.Count>1)
             {
