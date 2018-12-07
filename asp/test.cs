@@ -45,19 +45,25 @@
             }
 
 
-            public DynamicJsonObject GetObject(string PrimaryKey,string PrimaryValue,DynamicJsonObject objDynamicJsonObject)
+            public DynamicJsonObject GetObject(string PrimaryKey, string PrimaryValue, DynamicJsonObject objDynamicJsonObject)
             {
                 DynamicJsonObject resultDynamicJsonObject = new DynamicJsonObject();
                 foreach (System.Collections.Generic.KeyValuePair<string, object> obj in objDynamicJsonObject)
                 {
 
-                    
-                        if(obj.Value.GetType().IsArray==true)
-                    {
-                        DynamicJsonObject obj1 = new DynamicJsonObject();
 
-                         obj1.setObject(obj.Value);
-                         resultDynamicJsonObject = resultDynamicJsonObject + GetObject(PrimaryKey, PrimaryValue, obj1);
+                    if (obj.Value.GetType().IsArray == true)
+                    {
+                        object t = obj.Value;
+
+                        object[] objdata = (object[])t;
+                        for (int i = 0; i < objdata.Length; i++)
+                        {
+                            DynamicJsonObject obj1 = new DynamicJsonObject();
+                            obj1.setObject(objdata[i]);
+
+                            resultDynamicJsonObject = resultDynamicJsonObject + GetObject(PrimaryKey, PrimaryValue, obj1);
+                        }
                     }
                     else if (obj.Value.GetType().ToString() == "System.String")
                     {
@@ -72,7 +78,7 @@
                     }
                 }
                 return resultDynamicJsonObject;
- 
+
 
             }
         public string saveObject(string jsonstr)
@@ -150,21 +156,18 @@
             _dictionary = dictionary;
             count = _dictionary.Count;
         }
-        public void setObject (object objs)
-    {
-        
-            object[] obj =(object[]) objs;
-        for (int i = 0; i < obj.Length; i++)
+        public void setObject(object obj)
         {
 
-            System.Collections.Generic.Dictionary<string, object> keydata2 = (System.Collections.Generic.Dictionary<string, object>)obj[i];
-            
-            System.Collections.Generic.KeyValuePair<string, object> keydata= keydata2.First();
-            _dictionary.Add(keydata.Key, keydata.Value );
+           
+                System.Collections.Generic.Dictionary<string, object> keydata2 = (System.Collections.Generic.Dictionary<string, object>)obj;
 
+                System.Collections.Generic.KeyValuePair<string, object> keydata = keydata2.First();
+                _dictionary.Add(keydata.Key, keydata.Value);
+
+            
+            //count = _dictionary.Count;
         }
-        //count = _dictionary.Count;
-    }
         public static DynamicJsonObject operator +(DynamicJsonObject First, DynamicJsonObject Secoend)
         {
             System.Collections.Generic.IDictionary<string, object> keydata = Secoend._dictionary;
