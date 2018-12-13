@@ -53,8 +53,14 @@ string    mysqlconnectionString="Server=localhost;userid=root;password=root;Data
 			}
 			else  if(context.Request.QueryString["getObject"]!=null)
 			{
-			String getObject=context.Request.QueryString["getObject"].Trim();
-			dynamic  dyamicobejct=new  DynamicJsonObject(getObject);
+			String strgetObject=context.Request.QueryString["getObject"].Trim();
+			DBLayer objDataLayer=new DBLayer();
+			
+			Response.Write(objDataLayer.getObject(strgetObject));
+			return ;
+			dynamic  dynamicgetObject=new  DynamicJsonObject(strgetObject);
+			Response.Write(dynamicgetObject.ToString());
+			return ;
 			string TableName="";
 			String PrimaryKey=context.Request.QueryString["PrimaryKey"];
 			String PrimaryValue=context.Request.QueryString["PrimaryValue"];
@@ -408,7 +414,7 @@ string _connectionstr;
 
  #region Nested type: DynamicJsonObject
     [Serializable]
-    public sealed class DynamicJsonObject : DynamicObject
+    public sealed class DynamicJsonObject : System.Dynamic.DynamicObject, IEnumerable
     {
         public readonly IDictionary<string, object> _dictionary;
         public int count=0;
@@ -419,76 +425,210 @@ string _connectionstr;
             _dictionary = dictionary;
             count = _dictionary.Count; 
         }
-		
-		
-		
         public DynamicJsonObject()
         {
             _dictionary = new Dictionary<string, object>();
         }
 		
-		
-		
-		// public static void RemoveMember(object dynamicObject, string memberName);
-  //public static bool TryRemoveMember(object dynamicObject, string memberName, out object removedMember);
-		
-		 public DynamicJsonObject(string strjson)
+		public DynamicJsonObject(string strjson)
         {
             _dictionary = jsonToObject(strjson);
         }
 
+        public dynamic jsonToObject(string strjson)
+        {
+            
+            System.Web.Script.Serialization.JavaScriptSerializer j = new System.Web.Script.Serialization.JavaScriptSerializer();
+            dynamic objectdata = j.Deserialize(strjson, typeof(object));
+
+            dynamic result = new Dictionary<string, object>();
+            foreach (dynamic obj in objectdata)
+            {
+
+
+                dynamic dictionary = obj.Value as IDictionary<string, object>;
+                if (dictionary == null)
+                    result.Add(obj.Key, obj.Value);
+                else
+                {
+                    dynamic objectData = dynamicobject(dictionary);
+                    result.Add(obj.Key, objectData);
+                }
+
+            }
+            // result = dynamicobject(objectdata);
+            return result;
+
+
+        }
+
+
+        public dynamic dynamicobject(dynamic objectdata)
+        {
+            Dictionary<string, object> result = new Dictionary<string, object>();
+            foreach (dynamic obj in objectdata)
+            {
+
+                dynamic dictionary = obj.Value as IDictionary<string, object>;
+                if (dictionary == null)
+                    result.Add(obj.Key, obj.Value);
+                else
+                {
+                    dynamic objectData = dynamicobject(obj.Value);
+                    result.Add(obj.Key, objectData);
+                }
+
+
+
+
+            }
+            return result;
+
+        }
+
 		
-		  public dynamic jsonToObject(string strjson)
-    {
-        ExpandoJSONConverter d = new ExpandoJSONConverter();
-        System.Web.Script.Serialization.JavaScriptSerializer j = new System.Web.Script.Serialization.JavaScriptSerializer();
-        dynamic objectdata = j.Deserialize(strjson, typeof(object));
-
-        dynamic result = new Dictionary<string, object>();
-        foreach (dynamic obj in objectdata)
+		 public void setObject(object obj)
         {
 
-          
-            dynamic dictionary = obj.Value as IDictionary<string, object>;
-            if (dictionary==null)
-            result.Add(obj.Key,obj.Value) ;
-            else
-            {
-                dynamic objectData = dynamicobject(dictionary);
-                result.Add(obj.Key, objectData);
-            }
+           
+                System.Collections.Generic.Dictionary<string, object> keydata2 = (System.Collections.Generic.Dictionary<string, object>)obj;
+
+                System.Collections.Generic.KeyValuePair<string, object> keydata = keydata2.First();
+                _dictionary.Add(keydata.Key, keydata.Value);
+
             
+            //count = _dictionary.Count;
         }
-       // result = dynamicobject(objectdata);
-        return result;
-
-
-    }
-
-
-    public dynamic dynamicobject(dynamic objectdata )
-    {
-         Dictionary<string, object> result = new Dictionary<string, object>();
-        foreach (dynamic obj in objectdata)
+        public static DynamicJsonObject operator +(DynamicJsonObject First, DynamicJsonObject Secoend)
         {
+            System.Collections.Generic.IDictionary<string, object> keydata = Secoend._dictionary;
 
-            dynamic dictionary = obj.Value as IDictionary<string, object>;
-            if (dictionary == null)
-                result.Add(obj.Key, obj.Value);
-            else
-            {
-                dynamic objectData = dynamicobject(obj.Value);
-                result.Add(obj.Key, objectData);
-            }
 
-            
-         
 
+                ((dynamic)First)[keydata.First().Key] = keydata.First().Value;
+            return First;
         }
-        return result;
-
-    }
-
+		public DynamicJsonObject(System.Collections.Generic.KeyValuePair<string, object>  []dictionary)
+        {
+            foreach (var item in dictionary)
+                _dictionary.Add(item.Key, item.Value);
+           // _dictionary = dictionary;
+            count = _dictionary.Count;
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _dictionary.GetEnumerator();
+		}
+		public bool isJsonObject(string jsonStr)
+		{
+			if(jsonStr.Substring(0,1)=="{"  &&  jsonStr.Substring(jsonStr.Length-1,1)=="}")
+				{
+						return true;
+				}
+				else
+					return false;
+			
+			
+		}
+		public bool isJsonArray(string jsonStr)
+		{
+			if(jsonStr.Substring(0,1)=="["  &&  jsonStr.Substring(jsonStr.Length-1,1)=="]")
+				{
+						return true;
+				}
+				else
+					return false;
+			
+			
+		}
+		
+		public bool isJsonField(string jsonStr)
+		{
+			string []strObject=jsonStr.Split(':');
+				if(strObject.Length>0)
+				{
+						return true;
+				}
+				else
+					return false;
+			
+			
+		}
+		public Dictionary<string, object>  jsonObject(string jsonStr )
+		{
+		
+			Dictionary<string, object> _dictionary = new Dictionary<string, object>();
+			
+		if(isJsonObject(jsonStr))
+		{
+			
+			jsonStr=removeBracket(jsonStr,"{","}"); 
+			_dictionary["object"]=jsonStr;
+			  _dictionary =jsonObject(jsonStr);
+		}
+		else if(isJsonArray(jsonStr))
+		{
+			_dictionary["arrya"]=jsonStr;
+		}
+		else if(isJsonField(jsonStr))
+		{
+		
+		
+	
+		
+			foreach(string strdata in jsonStr.Split(','))
+			{
+				string []strObject=strdata.Split(':');
+				if(strObject.Length==2)
+				{
+				  strObject[0]=removeBracket(strObject[0]);
+				  strObject[1]=removeBracket(strObject[1]);
+			 _dictionary[strObject[0]]=strObject[1];
+				}
+			  else 
+				{
+				 // strObject[0]=removeBracket(strObject[0]);
+				 // strObject[1]=removeBracket(strObject[1]);
+				  // _dictionary[ strObject[0]]=strObject[1];
+				}
+			}
+			
+		}
+		else
+		{
+			//_dictionary["data"]=jsonStr;
+		}
+		return _dictionary;
+		}
+		
+		
+		public IEnumerable<int>  getObjectSplit(string jsonStr)
+		
+		{
+			
+			for (int i=0;i<jsonStr.Length;i++)
+			{
+				 if(jsonStr[i]==',')
+				 {
+					 yield return i;
+				 }
+			}
+		}
+		public string removeBracket(string jsonStr,string startStr="\"",string endStr="\"")
+		{
+			jsonStr=jsonStr.Trim();
+			if(jsonStr.Substring(0,1)==startStr);
+				{
+					jsonStr= jsonStr.Substring(1);
+				}
+			if(jsonStr.Substring(jsonStr.Length-1,1)==endStr);
+				{
+					jsonStr= jsonStr.Substring(0,jsonStr.Length-1);
+				}	
+				return jsonStr;
+		}
+		// public static void RemoveMember(object dynamicObject, string memberName);
+  //public static bool TryRemoveMember(object dynamicObject, string memberName, out object removedMember);
 		
 		public  void RemoveObject(string columnName)
 		{
@@ -527,6 +667,47 @@ string _connectionstr;
 				 
 				
 		}
+		
+		public void setDataTable(System.Data.DataTable dt,string tableName)
+        {
+            System.Collections.ArrayList arrayList = new System.Collections.ArrayList();
+
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                dynamic objDynamicJsonObject = new DynamicJsonObject();
+                
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    if (dt.Rows[i][j].GetType() == typeof(DateTime))
+                    {
+
+                        if (dt.Rows.Count == 1)
+                        _dictionary.Add(dt.Columns[j].ColumnName, Convert.ToDateTime(dt.Rows[i][j]).ToString("dd-MMM-yyyy"));
+                        else
+                        objDynamicJsonObject[dt.Columns[j].ColumnName] = Convert.ToDateTime(dt.Rows[i][j]).ToString("dd-MMM-yyyy");
+                    }
+                    else
+                    {
+                        if (dt.Rows.Count == 1)
+                        _dictionary.Add(dt.Columns[j].ColumnName, dt.Rows[i][j].ToString());
+                        else
+                        objDynamicJsonObject[dt.Columns[j].ColumnName] = dt.Rows[i][j].ToString();
+                    }
+                }
+                arrayList.Add(objDynamicJsonObject);
+
+}
+if (dt.Rows.Count == 1)
+            {
+                //_dictionary = ((DynamicJsonObject)arrayList[0])._dictionary;
+            }
+            else if (dt.Rows.Count>1)
+            {
+                _dictionary[tableName] = arrayList;
+            }
+
+
+}
 
         private void ToString(StringBuilder sb)
         {
@@ -686,6 +867,90 @@ string _connectionstr;
             return result;
         }
     }
+	
+	
+	class DBLayer
+    {
+            string connectstring="data source=ADMDEVSQL01;initial catalog=UserManagement;user id=connstring;password=gnirtsnnoc321";
+			string    mysqlconnectionString="Server=localhost;userid=root;password=root;Database=Account;Convert Zero Datetime=True"  ;
+			
+			
+            public string getObject(string jsonstr)
+            {
+
+                dynamic dyamicobejct = new DynamicJsonObject(jsonstr);
+                //string TableName = dyamicobejct["TableNames"]["TableName"];
+                string PrimaryKey = dyamicobejct["PrimaryKey"];
+                string PrimaryValue = dyamicobejct["PrimaryValue"]; ;
+                return dyamicobejct.ToString();
+                System.Collections.IEnumerable d = dyamicobejct.TableNames;
+                DynamicJsonObject objDynamicJsonObject = new DynamicJsonObject();
+                objDynamicJsonObject = GetObject(PrimaryKey, PrimaryValue, dyamicobejct.TableNames);
+                return objDynamicJsonObject.ToString();
+            }
+
+
+            public DynamicJsonObject GetObject(string PrimaryKey, string PrimaryValue, DynamicJsonObject objDynamicJsonObject)
+            {
+                DynamicJsonObject resultDynamicJsonObject = new DynamicJsonObject();
+                foreach (System.Collections.Generic.KeyValuePair<string, object> obj in objDynamicJsonObject)
+                {
+
+
+                    if (obj.Value.GetType().IsArray == true)
+                    {
+                        object t = obj.Value;
+
+                        object[] objdata = (object[])t;
+                        for (int i = 0; i < objdata.Length; i++)
+                        {
+                            DynamicJsonObject obj1 = new DynamicJsonObject();
+                            obj1.setObject(objdata[i]);
+
+                            resultDynamicJsonObject = resultDynamicJsonObject + GetObject(PrimaryKey, PrimaryValue, obj1);
+                        }
+                    }
+                    else if (obj.Value.GetType().ToString() == "System.String")
+                    {
+
+                        string TableName = obj.Value.ToString();
+
+                        string Query = "Select *  from " + TableName + " WHERE " + PrimaryKey + "=" + PrimaryValue;
+                        
+						MySqlDB objMsSqlDB=new MySqlDB(mysqlconnectionString);
+                        System.Data.DataTable dt = objMsSqlDB.getQuery(Query);
+
+                        resultDynamicJsonObject.setDataTable(dt, TableName);
+                    }
+                }
+                return resultDynamicJsonObject;
+
+
+            }
+        public string saveObject(string jsonstr)
+        {
+            return string.Empty;
+        }
+        public string deleteObject(string jsonstr)
+        {
+            return string.Empty;
+        }
+        public string List(string TableName,String Query)
+        {
+            MySqlDB objMsSqlDB=new MySqlDB(mysqlconnectionString);
+            System.Data.DataTable dt = objMsSqlDB.getQuery(Query);
+            DynamicJsonObject objDynamicJsonObject = new DynamicJsonObject();
+            objDynamicJsonObject.setDataTable(dt, TableName);
+
+            return objDynamicJsonObject.ToString();
+        }
+        public string Query(string jsonstr)
+        {
+            return string.Empty;
+
+        }
+
+}
 
     #endregion
 
