@@ -10,9 +10,10 @@
 
                 dynamic dyamicobejct = new DynamicJsonObject(jsonstr);
                 //string TableName = dyamicobejct["TableNames"]["TableName"];
+                string sss = dyamicobejct.ToString();
                 string PrimaryKey = dyamicobejct["PrimaryKey"];
                 string PrimaryValue = dyamicobejct["PrimaryValue"]; ;
-                
+               
                 //string Query = "Select *  from " + TableName + " WHERE " + PrimaryKey + "=" + PrimaryValue;
                 //MsSQLDB objMsSqlDB = new MsSQLDB(connectstring);
                 //System.Data.DataTable dt = objMsSqlDB.getQuery(Query);
@@ -177,7 +178,13 @@
                 ((dynamic)First)[keydata.First().Key] = keydata.First().Value;
             return First;
         }
-           
+        public DynamicJsonObject(System.Collections.Generic.KeyValuePair<string, object> dictionary)
+        {
+            _dictionary = new Dictionary<string, object>();
+            _dictionary.Add(dictionary.Key, dictionary.Value);
+            // _dictionary = dictionary;
+            count = _dictionary.Count;
+        } 
         public DynamicJsonObject(System.Collections.Generic.KeyValuePair<string, object>  []dictionary)
         {
             foreach (var item in dictionary)
@@ -327,6 +334,20 @@
                 {
                     sb.Append("\"" + name + "\":");
                     new DynamicJsonObject((IDictionary<string, object>)value).ToString(sb.Append("{"));
+
+                    //var objCollection = value as IDictionary<string, object>;
+                    //sb.Append("\"" + name + "\":[");
+                    //var firstInArray = true;
+                    //foreach (var objectField in objCollection)
+                    //{
+
+                    //    if (!firstInArray)
+                    //        sb.Append(",");
+                    //    firstInArray = false;
+
+                    //    new DynamicJsonObject(objectField).ToString(sb.Append("{"));
+                    //}
+                    //sb.Append("]");
                 }
                 else if (value is System.Collections.Generic.List<object>)
                 {
@@ -367,6 +388,24 @@
                     sb.AppendFormat("\"{0}\":\"\"", name);
                     //sb.AppendFormat("\"{0}\":0", name);
                 }
+                else if (value.GetType().IsArray ==true )
+                {
+                   // sb.AppendFormat("\"{0}\":\"\"", name);
+                    //sb.AppendFormat("\"{0}\":0", name);
+                    object  [] objCollection = (object[])value ;
+                    sb.Append("\"" + name + "\":[");
+                    var firstInArray = true;
+                    foreach (var objectField in objCollection)
+                    {
+
+                        if (!firstInArray)
+                            sb.Append(",");
+                        firstInArray = false;
+
+                        new DynamicJsonObject(objectField as IDictionary<string, object>).ToString(sb.Append("{"));
+                    }
+                    sb.Append("]");
+                }    
                 else
                 {
                     sb.AppendFormat("\"{0}\":{1}", name, value);
