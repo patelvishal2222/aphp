@@ -76,12 +76,50 @@
                         System.Data.DataTable dt = objMsSqlDB.getQuery(Query);
 
                         resultDynamicJsonObject.setDataTable(dt, TableName);
+                        if(dt.Rows.Count==1)
+                        setForeKeyData(resultDynamicJsonObject, TableName);
+                        else
+                        {
+                           // object[] objes =(object[]) resultDynamicJsonObject[TableName];
+                            System.Collections.ArrayList objes =(  System.Collections.ArrayList) resultDynamicJsonObject[TableName];
+                            foreach (dynamic objdata in objes )
+                            {
+                                setForeKeyData(objdata, TableName);
+                            }
+                        }
                     }
                 }
+
+            
                 return resultDynamicJsonObject;
 
 
             }
+            public void setForeKeyData(DynamicJsonObject resultDynamicJsonObject, string TableName)
+        {
+            MsSQLDB objMsSqlDB = new MsSQLDB(connectstring);
+              string Query = objMsSqlDB.getForeginkeyQuery(TableName);
+
+          System.Data.DataTable  dt = objMsSqlDB.getQuery(Query);
+            foreach (System.Data.DataRow dr in dt.Rows)
+            {
+                string FkName = dr["FK_ColumnName"].ToString();
+                string FkData = resultDynamicJsonObject[FkName].ToString();
+                if (FkData != "")
+                {
+                    Query = "select  *  from  um." + dr["PK_TableName"] + " where  " + dr["PK_ColumnName"] + " =" + FkData;
+                    dt = objMsSqlDB.getQuery(Query);
+                    DynamicJsonObject dyamicsubobejct = new DynamicJsonObject();
+
+                    dyamicsubobejct.setDataTable(dt,dr["PK_TableName"].ToString() );
+                    resultDynamicJsonObject["Virtual" + FkName.Substring(0, FkName.Length - 2)] = dyamicsubobejct;
+
+                    resultDynamicJsonObject.RemoveObject(FkName);
+                }
+
+            }
+
+        }
         public string saveObject(string jsonstr)
         {
             return string.Empty;
@@ -137,6 +175,7 @@
         public string getForeginkeyQuery(String TableName)
         {
             string Query = "SELECT  COLUMN_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME  FROM information_schema.KEY_COLUMN_USAGE   where  TABLE_NAME='" + TableName + "'  and  table_schema='" + Schema + "' and REFERENCED_COLUMN_NAME is not null";
+            Query = "SELECT ao.name AS PK_TableName, c.name AS  PK_ColumnName,pc.name AS FK_ColumnName, *  FROM sys.foreign_key_columns fkc INNER JOIN sys.all_objects ao on fkc.referenced_object_id=ao.object_id INNER JOIN sys.columns c ON ao.object_id = c.object_id AND c.column_id=fkc.constraint_column_id INNER JOIN sys.columns pc ON fkc.parent_object_id = pc.object_id AND pc.column_id=fkc.parent_column_id WHERE fkc.parent_object_id=OBJECT_ID('"+TableName+"')";
             return Query;
         }
     }
@@ -147,6 +186,7 @@
     }
     [Serializable]
     public sealed class DynamicJsonObject : System.Dynamic.DynamicObject, IEnumerable
+    
     {
         public readonly IDictionary<string, object> _dictionary;
         public int count = 0;
@@ -174,7 +214,7 @@
             System.Collections.Generic.IDictionary<string, object> keydata = Secoend._dictionary;
 
 
-
+            if (keydata.Count > 0)
                 ((dynamic)First)[keydata.First().Key] = keydata.First().Value;
             return First;
         }
@@ -262,6 +302,20 @@
         {
 
             _dictionary.Remove(columnName);
+        }
+        public object this[string name]
+        {
+           
+            get   
+        {  
+            // use indexto retrieve and return another value.    
+            return _dictionary[name];
+        }  
+        set   
+        {  
+            // use index and value to set the value somewhere.   
+            _dictionary[name] = value;
+        } 
         }
         public override string ToString()
         {
@@ -413,6 +467,7 @@
             }
             sb.Append("}");
         }
+
 
         public override bool TryGetMember(System.Dynamic.GetMemberBinder binder, out object result)
         {
