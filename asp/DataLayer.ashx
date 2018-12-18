@@ -1,5 +1,6 @@
 --https://www.virtualbox.org/ticket/14437
 --VBoxManage.exe hostonlyif create
+
 <%@ WebHandler Language="C#" CodeBehind="DataLayer.ashx" Class="DataLayer" %>
 
 using System;
@@ -52,9 +53,9 @@ string    mysqlconnectionString="Server=localhost;userid=root;password=root;Data
 				  Response.Write(webdata);
           
 			}
-			else  if(context.Request.QueryString["getObject"]!=null)
+			else  if(context.Request.QueryString["getObject1"]!=null)
 			{
-			String strgetObject=context.Request.QueryString["getObject"].Trim();
+			String strgetObject=context.Request.QueryString["getObject1"].Trim();
 			DBLayer objDataLayer=new DBLayer();
 			
 			Response.Write(objDataLayer.getObject(strgetObject));
@@ -405,7 +406,7 @@ string _connectionstr;
         }
 		public string getForeginkeyQuery(String TableName)
 		{
-		string  Query="SELECT  COLUMN_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME  FROM information_schema.KEY_COLUMN_USAGE   where  TABLE_NAME='"+TableName+"'  and  table_schema='"+Schema+"' and REFERENCED_COLUMN_NAME is not null";
+		string  Query="SELECT  COLUMN_NAME AS FK_ColumnName,REFERENCED_TABLE_NAME AS  PK_TableName,REFERENCED_COLUMN_NAME  AS  PK_ColumnName  FROM information_schema.KEY_COLUMN_USAGE   where  TABLE_NAME='"+TableName+"'  and  table_schema='"+Schema+"' and REFERENCED_COLUMN_NAME is not null";
 		return Query;
 		}
 		
@@ -502,11 +503,18 @@ string _connectionstr;
         }
         public static DynamicJsonObject operator +(DynamicJsonObject First, DynamicJsonObject Secoend)
         {
+			if(Secoend==null  || First==null )
+			{
+			}
+			else
+			{
             System.Collections.Generic.IDictionary<string, object> keydata = Secoend._dictionary;
 
-
-
-                ((dynamic)First)[keydata.First().Key] = keydata.First().Value;
+			
+			if(keydata.Count>0)
+            
+			 ((dynamic)First)[keydata.First().Key] = keydata.First().Value;
+			}
             return First;
         }
 		public DynamicJsonObject(System.Collections.Generic.KeyValuePair<string, object>  []dictionary)
@@ -636,6 +644,20 @@ string _connectionstr;
 		
 			_dictionary.Remove(columnName);
 		}
+		 public object this[string name]
+        {
+           
+            get   
+        {  
+            // use indexto retrieve and return another value.    
+            return _dictionary[name];
+        }  
+        set   
+        {  
+            // use index and value to set the value somewhere.   
+            _dictionary[name] = value;
+        } 
+        }
         public override string ToString()
         {
             var sb = new StringBuilder("{");
@@ -769,6 +791,24 @@ if (dt.Rows.Count == 1)
                     }
                     sb.Append("]");
                 }
+				else if (value.GetType().IsArray ==true )
+                {
+                   // sb.AppendFormat("\"{0}\":\"\"", name);
+                    //sb.AppendFormat("\"{0}\":0", name);
+                    object  [] objCollection = (object[])value ;
+                    sb.Append("\"" + name + "\":[");
+                    var firstInArray = true;
+                    foreach (var objectField in objCollection)
+                    {
+
+                        if (!firstInArray)
+                            sb.Append(",");
+                        firstInArray = false;
+
+                        new DynamicJsonObject(objectField as IDictionary<string, object>).ToString(sb.Append("{"));
+                    }
+                    sb.Append("]");
+                }    
                 else if (value is DBNull)
                 {
                     sb.AppendFormat("\"{0}\":\"\"", name);
@@ -883,15 +923,17 @@ if (dt.Rows.Count == 1)
                 //string TableName = dyamicobejct["TableNames"]["TableName"];
                 string PrimaryKey = dyamicobejct["PrimaryKey"];
                 string PrimaryValue = dyamicobejct["PrimaryValue"]; ;
-                return dyamicobejct.ToString();
+                
                 System.Collections.IEnumerable d = dyamicobejct.TableNames;
                 DynamicJsonObject objDynamicJsonObject = new DynamicJsonObject();
-                objDynamicJsonObject = GetObject(PrimaryKey, PrimaryValue, dyamicobejct.TableNames);
+				  ArrayList MasterTable = new ArrayList();
+                objDynamicJsonObject = GetObject(PrimaryKey, PrimaryValue, dyamicobejct.TableNames, MasterTable);
+                
                 return objDynamicJsonObject.ToString();
             }
 
 
-            public DynamicJsonObject GetObject(string PrimaryKey, string PrimaryValue, DynamicJsonObject objDynamicJsonObject)
+            public DynamicJsonObject GetObject(string PrimaryKey, string PrimaryValue, DynamicJsonObject objDynamicJsonObject, ArrayList MasterTable)
             {
                 DynamicJsonObject resultDynamicJsonObject = new DynamicJsonObject();
                 foreach (System.Collections.Generic.KeyValuePair<string, object> obj in objDynamicJsonObject)
@@ -908,7 +950,7 @@ if (dt.Rows.Count == 1)
                             DynamicJsonObject obj1 = new DynamicJsonObject();
                             obj1.setObject(objdata[i]);
 
-                            resultDynamicJsonObject = resultDynamicJsonObject + GetObject(PrimaryKey, PrimaryValue, obj1);
+                            resultDynamicJsonObject = resultDynamicJsonObject + GetObject(PrimaryKey, PrimaryValue, obj1,MasterTable);
                         }
                     }
                     else if (obj.Value.GetType().ToString() == "System.String")
@@ -922,12 +964,56 @@ if (dt.Rows.Count == 1)
                         System.Data.DataTable dt = objMsSqlDB.getQuery(Query);
 
                         resultDynamicJsonObject.setDataTable(dt, TableName);
+						if(dt.Rows.Count==1)
+                            setForeKeyData(resultDynamicJsonObject, TableName, MasterTable);
+                        else if(dt.Rows.Count>1)
+                        {
+							
+                            System.Collections.ArrayList objes =(  System.Collections.ArrayList) resultDynamicJsonObject[TableName];
+                            foreach (dynamic objdata in objes )
+                           {
+                                setForeKeyData(objdata, TableName, MasterTable);
+                           }
+							
+                        }
+                        MasterTable.Add(TableName);
                     }
                 }
                 return resultDynamicJsonObject;
 
 
             }
+			
+			
+			  public void setForeKeyData(DynamicJsonObject resultDynamicJsonObject, string TableName, ArrayList MasterTable)
+        {
+            MySqlDB objMsSqlDB=new MySqlDB(mysqlconnectionString);
+              string Query = objMsSqlDB.getForeginkeyQuery(TableName);
+
+          System.Data.DataTable  dt = objMsSqlDB.getQuery(Query);
+            foreach (System.Data.DataRow dr in dt.Rows)
+            {
+                string FkName = dr["FK_ColumnName"].ToString();
+                string FkData =Convert.ToString(resultDynamicJsonObject[FkName]);
+                if (FkData != "")
+                {
+                    
+                    Query = "select  *  from  " + dr["PK_TableName"] + " where  " + dr["PK_ColumnName"] + " =" + FkData;
+                    if (!MasterTable.Contains(dr["PK_TableName"].ToString()) )
+                    {
+                        dt = objMsSqlDB.getQuery(Query);
+                        DynamicJsonObject dyamicsubobejct = new DynamicJsonObject();
+
+                        dyamicsubobejct.setDataTable(dt, dr["PK_TableName"].ToString());
+                        resultDynamicJsonObject["Virtual" + FkName.Substring(0, FkName.Length - 2)] = dyamicsubobejct;
+
+                        resultDynamicJsonObject.RemoveObject(FkName);
+                    }
+                }
+
+            }
+
+        }
         public string saveObject(string jsonstr)
         {
             return string.Empty;
@@ -954,5 +1040,3 @@ if (dt.Rows.Count == 1)
 }
 
     #endregion
-
-	
