@@ -4,49 +4,27 @@
     class DataLayer
     {
             string connectstring="data source=ADMDEVSQL01;initial catalog=UserManagement;user id=connstring;password=gnirtsnnoc321";
+            IDatabase objMsSqlDB;
+        public DataLayer()
+            {
+                objMsSqlDB = new MsSQLDB(connectstring);
+            }
 
             public string getObject(string jsonstr)
             {
 
                 dynamic dyamicobejct = new DynamicJsonObject(jsonstr);
-                //string TableName = dyamicobejct["TableNames"]["TableName"];
-                string sss = dyamicobejct.ToString();
                 string PrimaryKey = dyamicobejct["PrimaryKey"];
                 string PrimaryValue = dyamicobejct["PrimaryValue"]; ;
-               
-                //string Query = "Select *  from " + TableName + " WHERE " + PrimaryKey + "=" + PrimaryValue;
-                //MsSQLDB objMsSqlDB = new MsSQLDB(connectstring);
-                //System.Data.DataTable dt = objMsSqlDB.getQuery(Query);
-                
-                //objDynamicJsonObject.setDataTable(dt);
-                //Query = objMsSqlDB.getForeginkeyQuery(TableName);
-                //dt = objMsSqlDB.getQuery(Query);
-                //foreach (System.Data.DataRow dr in dt.Rows)
-                //{
-                //    String FkName = dr["COLUMN_NAME"].ToString();
-                //    string FkData = dyamicobejct[FkName];
-                //    if (FkData != "")
-                //    {
-                //        Query = "select  *  from   " + dr["REFERENCED_TABLE_NAME"] + " where  " + dr["REFERENCED_COLUMN_NAME"] + " =" + FkData;
-                //        dt = objMsSqlDB.getQuery(Query);
-                //        dynamic dyamicsubobejct = new DynamicJsonObject();
-
-                //        dyamicsubobejct.setDataTable(dt);
-                //        dyamicobejct["Virtual" + FkName.Substring(0, FkName.Length - 2)] = dyamicsubobejct;
-                //        // Response.Write(Query);
-                //        dyamicobejct.RemoveObject(FkName);
-                //    }
-
-                //}
-                //for (int i = 0; i < dyamicobejct.TableNames.count;i++ )
                 System.Collections.IEnumerable d = dyamicobejct.TableNames;
                 DynamicJsonObject objDynamicJsonObject = new DynamicJsonObject();
-                objDynamicJsonObject = GetObject(PrimaryKey, PrimaryValue, dyamicobejct.TableNames);
+                ArrayList MasterTable = new ArrayList();
+                objDynamicJsonObject = GetObject(PrimaryKey, PrimaryValue, dyamicobejct.TableNames, MasterTable);
                 return objDynamicJsonObject.ToString();
             }
 
 
-            public DynamicJsonObject GetObject(string PrimaryKey, string PrimaryValue, DynamicJsonObject objDynamicJsonObject)
+            public DynamicJsonObject GetObject(string PrimaryKey, string PrimaryValue, DynamicJsonObject objDynamicJsonObject, ArrayList MasterTable)
             {
                 DynamicJsonObject resultDynamicJsonObject = new DynamicJsonObject();
                 foreach (System.Collections.Generic.KeyValuePair<string, object> obj in objDynamicJsonObject)
@@ -63,7 +41,7 @@
                             DynamicJsonObject obj1 = new DynamicJsonObject();
                             obj1.setObject(objdata[i]);
 
-                            resultDynamicJsonObject = resultDynamicJsonObject + GetObject(PrimaryKey, PrimaryValue, obj1);
+                            resultDynamicJsonObject = resultDynamicJsonObject + GetObject(PrimaryKey, PrimaryValue, obj1, MasterTable);
                         }
                     }
                     else if (obj.Value.GetType().ToString() == "System.String")
@@ -72,21 +50,21 @@
                         string TableName = obj.Value.ToString();
 
                         string Query = "Select *  from " + TableName + " WHERE " + PrimaryKey + "=" + PrimaryValue;
-                        MsSQLDB objMsSqlDB = new MsSQLDB(connectstring);
+                       // MsSQLDB objMsSqlDB = new MsSQLDB(connectstring);
                         System.Data.DataTable dt = objMsSqlDB.getQuery(Query);
 
                         resultDynamicJsonObject.setDataTable(dt, TableName);
                         if(dt.Rows.Count==1)
-                        setForeKeyData(resultDynamicJsonObject, TableName);
+                            setForeKeyData(resultDynamicJsonObject, TableName, MasterTable);
                         else
                         {
-                           // object[] objes =(object[]) resultDynamicJsonObject[TableName];
                             System.Collections.ArrayList objes =(  System.Collections.ArrayList) resultDynamicJsonObject[TableName];
                             foreach (dynamic objdata in objes )
                             {
-                                setForeKeyData(objdata, TableName);
+                                setForeKeyData(objdata, TableName, MasterTable);
                             }
                         }
+                        MasterTable.Add(TableName);
                     }
                 }
 
@@ -95,9 +73,9 @@
 
 
             }
-            public void setForeKeyData(DynamicJsonObject resultDynamicJsonObject, string TableName)
+            public void setForeKeyData(DynamicJsonObject resultDynamicJsonObject, string TableName, ArrayList MasterTable)
         {
-            MsSQLDB objMsSqlDB = new MsSQLDB(connectstring);
+            //MsSQLDB objMsSqlDB = new MsSQLDB(connectstring);
               string Query = objMsSqlDB.getForeginkeyQuery(TableName);
 
           System.Data.DataTable  dt = objMsSqlDB.getQuery(Query);
@@ -107,23 +85,350 @@
                 string FkData = resultDynamicJsonObject[FkName].ToString();
                 if (FkData != "")
                 {
+                    
                     Query = "select  *  from  um." + dr["PK_TableName"] + " where  " + dr["PK_ColumnName"] + " =" + FkData;
-                    dt = objMsSqlDB.getQuery(Query);
-                    DynamicJsonObject dyamicsubobejct = new DynamicJsonObject();
+                    if (!MasterTable.Contains(dr["PK_TableName"].ToString()) )
+                    {
+                        dt = objMsSqlDB.getQuery(Query);
+                        DynamicJsonObject dyamicsubobejct = new DynamicJsonObject();
 
-                    dyamicsubobejct.setDataTable(dt,dr["PK_TableName"].ToString() );
-                    resultDynamicJsonObject["Virtual" + FkName.Substring(0, FkName.Length - 2)] = dyamicsubobejct;
+                        dyamicsubobejct.setDataTable(dt, dr["PK_TableName"].ToString());
+                        resultDynamicJsonObject["Virtual" + FkName.Substring(0, FkName.Length - 2)] = dyamicsubobejct;
 
-                    resultDynamicJsonObject.RemoveObject(FkName);
+                        resultDynamicJsonObject.RemoveObject(FkName);
+                    }
                 }
 
             }
 
         }
-        public string saveObject(string jsonstr)
+            public int saveObject(string jsonstr)
+            {
+                int id = 0;
+                try
+                {
+
+                    DynamicJsonObject DynamicJsonObject = new DynamicJsonObject(jsonstr);
+
+                  
+                    string str = DynamicJsonObject.ToString();
+
+                    foreach (dynamic objDynamicJsonObject in DynamicJsonObject)
+                    {
+
+
+                        DynamicJsonObject MasterKeyValue = new DynamicJsonObject();
+
+                        // MsSQLDB objMsSqlDB = new MsSQLDB(connectstring);
+                        dynamic obj = objDynamicJsonObject.Value;
+                        DynamicJsonObject TableData = new DynamicJsonObject(obj);
+                        string TableName= objDynamicJsonObject.Key.ToString();
+                        objMsSqlDB.BeginTran();
+                        id = saveRecord(objMsSqlDB, TableName, TableData, MasterKeyValue);
+                        objMsSqlDB.Committ();
+
+                    }
+                }
+                catch(Exception e)
+                {
+
+                }
+                return id;
+            }
+
+
+            public int saveRecord(IDatabase objMsSqlDB, string TableName, DynamicJsonObject TableData, DynamicJsonObject MasterKeyValue)
         {
-            return string.Empty;
+            int Id = 0;
+            try
+            {
+                String PrimaryKey = GetPrimaryKey(TableName);
+                DynamicJsonObject DetailTable = new DynamicJsonObject();
+                
+
+                System.Data.DataTable tableFielddata = objMsSqlDB.GetTable(TableName) ;
+
+                String Query = InsertUpdate(TableName, TableData, MasterKeyValue, DetailTable, tableFielddata);
+                
+                objMsSqlDB.executeQuery(Query);
+
+                if (TableData._dictionary.Keys.Contains(PrimaryKey))
+                    MasterKeyValue[PrimaryKey] = TableData[PrimaryKey];
+                else
+                    MasterKeyValue[PrimaryKey] = 0;
+
+                if (Convert.ToInt32(MasterKeyValue[PrimaryKey]) == 0)
+                {
+                  
+                    
+                     MasterKeyValue[PrimaryKey]=objMsSqlDB.getInsertLastId();
+
+                }
+                SaveDetail(objMsSqlDB,DetailTable,MasterKeyValue);
+
+                Id = Convert.ToInt32(MasterKeyValue[PrimaryKey]);
+                
+            }catch(Exception e)
+            {
+                objMsSqlDB.RollBack();
+
+            }
+
+             return Id;
         }
+
+        public void  SaveDetail(IDatabase objMsSqlDB,DynamicJsonObject  DetailTables, DynamicJsonObject MasterKeyValue)
+	{
+
+            
+        
+    foreach(dynamic DetailTable   in  DetailTables)
+    {
+                            if( DetailTable.Value.GetType().IsArray==true)
+                            {
+                                string TableName = DetailTable.Key.ToString();
+                                dynamic obj = DetailTable.Value;
+                                DynamicJsonObject TableData = new DynamicJsonObject(obj);
+                                int id = saveRecord(objMsSqlDB, TableName, TableData, MasterKeyValue);
+                                
+                            }
+                            else
+                            {
+                                String  Query=DetailTable.Value;
+                                  objMsSqlDB.executeQuery(Query);
+                            }
+								
+    }
+        
+
+    }
+          public string  GetPrimaryKey(string TableName)
+	{
+        //$obj=new DyamicClass();
+        //$Query=$obj->getPrimaryKey($tableName);
+        //$rows=$obj->getQuery($Query);
+        //if(count($rows)>0)
+        //    return $rows[0]['COLUMN_NAME'];
+        //else
+        //    return "";
+        return TableName+"Id";
+	}
+
+          public string InsertUpdate(string TableName, DynamicJsonObject TableData, DynamicJsonObject MasterKeyValue, DynamicJsonObject DetailTable,System.Data.DataTable tableFielddata)
+	{
+		
+        string Query = string.Empty;
+        try
+        {
+            int LoginId = 1;
+            string f = "";
+            string v = "";
+            string fv = "";
+            string PrimaryKey = GetPrimaryKey(TableName);
+            //string PrimaryKey=$this->GetPrimaryKey($tb);
+            int PrimaryKeyValue = 0;
+            /*
+      foreach( $MasterKeyValue as $insertKey=>$insertValue)
+      {
+          if( array_search($insertKey,$data))
+          {
+          unset($data[$insertKey]);
+          }
+          $f=$insertKey.",";
+           $v=$insertValue.",";
+      }*/
+
+
+            foreach (dynamic objdata in TableData)
+            {
+                dynamic key = objdata.Key;
+                dynamic value = objdata.Value;
+
+                if (key == PrimaryKey)
+                {
+                    PrimaryKeyValue = value;
+                }
+                else if (isfield(key, tableFielddata))// &&  !$data[substr($key,0,-2)])
+                {
+                    if (key == "InsertedBy")
+                    {
+                        f = f + key + ",";
+                        v = v + "'" + LoginId + "',";
+
+                    }
+                    else if (key == "InsertedDate")
+                    {
+                        f = f + key + ",";
+                        v = v + "'NOW()',";
+                    }
+                    else if (key == "ModifiedBy")
+                    {
+                        fv = fv + key + "='" + LoginId + "',";
+                    }
+                    else if (key == "ModifiedDate")
+                    {
+                        fv = fv + key + "='NOW()',";
+                    }
+                    else if (Convert.ToString(value) != String.Empty)
+                    {
+                        f = f + key + ",";
+                        if (value.GetType().ToString() == "Date")
+                        {
+
+                            v = v + "'" + value + "',";
+                            fv = fv + key + "='" + value + "',";
+                        }
+                        else
+                        {
+                            v = v + "'" + value + "',";
+                            fv = fv + key + "='" + value + "',";
+                        }
+                    }
+                }
+                /*else if($this->isVirtualTable($key))
+                {
+                    $VirtualTable=substr($key,7);
+                    $f=$f.$VirtualTable."Id,";
+                    $v=$v."'".$value[$VirtualTable."Id"]."',";
+                    $fv=$fv.$VirtualTable."Id='".$value[$VirtualTable."Id"]."',";
+                }
+                else if(substr($key,-3)=="Ids")
+                {
+                      if($value!=""  )
+                      {
+                       $DeleteTable=substr($key,0,-3);
+                       $DetailTable[$key]="Delete FROM $DeleteTable WHERE ".$DeleteTable."Id in( ".$value.")";
+                      }
+                }
+                else if($this->isTable($key))
+               {
+                    if(is_array($value))
+                    if(count($value)>0)
+                    $DetailTable[$key]=$value;
+                }
+                  */
+
+            }
+            /*
+      if (!strpos(f, 'InsertedBy') ) 
+      {
+          key='InsertedBy';
+          if($this->isfield($key,$tb,$tabledata))
+          {$f=$f.$key.",";
+          $v=$v."'".$LoginId."',";
+          }
+			
+      }
+      if (!strpos($f, 'InsertedDate') ) 
+      {
+          $key='InsertedDate';
+          if($this->isfield($key,$tb,$tabledata))
+          {$f=$f.$key.",";
+          $v=$v."'NOW()',";
+          }
+      }
+      */
+            string f1 = f.Substring(0, f.LastIndexOf(','));
+            string v1 = v.Substring(0, v.LastIndexOf(','));
+            fv = fv.Substring(0, fv.LastIndexOf(','));
+            Query = "";
+            if (PrimaryKeyValue == 0)
+                Query = "INSERT INTO " + TableName + " (" + f1 + ") values (" + v1 + ")";
+            else
+                Query = "UPDATE " + TableName + " SET " + fv + " where " + PrimaryKey + "= " + PrimaryKeyValue;
+        }
+              catch(Exception  e)
+        {
+
+        }
+         
+		return Query;
+	}
+        public bool  isfield(string FieldName,System.Data.DataTable tableFielddata)
+	{
+
+        try
+        {
+            //$datarow=$this->searcharray($key,'COLUMN_NAME',$tabledata);
+            System.Data.DataRow[] dr = tableFielddata.Select("column_name='" + FieldName + "'");
+
+            if (dr.Length > 0)
+                return true;
+            else
+            {
+
+                return false;
+            }
+        }catch(Exception e)
+        {
+
+            return false;
+        }
+	}
+
+        public  bool isVirtualTable(string tableName)
+	{
+			if(tableName.Trim().Substring (0,7).ToLower()=="virtual")
+				return true;
+			else
+				return false;
+	}
+    public bool isTable(string TableName)
+	{
+		string Query="select *  from information_schema.tables where table_Name='$key'";
+		
+		if( 1==1)
+			return true;
+		else
+			return false;
+	}
+
+      /*
+       * 
+      
+	
+	
+	
+	
+	
+	
+	function searcharray($value, $key, $array) {
+		 
+   foreach ($array as $k => $val) {
+	  
+       if ($val[$key] == $value) {
+           return $val;
+       }
+   }
+   return null;
+}
+	  function isfield($key,$tb,$tabledata)
+	{
+		$datarow=$this->searcharray($key,'COLUMN_NAME',$tabledata);
+		
+		
+		if($datarow!=null )
+		return true;
+		else
+		{
+			
+			return false;
+		}
+	}
+	
+	  function isDate($key,$tb,$tabledata)
+	{
+		$datarow=$this->searcharray($key,'COLUMN_NAME',$tabledata);
+		if($datarow['Data_Type']=='Date' )
+		return true;
+		else
+		{
+			
+			return false;
+		}
+	}
+	
+	
         public string deleteObject(string jsonstr)
         {
             return string.Empty;
@@ -142,28 +447,50 @@
             return string.Empty;
 
         }
+       */ 
 
     }
-    public interface Database
+    public interface IDatabase
     {
 
+         System.Data.DataTable getQuery(string Query);
+         string getForeginkeyQuery(String TableName);
+          void BeginTran();
+         void Committ();
+          void RollBack();
+      void   executeQuery(string Query);
+           int executeReader(string Query);
+           System.Data.DataTable GetTable(string TableName);
+          int getInsertLastId();
+         
     }
-    public class MsSQLDB : Database
+    public class MsSQLDB : IDatabase
     {
          string _connectionstr;
-        System.Data.SqlClient.SqlConnection objSqlConnection;
+        
         string DBName = "UserManagement";
         string Schema = "UM";
+        
+        System.Data.SqlClient.SqlTransaction transaction;
+        System.Data.SqlClient.SqlConnection objSqlConnection;
+
         public MsSQLDB(string connectionstr)
         {
             _connectionstr = connectionstr;
-            objSqlConnection = new System.Data.SqlClient.SqlConnection(_connectionstr);
+          
 
         }
+        public  System.Data.DataTable GetTable(String TableName)
+        {
+            string Query = "select *  from information_schema.COLUMNS  where table_name='" + TableName + "' ";
+            return  getQuery(Query);
+
+        }
+
         public System.Data.DataTable getQuery(string Query)
         {
 
-
+            System.Data.SqlClient.SqlConnection objSqlConnection = new System.Data.SqlClient.SqlConnection(_connectionstr);
 
             System.Data.SqlClient.SqlDataAdapter ad = new System.Data.SqlClient.SqlDataAdapter(Query, objSqlConnection);
             System.Data.DataTable dt = new System.Data.DataTable();
@@ -178,11 +505,150 @@
             Query = "SELECT ao.name AS PK_TableName, c.name AS  PK_ColumnName,pc.name AS FK_ColumnName, *  FROM sys.foreign_key_columns fkc INNER JOIN sys.all_objects ao on fkc.referenced_object_id=ao.object_id INNER JOIN sys.columns c ON ao.object_id = c.object_id AND c.column_id=fkc.constraint_column_id INNER JOIN sys.columns pc ON fkc.parent_object_id = pc.object_id AND pc.column_id=fkc.parent_column_id WHERE fkc.parent_object_id=OBJECT_ID('"+TableName+"')";
             return Query;
         }
-    }
-    public class MySqlDB : Database
-    {
-       
+        public void BeginTran()
+        {
+           objSqlConnection  = new System.Data.SqlClient.SqlConnection(_connectionstr);
+            objSqlConnection.Open();
+            transaction = objSqlConnection.BeginTransaction("SampleTransaction");
+        }
 
+        public int getInsertLastId()
+        {
+              string Query = "select SCOPE_IDENTITY() ";
+            return  executeReader(Query);
+
+        }
+
+        public void Committ()
+        {
+            
+            transaction.Commit();
+            objSqlConnection.Close();
+
+        }
+
+        public void RollBack()
+        {
+
+            transaction.Rollback();
+            objSqlConnection.Close();
+        }
+
+        public void executeQuery(string Query)
+        {
+            System.Data.SqlClient.SqlCommand command = objSqlConnection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = Query;
+            command.ExecuteNonQuery();
+
+        }
+
+        public int executeReader(string Query)
+        {
+
+            int Id=0;
+            System.Data.SqlClient.SqlCommand command = objSqlConnection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = Query;
+            
+             System.Data.SqlClient.SqlDataReader reader = command.ExecuteReader();
+
+            // Call Read before accessing data.
+            if (reader.Read())
+            {
+                
+                Id = Convert.ToInt32(reader[0]);
+            }
+            reader.Close();
+
+
+            return Id;
+        }
+        
+    }
+   
+    public class MySqlDB : IDatabase
+    {
+
+        string _connectionstr;
+        MySqlConnection objSqlConnection;
+        string Schema = "Account";
+        public MySqlDB(string connectionstr)
+        {
+            _connectionstr = connectionstr;
+            objSqlConnection = new MySqlConnection(_connectionstr);
+
+        }
+        public  System.Data.DataTable GetTable(String TableName)
+        {
+            string Query = "select *  from information_schema.COLUMNS  where table_name='" + TableName + "' ";
+            return  getQuery(Query);
+
+        }
+        public System.Data.DataTable getQuery(string Query)
+        {
+
+
+
+            MySqlDataAdapter ad = new MySqlDataAdapter(Query, objSqlConnection);
+            System.Data.DataTable dt = new System.Data.DataTable();
+            ad.Fill(dt);
+
+            return dt;
+
+        }
+        public string getForeginkeyQuery(String TableName)
+        {
+            string Query = "SELECT  COLUMN_NAME AS FK_ColumnName,REFERENCED_TABLE_NAME AS  PK_TableName,REFERENCED_COLUMN_NAME  AS  PK_ColumnName  FROM information_schema.KEY_COLUMN_USAGE   where  TABLE_NAME='" + TableName + "'  and  table_schema='" + Schema + "' and REFERENCED_COLUMN_NAME is not null";
+            return Query;
+        }
+        public void BeginTran()
+        {
+
+        }
+
+        public void Committ()
+        {
+
+        }
+
+        public void RollBack()
+        {
+
+        }
+
+        public void executeQuery(string Query)
+        {
+
+        }
+            public int getInsertLastId()
+        {
+              
+     string Query = "SELECT  LAST_INSERT_ID()";
+            return  executeReader(Query);
+
+        }
+        public int executeReader(string Query)
+        {
+
+            int Id=0;
+            //System.Data.SqlClient.SqlCommand command = new System.Data.SqlClient.SqlCommand();
+            //command.Transaction = transaction;
+            //command.CommandText = Query;
+            
+            // System.Data.SqlClient.SqlDataReader reader = command.ExecuteReader();
+
+            //// Call Read before accessing data.
+            //while (reader.Read())
+            //{
+            //       Id= Convert.ToInt32( reader);
+            //}
+            //reader.Close();
+
+
+            return Id;
+        }
+		
     }
     [Serializable]
     public sealed class DynamicJsonObject : System.Dynamic.DynamicObject, IEnumerable
@@ -552,6 +1018,28 @@
             }
 
             return result;
+        }
+    }
+    public class MySqlConnection
+    {
+        public MySqlConnection()
+        {
+
+        }
+        public MySqlConnection(string connection)
+        {
+
+        }
+    }
+    public class MySqlDataAdapter
+    {
+        public MySqlDataAdapter(string Query, MySqlConnection objSqlConnection)
+        {
+
+        }
+        public void Fill(System.Data.DataTable dt)
+        {
+
         }
     }
 #endregion
