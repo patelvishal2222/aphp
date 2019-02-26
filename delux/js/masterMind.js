@@ -1,5 +1,34 @@
 var myApp = angular.module("masterMind",[]);
 myApp.constant('URL','php/EntiryJson.php');
+
+//http://plnkr.co/edit/z2nXgXyGi6LhSHth8ZNi?p=preview
+angular.module('masterMind').directive('barcode', function(){
+  return{
+    restrict: 'AE',
+    template: '<img id="barcodeImage" style="border: solid 1px black;" src="{{src}}"/>',
+    scope: {
+      food: '='
+    },
+    link: function($scope){
+      $scope.$watch('food', function(food){
+        console.log($scope.food);
+        var barcode = new bytescoutbarcode128();
+        var space= "  ";
+
+            barcode.valueSet([$scope.food.TranId].join(space));
+            barcode.setMargins(5, 5, 5, 5);
+            barcode.setBarWidth(2);
+
+            var width = barcode.getMinWidth();
+
+            barcode.setSize(width, 100);
+
+            $scope.src = barcode.exportToBase64(width, 100, 0);
+      }, true);
+    }
+  }
+});
+
 //directive
 angular.module('masterMind').directive('masterForm',  ['$http','URL', function($http,URL) {
 	return {
