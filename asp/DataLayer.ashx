@@ -35,10 +35,22 @@ string mysqlconnectionString="Server=localhost;userid=root;password=root;Databas
      	
 		HttpRequest Request = context.Request;
             HttpResponse Response = context.Response;
-             if(Request.HttpMethod=="POST")
+            if(Request.HttpMethod=="POST")
 			 {
-				  Response.Write( context.Request.Params);
+				 //context.Request["Id"]
+				  string jsonString="";
+				  using (var inputStream = new StreamReader(context.Request.InputStream))
+{
+				jsonString = inputStream.ReadToEnd();
+			}
+			 
+			  String strgetObject=context.Request.QueryString["saveObject"].Trim();
+			MasterDB objMsSqlDB=new MasterDB(DatabaseType.MS_SQL,mysqlconnectionString);
+			DBLayer objDataLayer=new DBLayer(objMsSqlDB);
+			int id=objDataLayer.saveObject(jsonString);
+			 Response.Write(id);
 			 }
+       
        
 		  else if(context.Request.QueryString["Query"]!=null)
             {
