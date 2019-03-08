@@ -32,14 +32,11 @@ public class DataLayer : IHttpHandler
         HttpResponse Response = context.Response;
         if (Request.HttpMethod == "POST")
         {
-            string jsonString = "";
+            string jsonString = string.Empty;
             using (var inputStream = new StreamReader(context.Request.InputStream))
-            {
-                jsonString = inputStream.ReadToEnd();
-            }
+            jsonString = inputStream.ReadToEnd();
             DBLayer objDataLayer = new DBLayer(objMsSqlDB);
-            int id = objDataLayer.saveObject(Response, jsonString);
-            Response.Write(id);
+            Response.Write(objDataLayer.saveObject(Response, jsonString));
         }
         else if (context.Request.QueryString["Query"] != null)
         {
@@ -47,14 +44,12 @@ public class DataLayer : IHttpHandler
             DataTable dt = objMsSqlDB.getQuery(Query);
             string webdata = DBLayer.DataTableTOJson(dt);
             Response.Write(webdata);
-
         }
         else if (context.Request.QueryString["getObject"] != null)
         {
             String strgetObject = context.Request.QueryString["getObject"].Trim();
             DBLayer objDataLayer = new DBLayer(objMsSqlDB);
             Response.Write(objDataLayer.getObject(strgetObject));
-
         }
         else if (context.Request.QueryString["List"] != null)
         {
@@ -85,15 +80,16 @@ public class DataLayer : IHttpHandler
         {
             String strgetObject = context.Request.QueryString["saveObject"].Trim();
             DBLayer objDataLayer = new DBLayer(objMsSqlDB);
-            int id = objDataLayer.saveObject(Response, strgetObject);
-            Response.Write(id);
+            Response.Write( objDataLayer.saveObject(Response, strgetObject));
         }
-        else if (context.Request.QueryString["getObject2"] != null)
+        else if (context.Request.QueryString["getObject2"] != null  )
         {
-            string TableName = context.Request.QueryString["getObject2"].Trim();
+            string TableName = string.Empty;
+            if(context.Request.QueryString["getObject2"] != null)
+             TableName = context.Request.QueryString["getObject2"].Trim();
             String PrimaryKey = context.Request.QueryString["PrimaryKey"];
             String PrimaryValue = context.Request.QueryString["PrimaryValue"];
-            String Query = "Select *  FROM " + TableName + " WHERE " + PrimaryKey + "=" + PrimaryValue;
+            String Query = "SELECT *  FROM " + TableName + " WHERE " + PrimaryKey + "=" + PrimaryValue;
             DataTable dt = objMsSqlDB.getQuery(Query);
             dynamic dyamicobejct = new DynamicJsonObject();
             dyamicobejct.setDataTable(dt);
@@ -105,7 +101,7 @@ public class DataLayer : IHttpHandler
                 string FkData = dyamicobejct[FkName];
                 if (FkData != "")
                 {
-                    Query = "select  *  from   " + dr["PK_TableName"] + " where  " + dr["PK_ColumnName"] + " =" + FkData;
+                    Query = "SELECT  *  FROM " + dr["PK_TableName"] + " WHERE  " + dr["PK_ColumnName"] + " =" + FkData;
                     dt = objMsSqlDB.getQuery(Query);
                     dynamic dyamicsubobejct = new DynamicJsonObject();
                     dyamicsubobejct.setDataTable(dt);
@@ -134,6 +130,7 @@ public abstract class MasterDB
     public abstract System.Data.DataTable GetTable(string TableName);
     public abstract void executeQuery(string Query);
     public abstract int getInsertLastId();
+    public abstract string GetPrimaryKey(string TableName);
 }
 public class MsSqlDB : MasterDB
 {
@@ -204,9 +201,21 @@ public class MsSqlDB : MasterDB
     }
     public override System.Data.DataTable GetTable(String TableName)
     {
-        string Query = "select *  from information_schema.COLUMNS  where table_name='" + TableName + "' ";
+        string Query = "SELECT *  FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME='" + TableName + "' ";
         return getQuery(Query);
     }
+    public override string GetPrimaryKey(string TableName)
+    {
+        string Query = "select * from  primarykey";
+
+        DataTable dt = getQuery(Query);
+        if (dt.Rows.Count > 0)
+            return dt.Rows[0]["Column_Name"].ToString();
+        else
+            return string.Empty;
+            
+    }
+
 }
 public class MySqlDB : MasterDB
 {
@@ -284,6 +293,16 @@ public class MySqlDB : MasterDB
         reader.Close();
         return Id;
     }
+    public override string GetPrimaryKey(string TableName)
+    {
+       string Query = "SHOW KEYS FROM "+TableName+" WHERE Key_name = 'PRIMARY'";
+      DataTable dt= getQuery(Query);
+      if (dt.Rows.Count > 0)
+          return dt.Rows[0]["Column_Name"].ToString();
+      else
+          return string.Empty;
+            
+    }
 
 }
 #region Nested type: DynamicJsonObject
@@ -309,7 +328,7 @@ public sealed class DynamicJsonObject : System.Dynamic.DynamicObject, IEnumerabl
         _dictionary = jsonToObject(strjson);
     }
 
-    public dynamic jsonToObject(string strjson)
+    private dynamic jsonToObject(string strjson)
     {
 
         System.Web.Script.Serialization.JavaScriptSerializer j = new System.Web.Script.Serialization.JavaScriptSerializer();
@@ -348,7 +367,6 @@ public sealed class DynamicJsonObject : System.Dynamic.DynamicObject, IEnumerabl
     }
     public void setObject(object obj)
     {
-
         System.Collections.Generic.Dictionary<string, object> keydata2 = (System.Collections.Generic.Dictionary<string, object>)obj;
         System.Collections.Generic.KeyValuePair<string, object> keydata = keydata2.First();
         _dictionary.Add(keydata.Key, keydata.Value);
@@ -376,15 +394,15 @@ public sealed class DynamicJsonObject : System.Dynamic.DynamicObject, IEnumerabl
     {
         return _dictionary.GetEnumerator();
     }
-    public bool isJsonObject(string jsonStr)
-    {
-        if (jsonStr.Substring(0, 1) == "{" && jsonStr.Substring(jsonStr.Length - 1, 1) == "}")
-        {
-            return true;
-        }
-        else
-            return false;
-    }
+    //public bool isJsonObject(string jsonStr)
+    //{
+    //    if (jsonStr.Substring(0, 1) == "{" && jsonStr.Substring(jsonStr.Length - 1, 1) == "}")
+    //    {
+    //        return true;
+    //    }
+    //    else
+    //        return false;
+    //}
     public bool isJsonArray(string jsonStr)
     {
         if (jsonStr.Substring(0, 1) == "[" && jsonStr.Substring(jsonStr.Length - 1, 1) == "]")
@@ -395,54 +413,54 @@ public sealed class DynamicJsonObject : System.Dynamic.DynamicObject, IEnumerabl
             return false;
     }
 
-    public bool isJsonField(string jsonStr)
-    {
-        string[] strObject = jsonStr.Split(':');
-        if (strObject.Length > 0)
-        {
-            return true;
-        }
-        else
-            return false;
-    }
-    public Dictionary<string, object> jsonObject(string jsonStr)
-    {
-        Dictionary<string, object> _dictionary = new Dictionary<string, object>();
-        if (isJsonObject(jsonStr))
-        {
-            jsonStr = removeBracket(jsonStr, "{", "}");
-            _dictionary["object"] = jsonStr;
-            _dictionary = jsonObject(jsonStr);
-        }
-        else if (isJsonArray(jsonStr))
-        {
-            _dictionary["arrya"] = jsonStr;
-        }
-        else if (isJsonField(jsonStr))
-        {
-            foreach (string strdata in jsonStr.Split(','))
-            {
-                string[] strObject = strdata.Split(':');
-                if (strObject.Length == 2)
-                {
-                    strObject[0] = removeBracket(strObject[0]);
-                    strObject[1] = removeBracket(strObject[1]);
-                    _dictionary[strObject[0]] = strObject[1];
-                }
-                else
-                {
-                    // strObject[0]=removeBracket(strObject[0]);
-                    // strObject[1]=removeBracket(strObject[1]);
-                    // _dictionary[ strObject[0]]=strObject[1];
-                }
-            }
-        }
-        else
-        {
-            //_dictionary["data"]=jsonStr;
-        }
-        return _dictionary;
-    }
+    //public bool isJsonField(string jsonStr)
+    //{
+    //    string[] strObject = jsonStr.Split(':');
+    //    if (strObject.Length > 0)
+    //    {
+    //        return true;
+    //    }
+    //    else
+    //        return false;
+    //}
+    //public Dictionary<string, object> jsonObject(string jsonStr)
+    //{
+    //    Dictionary<string, object> _dictionary = new Dictionary<string, object>();
+    //    if (isJsonObject(jsonStr))
+    //    {
+    //        jsonStr = removeBracket(jsonStr, "{", "}");
+    //        _dictionary["object"] = jsonStr;
+    //        _dictionary = jsonObject(jsonStr);
+    //    }
+    //    else if (isJsonArray(jsonStr))
+    //    {
+    //        _dictionary["arrya"] = jsonStr;
+    //    }
+    //    else if (isJsonField(jsonStr))
+    //    {
+    //        foreach (string strdata in jsonStr.Split(','))
+    //        {
+    //            string[] strObject = strdata.Split(':');
+    //            if (strObject.Length == 2)
+    //            {
+    //                strObject[0] = removeBracket(strObject[0]);
+    //                strObject[1] = removeBracket(strObject[1]);
+    //                _dictionary[strObject[0]] = strObject[1];
+    //            }
+    //            else
+    //            {
+    //                // strObject[0]=removeBracket(strObject[0]);
+    //                // strObject[1]=removeBracket(strObject[1]);
+    //                // _dictionary[ strObject[0]]=strObject[1];
+    //            }
+    //        }
+    //    }
+    //    else
+    //    {
+    //        //_dictionary["data"]=jsonStr;
+    //    }
+    //    return _dictionary;
+    //}
     public IEnumerable<int> getObjectSplit(string jsonStr)
     {
 
@@ -454,19 +472,19 @@ public sealed class DynamicJsonObject : System.Dynamic.DynamicObject, IEnumerabl
             }
         }
     }
-    public string removeBracket(string jsonStr, string startStr = "\"", string endStr = "\"")
-    {
-        jsonStr = jsonStr.Trim();
-        if (jsonStr.Substring(0, 1) == startStr) ;
-        {
-            jsonStr = jsonStr.Substring(1);
-        }
-        if (jsonStr.Substring(jsonStr.Length - 1, 1) == endStr) ;
-        {
-            jsonStr = jsonStr.Substring(0, jsonStr.Length - 1);
-        }
-        return jsonStr;
-    }
+    //public string removeBracket(string jsonStr, string startStr = "\"", string endStr = "\"")
+    //{
+    //    jsonStr = jsonStr.Trim();
+    //    if (jsonStr.Substring(0, 1) == startStr) ;
+    //    {
+    //        jsonStr = jsonStr.Substring(1);
+    //    }
+    //    if (jsonStr.Substring(jsonStr.Length - 1, 1) == endStr) ;
+    //    {
+    //        jsonStr = jsonStr.Substring(0, jsonStr.Length - 1);
+    //    }
+    //    return jsonStr;
+    //}
     public void RemoveObject(string columnName)
     {
         _dictionary.Remove(columnName);
@@ -523,7 +541,6 @@ public sealed class DynamicJsonObject : System.Dynamic.DynamicObject, IEnumerabl
             {
                 if (dt.Rows[i][j].GetType() == typeof(DateTime))
                 {
-
                     if (dt.Rows.Count == 1)
                         _dictionary.Add(dt.Columns[j].ColumnName, Convert.ToDateTime(dt.Rows[i][j]).ToString("dd-MMM-yyyy"));
                     else
@@ -754,6 +771,7 @@ public class DBLayer
     public int saveObject(HttpResponse Response, string jsonstr)
     {
         int id = 0;
+        masterDB.BeginTran();
         try
         {
             DynamicJsonObject DynamicJsonObject = new DynamicJsonObject(jsonstr);
@@ -764,13 +782,21 @@ public class DBLayer
                 dynamic obj = objDynamicJsonObject.Value;
                 DynamicJsonObject TableData = new DynamicJsonObject(obj);
                 string TableName = objDynamicJsonObject.Key.ToString();
-                masterDB.BeginTran();
-                id = saveRecord(masterDB, TableName, TableData, MasterKeyValue, Response);
-                masterDB.Committ();
+
+                MasterKeyValue = saveRecord(masterDB, TableName, TableData, MasterKeyValue, Response);
+                if (MasterKeyValue._dictionary.Count > 0)
+                {
+                    string PrimaryKey=masterDB.GetPrimaryKey(TableName);
+                    id=Convert.ToInt32(MasterKeyValue[PrimaryKey]);
+                    masterDB.Committ();
+                }
+                else
+                    masterDB.RollBack();
             }
         }
         catch (Exception e)
         {
+            masterDB.RollBack();
             Response.Write(e.ToString());
         }
         return id;
@@ -801,8 +827,6 @@ public class DBLayer
     }
     #endregion Public Method
     #region private  Method
- 
-
     private DynamicJsonObject GetObject(string PrimaryKey, string PrimaryValue, DynamicJsonObject objDynamicJsonObject, ArrayList MasterTable, bool dictionaryDetail = false)
     {
         DynamicJsonObject resultDynamicJsonObject = new DynamicJsonObject();
@@ -836,7 +860,7 @@ public class DBLayer
                         setForeKeyData(objdata, TableName, MasterTable);
                     }
                 }
-                MasterTable.Add(TableName);
+                MasterTable.Add(TableName.ToLower());
             }
         }
         return resultDynamicJsonObject;
@@ -844,37 +868,43 @@ public class DBLayer
     private void setForeKeyData(DynamicJsonObject resultDynamicJsonObject, string TableName, ArrayList MasterTable)
     {
         string Query = masterDB.getForeginkeyQuery(TableName);
-        System.Data.DataTable dt = masterDB.getQuery(Query);
-        foreach (System.Data.DataRow dr in dt.Rows)
+        System.Data.DataTable ForeKeyDatas = masterDB.getQuery(Query);
+        foreach (System.Data.DataRow dr in ForeKeyDatas.Rows)
         {
-            string FkName = dr["FK_ColumnName"].ToString();
-            string FkData = Convert.ToString(resultDynamicJsonObject[FkName]);
-            if (FkData != "")
+            string FkTableName = dr["PK_TableName"].ToString();
+            if (MasterTable.Contains(FkTableName.ToLower()))
             {
-                Query = "select  *  from  " + dr["PK_TableName"] + " where  " + dr["PK_ColumnName"] + " =" + FkData;
-                if (!MasterTable.Contains(dr["PK_TableName"].ToString()))
+
+            }
+            else
+            {
+                string FkName = dr["FK_ColumnName"].ToString();
+                string FkData = Convert.ToString(resultDynamicJsonObject[FkName]);
+                if (FkData != "")
                 {
-                    dt = masterDB.getQuery(Query);
-                    DynamicJsonObject dyamicsubobejct = new DynamicJsonObject();
-                    dyamicsubobejct.setDataTable(dt, dr["PK_TableName"].ToString());
-                    resultDynamicJsonObject["Virtual" + FkName.Substring(0, FkName.Length - 2)] = dyamicsubobejct;
-                    resultDynamicJsonObject.RemoveObject(FkName);
+                    Query = "select  *  from  " + dr["PK_TableName"] + " where  " + dr["PK_ColumnName"] + " =" + FkData;
+                    if (!MasterTable.Contains(dr["PK_TableName"].ToString()))
+                    {
+                        DataTable VirtualRowData = masterDB.getQuery(Query);
+                        DynamicJsonObject dyamicsubobejct = new DynamicJsonObject();
+                        dyamicsubobejct.setDataTable(VirtualRowData, dr["PK_TableName"].ToString());
+                        resultDynamicJsonObject["Virtual" + FkName.Substring(0, FkName.Length - 2)] = dyamicsubobejct;
+                        resultDynamicJsonObject.RemoveObject(FkName);
+                    }
                 }
             }
         }
     }
-   
-    private int saveRecord(MasterDB masterDB, string TableName, DynamicJsonObject TableData, DynamicJsonObject MasterKeyValue, HttpResponse Response)
+    private DynamicJsonObject saveRecord(MasterDB masterDB, string TableName, DynamicJsonObject TableData, DynamicJsonObject MasterKeyValue, HttpResponse Response)
     {
         int Id = 0;
         try
         {
-            String PrimaryKey = GetPrimaryKey(TableName);
+            String PrimaryKey = masterDB.GetPrimaryKey(TableName);
             DynamicJsonObject DetailTable = new DynamicJsonObject();
-            System.Data.DataTable tableFielddata = masterDB.GetTable(TableName);
-            String Query = InsertUpdate(TableName, TableData, MasterKeyValue, DetailTable, tableFielddata);
+            String Query = InsertUpdate(masterDB, TableName, TableData, MasterKeyValue, DetailTable, Response);
             masterDB.executeQuery(Query);
-            if (TableData._dictionary.Keys.Contains(PrimaryKey))
+            if (TableData._dictionary.Keys. Contains(PrimaryKey))
                 MasterKeyValue[PrimaryKey] = TableData[PrimaryKey];
             else
                 MasterKeyValue[PrimaryKey] = 0;
@@ -888,9 +918,9 @@ public class DBLayer
         catch (Exception e)
         {
             Response.Write(e.ToString());
-            masterDB.RollBack();
+            
         }
-        return Id;
+        return MasterKeyValue;
     }
     private void SaveDetail(MasterDB objMsSqlDB, DynamicJsonObject DetailTables, DynamicJsonObject MasterKeyValue, HttpResponse Response)
     {
@@ -900,8 +930,19 @@ public class DBLayer
             {
                 string TableName = DetailTable.Key.ToString();
                 dynamic obj = DetailTable.Value;
-                DynamicJsonObject TableData = new DynamicJsonObject(obj[0]);
-                int id = saveRecord(objMsSqlDB, TableName, TableData, MasterKeyValue, Response);
+                int index = 0;
+                try
+                {
+                    for (index = 0; index < obj.Length; index++)
+                    {
+                        DynamicJsonObject TableData = new DynamicJsonObject(obj[index]);
+                        MasterKeyValue = saveRecord(objMsSqlDB, TableName, TableData, MasterKeyValue, Response);
+                    }
+                }
+                catch(Exception )
+                {
+                    
+                }
             }
             else if (DetailTable.Value != "")
             {
@@ -910,11 +951,8 @@ public class DBLayer
             }
         }
     }
-    private string GetPrimaryKey(string TableName)
-    {
-        return TableName + "Id";
-    }
-    private string InsertUpdate(string TableName, DynamicJsonObject TableData, DynamicJsonObject MasterKeyValue, DynamicJsonObject DetailTable, System.Data.DataTable tableFielddata)
+   
+    private string InsertUpdate(MasterDB masterDB, string TableName, DynamicJsonObject TableData, DynamicJsonObject MasterKeyValue, DynamicJsonObject DetailTable, HttpResponse Response)
     {
         string Query = string.Empty;
         try
@@ -923,26 +961,33 @@ public class DBLayer
             string InsertField = "";
             string InsertValue = "";
             string UpdateFieldValue = "";
-            string PrimaryKey = GetPrimaryKey(TableName);
+            string PrimaryKey = masterDB.GetPrimaryKey(TableName);
             int PrimaryKeyValue = 0;
             foreach (dynamic masterkeyvalue in MasterKeyValue)
             {
                 string insertKey = masterkeyvalue.Key.ToString();
                 string insertValue = masterkeyvalue.Value.ToString();
-                if (TableData.isJsonArray(insertKey))
-                    TableData.RemoveObject(insertKey);
-                InsertField = insertKey + ",";
-                InsertValue = insertValue + ",";
+                if (insertKey == PrimaryKey)
+                {
+
+                }
+                else
+                {
+                    if (TableData.isJsonArray(insertKey))
+                        TableData.RemoveObject(insertKey);
+                    InsertField = insertKey + ",";
+                    InsertValue = insertValue + ",";
+                }
             }
             foreach (dynamic objdata in TableData)
             {
                 dynamic field = objdata.Key;
                 dynamic value = objdata.Value;
-                if (field == PrimaryKey)
+                if (field.ToLower() == PrimaryKey.ToLower())
                 {
-                    PrimaryKeyValue = value;
+                    PrimaryKeyValue =Convert.ToInt32( value);
                 }
-                else if (isfield(field, tableFielddata))// &&  !$data[substr($key,0,-2)])
+                else if (isfield(masterDB, field, TableName))// &&  !$data[substr($key,0,-2)])
                 {
                     if (field == "InsertedBy")
                     {
@@ -985,21 +1030,21 @@ public class DBLayer
                     InsertValue = InsertValue + "'" + value[VirtualTable + "Id"] + "',";
                     UpdateFieldValue = UpdateFieldValue + VirtualTable + "Id='" + value[VirtualTable + "Id"] + "',";
                 }
-                else if (isTable(field))
+                else if (isTable(masterDB,field))
                 {
-                    //if(is_array($value))
-                    //if(count($value)>0)
+                    if (value.GetType().IsArray == true) //if(count($value)>0)
                     DetailTable[field] = value;
                 }
-                /*
-                else if(substr($key,-3)=="Ids")
-                {     if($value!=""  )
-                      {
-                       $DeleteTable=substr($key,0,-3);
-                       $DetailTable[$key]="Delete FROM $DeleteTable WHERE ".$DeleteTable."Id in( ".$value.")";
-                      }
+                else if (field.Length>3  &&  field.Substring(field.Length - 3, 3).ToLower() == "ids")
+                {
+                    if (value != "")
+                    {
+                        string DeleteTable = field.Substring(3);
+                        DetailTable[field] = "Delete FROM " + DeleteTable + " WHERE " + DeleteTable + "Id in( " + value + ")";
+                    }
+                    else
+                        new NotImplementedException();
                 }
-                  */
             }
             string InsertFields = InsertField.Substring(0, InsertField.LastIndexOf(','));
             string InsertValues = InsertValue.Substring(0, InsertValue.LastIndexOf(','));
@@ -1012,14 +1057,15 @@ public class DBLayer
         }
         catch (Exception e)
         {
-
+            Response.Write(e.ToString());
         }
         return Query;
     }
-    private bool isfield(string FieldName, System.Data.DataTable tableFielddata)
+    private bool isfield(MasterDB masterDB, string FieldName, string TableName)
     {
         try
         {
+            System.Data.DataTable tableFielddata = masterDB.GetTable(TableName);
             System.Data.DataRow[] dr = tableFielddata.Select("column_name='" + FieldName + "'");
             if (dr.Length > 0)
                 return true;
@@ -1061,10 +1107,11 @@ public class DBLayer
         else
             return false;
     }
-    private bool isTable(string TableName)
+    private bool isTable(MasterDB masterDB,string TableName)
     {
         string Query = "select *  from information_schema.tables where table_Name='" + TableName + "'";
-        if (1 == 1)
+         System.Data.DataTable Tabledt = masterDB.getQuery(Query);
+        if (Tabledt.Rows.Count>0)
             return true;
         else
             return false;
@@ -1081,8 +1128,6 @@ public class DBLayer
     {
         return string.Empty;
     }
-    
-  
      private static string Removelastcomm(string data)
      {
          if (data.LastIndexOf(',') >= 0)
