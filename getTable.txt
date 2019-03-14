@@ -1,15 +1,21 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getTable`(TableName varchar(255) )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getTable`(TableName_ varchar(255) )
 BEGIN
 
+DROP TEMPORARY TABLE IF EXISTS TableDATA;
+CREATE TEMPORARY TABLE TableDATA AS  
 select   
-information_schema.COLUMNS .Column_Name,information_schema.COLUMNS.Data_Type, 
+IF(REFERENCED_TABLE_NAME is not null,Concat('Virtual',REFERENCED_TABLE_NAME),information_schema.COLUMNS .Column_Name) AS Value ,
+information_schema.COLUMNS.Data_Type, 
 information_schema.COLUMNS.character_Maximum_length,
 information_schema.COLUMNS.Is_NULLABLE ,
 information_schema.COLUMNS.Column_Key,
-REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME,
-information_schema.COLUMNS.Column_Comment,
+REFERENCED_TABLE_NAME AS TableName,
+REFERENCED_COLUMN_NAME,
+if(information_schema.COLUMNS.Column_Comment <>'',information_schema.COLUMNS.Column_Comment,information_schema.COLUMNS .Column_Name ) AS  Name,
 c.Column_Name,
-if(information_schema.COLUMNS.Column_Key='PRI','HIDEEN', IF(information_schema.COLUMNS.Column_Key='MUL','COOMBOBOX','TEXTBOX')) AS Control_TYPE
+if(information_schema.COLUMNS.Column_Key='PRI','HIDEEN', IF(information_schema.COLUMNS.Column_Key='MUL','COOMBOBOX','TEXTBOX')) AS TYPE,
+IF(REFERENCED_TABLE_NAME is not null,CONCAT('select *  from ',REFERENCED_TABLE_NAME),'') AS Query,
+IF(REFERENCED_TABLE_NAME is not NULL,CONCAT('y.',REFERENCED_COLUMN_NAME,' for (x,y) in ',REFERENCED_TABLE_NAME,'track by y.',REFERENCED_COLUMN_NAME),'')  AS ComboQuery
 from information_schema.COLUMNS 
 LEFT join  information_schema.KEY_COLUMN_USAGE 
 on information_schema.COLUMNS.TABLE_NAME=information_schema.KEY_COLUMN_USAGE.TABLE_NAME
@@ -19,8 +25,10 @@ AND  information_schema.COLUMNS.Column_Name=information_schema.KEY_COLUMN_USAGE 
 LEFT JOIN  information_schema.COLUMNS c on c.table_name= information_schema.KEY_COLUMN_USAGE.REFERENCED_TABLE_NAME
 AND  c.table_schema=information_schema.KEY_COLUMN_USAGE .table_schema
 and c.ordinal_position=2
-where information_schema.COLUMNS .table_name=TableName 
+where information_schema.COLUMNS .table_name=TableName_ 
 
-and information_schema.COLUMNS .table_schema=(SELECT DATABASE());
+and information_schema.COLUMNS .table_schema=(SELECT DATABASE())
+order by information_schema.COLUMNS.ordinal_position;
 
+SELECT  name,Type,Value,TableName,Query,ComboQuery FROM TableDATA;
 END
