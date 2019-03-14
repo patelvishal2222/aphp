@@ -1,0 +1,26 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getTable`(TableName varchar(255) )
+BEGIN
+
+select   
+information_schema.COLUMNS .Column_Name,information_schema.COLUMNS.Data_Type, 
+information_schema.COLUMNS.character_Maximum_length,
+information_schema.COLUMNS.Is_NULLABLE ,
+information_schema.COLUMNS.Column_Key,
+REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME,
+information_schema.COLUMNS.Column_Comment,
+c.Column_Name,
+if(information_schema.COLUMNS.Column_Key='PRI','HIDEEN', IF(information_schema.COLUMNS.Column_Key='MUL','COOMBOBOX','TEXTBOX')) AS Control_TYPE
+from information_schema.COLUMNS 
+LEFT join  information_schema.KEY_COLUMN_USAGE 
+on information_schema.COLUMNS.TABLE_NAME=information_schema.KEY_COLUMN_USAGE.TABLE_NAME
+AND  information_schema.COLUMNS.table_schema=information_schema.KEY_COLUMN_USAGE .table_schema
+AND  information_schema.COLUMNS.Column_Name=information_schema.KEY_COLUMN_USAGE .Column_Name
+ and REFERENCED_COLUMN_NAME is not null
+LEFT JOIN  information_schema.COLUMNS c on c.table_name= information_schema.KEY_COLUMN_USAGE.REFERENCED_TABLE_NAME
+AND  c.table_schema=information_schema.KEY_COLUMN_USAGE .table_schema
+and c.ordinal_position=2
+where information_schema.COLUMNS .table_name=TableName 
+
+and information_schema.COLUMNS .table_schema=(SELECT DATABASE());
+
+END
