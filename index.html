@@ -1,5 +1,3 @@
-https://stackoverflow.com/questions/23807177/angularjs-image-upload-using-php
-https://github.com/Trajanson/scientific-calculator-js
 
 <html lang="en" ng-app="DeluxSystem">
 <head>
@@ -10,19 +8,30 @@ https://github.com/Trajanson/scientific-calculator-js
   <meta charset="utf-8">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
+	<style>
+	@media screen and (max-height:1079px){
+    @viewport {
+        width: device-width;
+        zoom: .8;
+    }
+}
+	</style>
   <base href="/aphp/">
 
 
-  <link rel="stylesheet" href="./css/bootstrap.min.css">
-  <link rel="stylesheet" href="./css/style.css">
-  
+
+
 <script src="./jquery/jquery.min.js"></script>
 <script src="./jquery/bootstrap.min.js"></script>
   <script src="./jquery/angular.js"></script>
   <script src="./jquery/angular-ui-router.js"></script>
   <script src="./jquery/pdfmake.min.js"></script>
   <script src="./jquery/html2canvas.min.js"></script>
+  
+  
+  <link rel="stylesheet" href="./css/style.css">
+
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
     <script data-require="ui-bootstrap@*" data-semver="0.12.1" src="./jquery/ui-bootstrap-tpls-0.12.1.min.js"></script>
 
   <script src="./delux/js/masterMind.js"></script>
@@ -43,21 +52,40 @@ https://github.com/Trajanson/scientific-calculator-js
   <script src="./controllers/tran_control.js"></script>
   <script src="./controllers/accountdetailsControl.js"></script>
   <script src="./controllers/itemdetailsControl.js"></script>
-  <script src="./controllers/unit_control.js"></script>
+  
   <script src="./controllers/master_control.js"></script>
   <script src="./controllers/report_control.js"></script>
   <script src="./controllers/backup_control.js"></script>
+  <script src="./delux/control/DeluxControl.js"></script>
+  <script src="./delux/control/DeluxForm.js"></script>
   
   
+  <script>
+  angular.module('DeluxSystem').controller('intdexControl', function ($scope, $state, $http, $location,$stateParams,URL) {
   
   
+ 
+  
+  $http.get(URL+"?Query=select *  from MenuMaster where  MenuMasterId=ParentMenuMasterId").then(function (response) {
+			
+            $scope.menulist= response.data.listdata;
+			
+       });
+	   
+	
+	  
+  });
+  
+  
+  </script>
   
   
   
   
 </head>
 
-    <body>
+    <body ng-app="DeluxSystem">
+	
 
         <nav class="navbar navbar-inverse navbar-fixed-top">
             <div class="container-fluid">
@@ -69,16 +97,14 @@ https://github.com/Trajanson/scientific-calculator-js
                     </button>
                     <a class="navbar-brand" href="#"></a>
                 </div>
-                <div class="collapse navbar-collapse" id="myNavbar">
-                    <ul class="nav navbar-nav">
-                    
-                        <li class="active"><a ng-href=".">Home</a></li>
-						<li><a class="dropdown-item"  ng-href="delux/0" >Master</a></li>
-						
-						
-						<!--<li><a class="dropdown-item"  ng-href="Report" >Report</a></li>-->
-						<li><a class="dropdown-item"  ng-href="backup" >Backup</a></li>
-						
+                <div class="collapse navbar-collapse" id="myNavbar"  ng-controller="intdexControl"  >
+				
+				
+                    <ul class="nav navbar-nav"   ng-repeat="menu in menulist"  >
+					
+					<li class="active" ng-show={{menu.MenuMasterId==1}}  ><a ng-href=".">Home</a></li>	 
+                    <li class="active"  ng-show={{menu.Visible}}  ><a  ng-href='{{menu.UiRounterName+"/"+menu.ParentMenuMasterId+"/"+menu.MenuMasterId}}' >{{menu.MenuName}}</a></li>
+					    
                     </ul>
 
                 </div>
@@ -86,34 +112,7 @@ https://github.com/Trajanson/scientific-calculator-js
             </div>
         </nav>
 		
-<!--
- <nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" ng-href="."  >Delux Account</a>
-    </div>
-    <ul class="nav navbar-nav">
-      <li class="active"><a  ng-href="." >Transcation</a></li>
-       <li class="nav-item dropdown">
-	          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	            Master
-	          </a>
-	          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-	            <a class="dropdown-item"  ng-href="account" >Account</a>
-	            <div class="dropdown-divider"></div>
-	            <a class="dropdown-item"  ng-href="item"  >Item</a>
-	            <div class="dropdown-divider"></div>
-	            <a class="dropdown-item" ng-href="transcation"  >Transcation</a>
-				
-	          </div>
-      </li>
-      <li><a ng-href="item">ItemMaster</a></li>
-      <li><a ng-href="account">AccountMaster</a></li>
-    </ul>
 
-  </div>
-</nav>
--->
 <div class="container-fluid  " >
     <div class="row content">
 
@@ -127,7 +126,7 @@ https://github.com/Trajanson/scientific-calculator-js
 
 
 <footer class="container-fluid text-center">
-<p>Delux Account System Version 1.0.0.3 </p>
+<p>Delux Account System Version 1.0.0.4 </p>
 </footer>
 
 
