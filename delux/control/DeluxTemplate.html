@@ -31,7 +31,7 @@
 				<a ui-sref='{{menu.UiRounterName}}({VoucherTypeId:menu.VoucherTypeId,TranId:0})'  >{{menu.MenuName}}</a> 
 				</div>
 				<div ng-show="menu.ParentMenuMasterId!=100" >
-				<a ui-sref='{{menu.UiRounterName}}({ParentMenuMasterId:menu.ParentMenuMasterId,MenuMasterId:menu.MenuMasterId})'  >{{menu.MenuName}}</a> 
+				<a ui-sref='{{menu.UiRounterName}}({MenuMasterId:menu.MenuMasterId,UniqueId:0})'  >{{menu.MenuName}}</a> 
 				</div>
 		</div>
 	</div>
@@ -45,7 +45,7 @@
 <master-Form title=del_con.title datamodel=del_con.dbdata[del_con.TableMaster.TableName] insertupdate=del_con.InsertUpdate() model=del_con.editDialog formfields=del_con.formFields  ></master-Form>
 </div>
 <div  class="row" >
-<table-report title=del_con.title listdata="del_con.listdata"  addmode="del_con.addmode()"  editmode="del_con.editmode(object,index)" deletemode="del_con.deletemode(object,index)"   doubleclick1="del_con.doubleclick(object,index)"   displaydata=del_con.Tableview  ></table-report>
+<table-report title=del_con.title listdata="del_con.listdata"  addmode="del_con.addmode()"  editmode="del_con.editmode(object,index)" deletemode="del_con.deletemode(object,index)"   doubleclick1="del_con.doubleclick(object,index)"   displaydata=del_con.Tableview  addbutton=del_con.addbutton   editbutton=del_con.editbutton deletebutton=del_con.deletebutton ></table-report>
 </div>
 
 <!--
