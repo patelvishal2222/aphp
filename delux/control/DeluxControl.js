@@ -1,4 +1,4 @@
-myApp.controller('delux_control', function ($scope, $state, $http, $location,$filter,$stateParams,URL) {
+myApp.controller('delux_control', function ($scope, $state, $http, $location,$filter,$stateParams,$timeout,URL) {
 	
 	var del_con = this;
 del_con.editDialog = new EditPersonDialogModel();
@@ -92,8 +92,9 @@ del_con.editDialog = new EditPersonDialogModel();
 	 {
 		 if(del_con.TableMaster==null)
 		 {
-		//   <a ui-sref='{{trn.PrintTemplateName}}({VoucherTypeId:trn.VoucherTypeId,TranId:trn.TranId})' >
-		$state.go('deluxform',{VoucherTypeId:object["VoucherTypeId"].toString(),TranId:object["TranId"].toString()});
+		
+		//$state.go('deluxform',{VoucherTypeId:object["VoucherTypeId"].toString(),TranId:object["TranId"].toString()});
+			 		  $timeout(function() { $state.go('deluxform',{VoucherTypeId:object["VoucherTypeId"].toString(),TranId:object["TranId"].toString()}); }); 
 		 }
 		 else
 		 {
