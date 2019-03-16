@@ -13,7 +13,7 @@ myApp.controller('DeluxForm', function ($scope, $state, $http, $location,$stateP
 	 vm.menu={};
 	  vm.dbdata.tran.BillDate=new Date();
 	  
-	 
+	 console.log(vm.dbdata.tran.VoucherTypeId+"  "+ vm.dbdata.tran.TranId);
 	 
 	
 	
