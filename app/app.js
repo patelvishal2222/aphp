@@ -19,6 +19,37 @@ myApp.config(function ($stateProvider, $locationProvider, $urlRouterProvider) {
                 }
 
             })
+			
+			$stateProvider
+            .state('deluxstate', {
+                url: '/deluxstate/:ParentMenuMasterId/:MenuMasterId',
+                templateUrl: 'delux/control/DeluxTemplate.html',
+				 controller: 'delux_control',
+				  controllerAs: "del_con",
+				  
+                 resolve: {
+                    'title': ['$rootScope', function ($rootScope) {
+                            $rootScope.title = "Delux System";
+                        }]
+                }
+
+            })
+			
+			$stateProvider
+            .state('deluxform', {
+                url: '/deluxform/:VoucherTypeId/:TranId',
+                templateUrl: 'delux/control/DeluxForm.html',
+				 controller: 'DeluxForm',
+				  controllerAs: "tran_con",
+				  
+                 resolve: {
+                    'title': ['$rootScope', function ($rootScope) {
+                            $rootScope.title = "Delux System";
+                        }]
+                }
+
+            })
+			
 			 $stateProvider
             .state('master', {
                 url: '/master',
