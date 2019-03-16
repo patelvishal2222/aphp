@@ -90,6 +90,13 @@ del_con.editDialog = new EditPersonDialogModel();
 	  
 	 del_con.editmode=function (object,index)
 	 {
+		 if(del_con.TableMaster==null)
+		 {
+		//   <a ui-sref='{{trn.PrintTemplateName}}({VoucherTypeId:trn.VoucherTypeId,TranId:trn.TranId})' >
+		$state.go('deluxform',{VoucherTypeId:object["VoucherTypeId"].toString(),TranId:object["TranId"].toString()});
+		 }
+		 else
+		 {
 		 var MainObject={PrimaryValue:object[del_con.TableMaster.MasterKey],PrimaryKey:del_con.TableMaster.MasterKey,TableNames:{TableName:del_con.TableMaster.TableName}};
 		 
 		  
@@ -98,8 +105,10 @@ del_con.editDialog = new EditPersonDialogModel();
 			 
 			del_con.editDialog.open();
 			del_con.index=index;
+			  
 			 
         });
+		 }
 
 	 }
 	 
