@@ -121,17 +121,30 @@ myApp.controller('delux_control', function ($scope, $state, $http, $location,$fi
         });
 	 }
 	  del_con.deletemode=function(object,index)
-	 {	   var yesno = confirm('Are you sure remove Record?');
-                if (yesno == true) {
-				$http.get(URL+'?deleteObject='+del_con.TableMaster.TableName+'&PrimaryKey='+del_con.TableMaster.MasterKey+'&PrimaryValue='+object[del_con.TableMaster.MasterKey]).then(function (response) {
-            del_con.msg = response.data.message;
-            del_con.alert_class = 'custom-alert';
-			// del_con.loadReport(); 
-			del_con.Index=del_con.findIndex(del_con.listdata ,del_con.TableMaster.MasterKey,object[ del_con.TableMaster.MasterKey]);
-			if(del_con.Index>=0)
-			del_con.listdata.splice(del_con.Index, 1); 
-			});
-		}
+	 {	var yesno = confirm('Are you sure remove Record?');
+		if (yesno == true)
+			{
+				if(del_con.TableMaster==null ||del_con.TableMaster==undefined  )
+					{
+						var MainObject={PrimaryValue:object['TranId'],PrimaryKey:'TranId',TableNames:[{TableName:'TranDetails'},{TableName:'TranFin'},{TableName:'Tran'}]};
+						$http.get(URL+'?deleteObject1=' +angular.toJson(MainObject)).then(function (response) {
+						del_con.msg = response.data.message;
+						del_con.alert_class = 'custom-alert';
+						del_con.loadReport()
+						});
+					}
+					else
+					{
+						$http.get(URL+'?deleteObject='+del_con.TableMaster.TableName+'&PrimaryKey='+del_con.TableMaster.MasterKey+'&PrimaryValue='+object[del_con.TableMaster.MasterKey]).then(function (response) 
+						{
+						del_con.msg = response.data.message;
+						del_con.alert_class = 'custom-alert';
+						del_con.Index=del_con.findIndex(del_con.listdata ,del_con.TableMaster.MasterKey,object[ del_con.TableMaster.MasterKey]);
+						if(del_con.Index>=0)
+						del_con.listdata.splice(del_con.Index, 1); 
+						});
+					}
+			}
 	 }
 	del_con.doubleclick=function (object,index)
 		{
