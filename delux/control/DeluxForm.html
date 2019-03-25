@@ -1,0 +1,37 @@
+ <div  id="Deluxform" >
+	<div>
+        <div  class="modal-header"    ng-style="{'background-color': tran_con.selmenu.class}"   >
+			<a  ng-href="deluxstate/100/100"  >
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</a>
+			<h4    class="modal-title">{{tran_con.selmenu.MenuName}} </h4>
+        </div>
+        <div class="modal-body">
+           <form method="post"  id="sales_frm"  role="tranform" ng-submit="tran_con.addTran()" >
+			 <div ng-messages= >
+			 </div>
+				<div id="printsave">
+					<control-entry  datamodel=tran_con.dbdata.tran    formfields=tran_con.trandata.TranscationEntry  ></control-entry>
+					<div class="form-group">
+					</div>
+					<div class="row" ng-hide="tran_con.trandata.TransctionTable==undefined" >
+					<dynamic-details  datamodel=tran_con.dbdata.tran[tran_con.menu.tablename]     formfields=tran_con.trandata.TransctionTable  modelfields=tran_con.trandata.TransctionModel tablename=tran_con.menu.tablename   total=tran_con.dbdata.tran.Total rate=tran_con.menu.Rate crdrmasterid=tran_con.menu.CrDrMasterId  detailsids=tran_con.dbdata.tran[tran_con.menu.tablename+"Ids"]  ><dynamic-details>
+					</div>
+					<div class="row" ng-hide="tran_con.trandata.TransctionTable==undefined"   >
+						<div class="col-lg-7">
+						</div>
+						<div class="col-lg-2">
+							<label for="Total">Total:</label>
+						</div>
+						<div class="col-lg-3">
+							{{tran_con.dbdata.tran.Total|number:2}}
+						</div>
+					</div>
+					<div class="modal-footer">
+						<input type="submit" class="button button-green "  value="Submit"/>
+					</div>
+				</div>
+			</form> 
+		</div>
+	</div>
+</div>
