@@ -1,9 +1,3 @@
--- --------------------------------------------------------------------------------
--- Routine DDL
--- Note: comments before and after the routine body will not be stored by the server
--- --------------------------------------------------------------------------------
-DELIMITER $$
-
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getFormFields`(TableMasterId_ int )
 BEGIN
 
@@ -48,10 +42,51 @@ inner join  ControlType  on controlmaster.ControlTypeId=ControlType.ControlTypeI
 ) ControlData
 on   
  ControlData.TableMasterId=TableDATA.TableMasterId
-and  TableDATA.name=ControlData.ControlName
+and  TableDATA.name=ControlData.ControlName;
 
- 
+ DROP TEMPORARY TABLE IF EXISTS TableDATA2;
+CREATE TEMPORARY TABLE TableDATA2 AS  
+select  
+ TableMaster.TableMasterId,
 
-;
+IF(REFERENCED_TABLE_NAME is not null,Concat('Virtual',substring(REFERENCED_COLUMN_NAME,1,length(REFERENCED_COLUMN_NAME)-2)),information_schema.COLUMNS .Column_Name) AS Value ,
+information_schema.COLUMNS.Data_Type, 
+information_schema.COLUMNS.character_Maximum_length,
+information_schema.COLUMNS.Is_NULLABLE ,
+information_schema.COLUMNS.Column_Key,
+REFERENCED_TABLE_NAME AS TableName,
+REFERENCED_COLUMN_NAME,
+if(information_schema.COLUMNS.Column_Comment <>'',information_schema.COLUMNS.Column_Comment,information_schema.COLUMNS .Column_Name ) AS  Name,
+c.Column_Name,
+if(information_schema.COLUMNS.Column_Key='PRI','hideen', IF(information_schema.COLUMNS.Column_Key='MUL','ComboBox', if(information_schema.COLUMNS.Data_type='date','date','text'))) AS TYPE,
+IF(REFERENCED_TABLE_NAME is not null,CONCAT('select *  from ',REFERENCED_TABLE_NAME),'') AS Query,
+IF(REFERENCED_TABLE_NAME is not NULL,CONCAT('y.',c.Column_Name,' for (x,y) in ',REFERENCED_TABLE_NAME,' track by y.',REFERENCED_COLUMN_NAME),'')  AS ComboQuery
+from information_schema.COLUMNS 
+LEFT join  information_schema.KEY_COLUMN_USAGE 
+on information_schema.COLUMNS.TABLE_NAME=information_schema.KEY_COLUMN_USAGE.TABLE_NAME
+AND  information_schema.COLUMNS.table_schema=information_schema.KEY_COLUMN_USAGE .table_schema
+AND  information_schema.COLUMNS.Column_Name=information_schema.KEY_COLUMN_USAGE .Column_Name
+ and REFERENCED_COLUMN_NAME is not null
+LEFT JOIN  information_schema.COLUMNS c on c.table_name= information_schema.KEY_COLUMN_USAGE.REFERENCED_TABLE_NAME
+AND  c.table_schema=information_schema.KEY_COLUMN_USAGE .table_schema
+and c.ordinal_position=2
+inner join  TableMaster on tablemaster.TableName=information_schema.COLUMNS .table_name
+where TableMaster.parentTableMasterId= TableMasterId_
+
+and information_schema.COLUMNS .table_schema=(SELECT DATABASE())
+order by information_schema.COLUMNS.ordinal_position;
+
+SELECT  TableDATA2.name,if(ControlTypeName is null,TableDATA2.type,ControlTypeName) as type,TableDATA2.value,TableDATA2.TableName,TableDATA2.Query,TableDATA2.ComboQuery 
+
+FROM TableDATA2  
+Left JOIN (
+SELECT controlmaster.ControlTypeId,controlmaster.ControlName,ControlTypeName,controlmaster.Formula,controlmaster.Width,TableMasterId FROM controlmaster 
+inner join  ControlType  on controlmaster.ControlTypeId=ControlType.ControlTypeId
+) ControlData
+on   
+ ControlData.TableMasterId=TableDATA2.TableMasterId
+and  TableDATA2.name=ControlData.ControlName;
+
+
 
 END
