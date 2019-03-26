@@ -72,11 +72,12 @@ AND  c.table_schema=information_schema.KEY_COLUMN_USAGE .table_schema
 and c.ordinal_position=2
 inner join  TableMaster on tablemaster.TableName=information_schema.COLUMNS .table_name
 where TableMaster.parentTableMasterId= TableMasterId_
+and TableMaster.parentTableMasterId<>TableMaster.TableMasterId
 
 and information_schema.COLUMNS .table_schema=(SELECT DATABASE())
 order by information_schema.COLUMNS.ordinal_position;
 
-SELECT  TableDATA2.name,if(ControlTypeName is null,TableDATA2.type,ControlTypeName) as type,TableDATA2.value,TableDATA2.TableName,TableDATA2.Query,TableDATA2.ComboQuery 
+SELECT  TableDATA2.name,if(ControlTypeName is null,TableDATA2.type,ControlTypeName) as type,TableDATA2.value as ColumnName,TableDATA2.TableName,TableDATA2.Query,TableDATA2.ComboQuery 
 
 FROM TableDATA2  
 Left JOIN (
