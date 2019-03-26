@@ -21,7 +21,9 @@ myApp.controller('DeluxForm', function ($scope, $state, $http, $location,$stateP
 					$http.get(URL+'?Query= call  getFormFields('+vm.selFormMaster.TableMasterId+')').then(function (response) 
 					{
 					vm.trandata={};
-					vm.trandata.TranscationEntry = response.data.listdata;
+					//vm.trandata.TranscationEntry = response.data.listdata;
+					vm.trandata.TranscationEntry = response.data[1];
+					vm.trandata.TransctionTable=response.data[2];
 					
 						if( vm.dbdata.tran.TranId>0)
 						{
