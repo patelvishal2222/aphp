@@ -31,15 +31,53 @@ class DyamicClass  extends Database
 		return $Query;
 	}
 	 
-	  public function getQuery($Query){
-		  //echo  $Query;
+	 
+	 
+	  public function Query2($Query){
+	
+    $listdata=array();
+	$count=1;
+      if ($this->conn->multi_query($Query)) {
+		 
+      do {
+	
+      
+         if ($result = $this->conn->store_result()) {
+			 			 $rows=array();
+            
+			while ($row = $result->fetch_row())
+				{
+               $rows[]=$row;
+			  
+            }
+			$listdata[$count]=$rows;
+			$count++;
+            $result->free();
+			
+         }
+		 
+         if ($this->conn->more_results()) {
+         }
+		 
+      } while ($this->conn->next_result());
+
+   }
+   else
+   { echo "not data";
+   }
+   return $listdata;
+	}	
+	public function getQuery($Query){
+		 // echo  $Query;
        $Result=  $this->conn->query($Query);
+	 
        $listdata=array();
 	   if($Result)
 	   { 
 				$rows=array();
 				while( $row=$Result->fetch_assoc())
 				{
+					 
 					$rows[]=$row;
 				}
 		return $rows;
@@ -339,6 +377,16 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 				$rows=$obj->getQuery($Query);
 				$listdata=$obj->getList($rows);
 				echo json_encode($listdata);
+				
+				
+			}
+			if(!empty($_GET["Query2"]))
+			{
+				
+				$Query=$_GET["Query2"];
+				$obj=new DyamicClass();
+				$rows=$obj->Query2($Query);
+				echo json_encode($rows);
 			}
 			else if(!empty($_GET["getObject2"]))
 			{
@@ -461,7 +509,7 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 			}
 			else 
 			{
-			 echo "get Not work";	
+			//echo " One two get Not work";	
 			}
 			break;
 		case 'POST':
