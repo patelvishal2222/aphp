@@ -1,9 +1,17 @@
+-- --------------------------------------------------------------------------------
+-- Routine DDL
+-- Note: comments before and after the routine body will not be stored by the server
+-- --------------------------------------------------------------------------------
+DELIMITER $$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getFormFields`(TableMasterId_ int )
 BEGIN
 
 DROP TEMPORARY TABLE IF EXISTS TableDATA;
 CREATE TEMPORARY TABLE TableDATA AS  
 select  
+if(c.Column_Name is null,if(information_schema.COLUMNS.Column_Comment <>'',information_schema.COLUMNS.Column_Comment,information_schema.COLUMNS .Column_Name ), c.Column_Name ) AS  Name,
+
  TableMaster.TableMasterId,
 
 IF(REFERENCED_TABLE_NAME is not null,Concat('Virtual',substring(REFERENCED_COLUMN_NAME,1,length(REFERENCED_COLUMN_NAME)-2)),information_schema.COLUMNS .Column_Name) AS Value ,
@@ -13,8 +21,7 @@ information_schema.COLUMNS.Is_NULLABLE ,
 information_schema.COLUMNS.Column_Key,
 REFERENCED_TABLE_NAME AS TableName,
 REFERENCED_COLUMN_NAME,
-if(information_schema.COLUMNS.Column_Comment <>'',information_schema.COLUMNS.Column_Comment,information_schema.COLUMNS .Column_Name ) AS  Name,
-c.Column_Name,
+
 if(information_schema.COLUMNS.Column_Key='PRI','hideen', IF(information_schema.COLUMNS.Column_Key='MUL','ComboBox', if(information_schema.COLUMNS.Data_type='date','date','text'))) AS TYPE,
 IF(REFERENCED_TABLE_NAME is not null,CONCAT('select *  from ',REFERENCED_TABLE_NAME),'') AS Query,
 IF(REFERENCED_TABLE_NAME is not NULL,CONCAT('y.',c.Column_Name,' for (x,y) in ',REFERENCED_TABLE_NAME,' track by y.',REFERENCED_COLUMN_NAME),'')  AS ComboQuery
@@ -33,7 +40,7 @@ where TableMaster.TableMasterId= TableMasterId_
 and information_schema.COLUMNS .table_schema=(SELECT DATABASE())
 order by information_schema.COLUMNS.ordinal_position;
 
-SELECT  TableDATA.name,if(ControlTypeName is null,TableDATA.type,ControlTypeName) as type,TableDATA.value,TableDATA.TableName,TableDATA.Query,TableDATA.ComboQuery 
+SELECT  TableDATA.name  as Caption ,if(ControlTypeName is null,TableDATA.type,ControlTypeName) as ControlTypeName,TableDATA.value as FieldName ,TableDATA.TableName,TableDATA.Query,TableDATA.ComboQuery 
 
 FROM TableDATA  
 Left JOIN (
@@ -47,6 +54,7 @@ and  TableDATA.name=ControlData.ControlName;
  DROP TEMPORARY TABLE IF EXISTS TableDATA2;
 CREATE TEMPORARY TABLE TableDATA2 AS  
 select  
+if(c.Column_Name is null,if(information_schema.COLUMNS.Column_Comment <>'',information_schema.COLUMNS.Column_Comment,information_schema.COLUMNS .Column_Name ), c.Column_Name ) AS  Name,
  TableMaster.TableMasterId,
 
 IF(REFERENCED_TABLE_NAME is not null,Concat('Virtual',substring(REFERENCED_COLUMN_NAME,1,length(REFERENCED_COLUMN_NAME)-2)),information_schema.COLUMNS .Column_Name) AS Value ,
@@ -56,8 +64,7 @@ information_schema.COLUMNS.Is_NULLABLE ,
 information_schema.COLUMNS.Column_Key,
 REFERENCED_TABLE_NAME AS TableName,
 REFERENCED_COLUMN_NAME,
-if(information_schema.COLUMNS.Column_Comment <>'',information_schema.COLUMNS.Column_Comment,information_schema.COLUMNS .Column_Name ) AS  Name,
-c.Column_Name,
+
 if(information_schema.COLUMNS.Column_Key='PRI','hideen', IF(information_schema.COLUMNS.Column_Key='MUL','ComboBox', if(information_schema.COLUMNS.Data_type='date','date','text'))) AS TYPE,
 IF(REFERENCED_TABLE_NAME is not null,CONCAT('select *  from ',REFERENCED_TABLE_NAME),'') AS Query,
 IF(REFERENCED_TABLE_NAME is not NULL,CONCAT('y.',c.Column_Name,' for (x,y) in ',REFERENCED_TABLE_NAME,' track by y.',REFERENCED_COLUMN_NAME),'')  AS ComboQuery
@@ -77,11 +84,11 @@ and TableMaster.parentTableMasterId<>TableMaster.TableMasterId
 and information_schema.COLUMNS .table_schema=(SELECT DATABASE())
 order by information_schema.COLUMNS.ordinal_position;
 
-SELECT  TableDATA2.name,if(ControlTypeName is null,TableDATA2.type,ControlTypeName) as type,TableDATA2.value as ColumnName,TableDATA2.TableName,TableDATA2.Query,TableDATA2.ComboQuery 
-
+SELECT  TableDATA2.name AS Caption ,if(ControlTypeName is null,TableDATA2.type,ControlTypeName) as ControlTypeName,TableDATA2.value as FieldName,TableDATA2.TableName,TableDATA2.Query,TableDATA2.ComboQuery 
+,Visible
 FROM TableDATA2  
 Left JOIN (
-SELECT controlmaster.ControlTypeId,controlmaster.ControlName,ControlTypeName,controlmaster.Formula,controlmaster.Width,TableMasterId FROM controlmaster 
+SELECT controlmaster.ControlTypeId,controlmaster.ControlName,ControlTypeName,controlmaster.Formula,controlmaster.Width,TableMasterId,Visible FROM controlmaster 
 inner join  ControlType  on controlmaster.ControlTypeId=ControlType.ControlTypeId
 ) ControlData
 on   
