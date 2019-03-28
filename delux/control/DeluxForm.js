@@ -5,6 +5,7 @@ myApp.controller('DeluxForm', function ($scope, $state, $http, $location,$stateP
 	vm.dbdata.tran.TranId=$stateParams.UniqueId;
 	vm.menu={};
 	vm.dbdata.tran.BillDate=new Date();
+	vm.menu.tablename="TranFin";
 	   //Menu
 	$http.get(URL+"?Query=select *  from MenuMaster where  MenuMasterId="+$stateParams.MenuMasterId).then(function (response) 
 	{
