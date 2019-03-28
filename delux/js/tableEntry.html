@@ -1,9 +1,10 @@
+
 <div class="">
 	<table class="table table-bordered">
 		<thead>
 			<tr style="background-color:#428bca"      >
 				<th ng-repeat="tabledata in $ctrl.formfields" 
-				ng-show="(tabledata.Visible==undefined  || tabledata.Visible)"
+				ng-show="(tabledata.Visible==undefined  || tabledata.Visible )"
 				>
 				
 				<div  data-ng-if="tabledata.Caption!=null">
@@ -26,21 +27,21 @@
 					ng-show=" (tabledata.Visible==undefined  || tabledata.Visible)  " 
 				>
 				
-					<div ng-if="tabledata.type=='subtype'">
-						  {{datarow[tabledata.ColumnName][tabledata.SubName]}}
+					<div ng-if="tabledata.ControlTypeName=='ComboBox'">
+						  {{datarow[tabledata.FieldName][tabledata.Caption]}}
 					</div>
 					<div ng-if="tabledata.type=='number'"  style="text-align:right"  >
-						{{datarow[tabledata.ColumnName] }}
+						{{datarow[tabledata.FieldName] }}
 					</div>
 						<div ng-if="tabledata.type=='number2'"  style="text-align:right"  ng-show="datarow  |   MyCondition :  tabledata.Condition "  >
-						  {{datarow[tabledata.ColumnName] | number:2}}
+						  {{datarow[tabledata.FieldName] | number:2}}
 					</div>
-					<div ng-if="tabledata.type==null">
-						  {{datarow[tabledata.ColumnName]}}
+					<div ng-if="tabledata.ControlTypeName=='text'">
+						  {{datarow[tabledata.FieldName]}}
 						  
 					</div>
 					<div ng-if="tabledata.type=='date'"  style="text-align:right"  >
-						{{datarow[tabledata.ColumnName]  |date:"dd-MMM-yyyy"     }}
+						{{datarow[tabledata.FieldName]  |date:"dd-MMM-yyyy"     }}
 					</div>
 			</td>
 			<td><input type="Button" value="Edit" ng-click="$ctrl.editrecord({object:datarow,index:$index})"  /> </td>
