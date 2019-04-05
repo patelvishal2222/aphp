@@ -4,7 +4,7 @@
 		<thead>
 			<tr style="background-color:#428bca"      >
 				<th ng-repeat="tabledata in $ctrl.formfields" 
-				ng-show="(tabledata.Visible==undefined  || tabledata.Visible )"
+				ng-show="tabledata.ControlTypeName!='Hideen'"
 				>
 				
 				<div  data-ng-if="tabledata.Caption!=null">
@@ -24,7 +24,7 @@
 		<tr ng-repeat="datarow  in $ctrl.datamodel ">
 			
 			<td  ng-repeat="tabledata in $ctrl.formfields" 
-					ng-show=" (tabledata.Visible==undefined  || tabledata.Visible)  " 
+					ng-show="tabledata.ControlTypeName!='Hideen'" 
 				>
 				
 					<div ng-if="tabledata.ControlTypeName=='ComboBox'">
