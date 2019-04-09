@@ -1,8 +1,11 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getFormFields2`(TableMasterId_ int )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fillTableControl`()
 BEGIN
 
+DECLARE  TableMasterId_  int UNSIGNED DEFAULT 1;
 DROP TEMPORARY TABLE IF EXISTS TableDATA;
+
 CREATE TEMPORARY TABLE TableDATA AS  
+
 select  
 if(c.Column_Name is null OR TableMaster.MasterKey=information_schema.COLUMNS.Column_Name ,if(information_schema.COLUMNS.Column_Comment <>'',information_schema.COLUMNS.Column_Comment,information_schema.COLUMNS .Column_Name ), c.Column_Name ) AS  Name,
 
@@ -29,12 +32,13 @@ LEFT JOIN  information_schema.COLUMNS c on c.table_name= information_schema.KEY_
 AND  c.table_schema=information_schema.KEY_COLUMN_USAGE .table_schema
 and c.ordinal_position=2
 inner join  TableMaster on tablemaster.TableName=information_schema.COLUMNS .table_name
-where TableMaster.TableMasterId= TableMasterId_
+
 
 and information_schema.COLUMNS .table_schema=(SELECT DATABASE())
 order by information_schema.COLUMNS.ordinal_position;
-
-SELECT  TableDATA.name  as Caption ,if(ControlTypeName is null,TableDATA.type,ControlTypeName) as ControlTypeName,TableDATA.value as FieldName ,TableDATA.TableName,TableDATA.Query,TableDATA.ComboQuery 
+delete from tablecontrolMaster;
+insert into  tablecontrolMaster
+SELECT TableDATA.TableMasterId,TableDATA.value as FieldName,if(ControlTypeName is null,TableDATA.type,ControlTypeName) as ControlTypeName, TableDATA.name  as Caption  ,TableDATA.TableName,TableDATA.Query,TableDATA.ComboQuery 
 
 FROM TableDATA  
 Left JOIN (
@@ -43,9 +47,9 @@ inner join  ControlType  on controlmaster.ControlTypeId=ControlType.ControlTypeI
 ) ControlData
 on   
  ControlData.TableMasterId=TableDATA.TableMasterId
-and  TableDATA.name=ControlData.ControlName;
+and  TableDATA.name=ControlData.ControlName
+order by  TableDATA.TableMasterId;
 
-
-
+select *  from tablecontrolMaster;
 
 END
