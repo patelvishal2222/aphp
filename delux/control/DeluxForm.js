@@ -14,15 +14,9 @@ myApp.controller('DeluxForm', function ($scope, myService ,$state, $http, $locat
 		
 		if(vm.selmenu.FormMasterId!="")
 		{	
-			$http.get(URL+'?Query=select *  from FormMaster WHERE FormMasterId='+vm.selmenu.FormMasterId ).then(function (response) 
-			{
-				vm.selFormMaster = response.data.listdata[0];
-				
-				
-				if( vm.selFormMaster.TableMasterId>0 )
-				{
+			
 					
-					$http.get(URL+'?Query=select *  from TableMaster Where ParentTableMasterId='+vm.selFormMaster.TableMasterId).then(function (response) 
+					$http.get(URL+'?Query=select *  from TableMaster inner join FormTable  on  TableMaster.TableMasterId= FormTable.TableMasterId  Where FormMasterId='+vm.selmenu.FormMasterId).then(function (response) 
 					{
 					
 						
@@ -44,48 +38,32 @@ myApp.controller('DeluxForm', function ($scope, myService ,$state, $http, $locat
 								var temp={};
 								  temp["TableName"]=response.data.listdata[vm.i].TableName;
 								vm.GetObjectTable.TableNames.Relation.push(temp);
-								//vm.struct.structDetail[response.data.listdata[vm.i].TableName]={};
-								//vm.struct.structDetail[response.data.listdata[vm.i].TableStruct]={};
 								
 							}
-							
-						
-							 var TableMasterId=+response.data.listdata[vm.i].TableMasterId;
-								var url=URL+'?Query= call  getFormFields2('+TableMasterId+')';
-								/*
-								var	data=vm.getLogData(url);
-								  console.log(data);
-									if(vm.i==0)
-										
-							vm.struct.TableStruct=data;
-								else
-									vm.struct.structDetail[response.data.listdata[vm.i].TableName]=data;
-							 
-							*/
-							
-							
-								var data={};
+							var TableMasterId=+response.data.listdata[vm.i].TableMasterId;
+							var url=URL+'?Query= select *  from TableControlMaster where TableMasterid='+TableMasterId;
+							var data={};
 							var xhr = new XMLHttpRequest();
 							xhr.open("GET",url, false);
 							xhr.onload = function (e) {
 							if (xhr.readyState === 4) {
 							if (xhr.status === 200) {
+								console.log(xhr.responseText);
 								data= $scope.$eval(xhr.responseText)["listdata"];
-								 
 								if(vm.i==0)
-										
-							vm.struct.TableStruct=data;
+								vm.struct.TableStruct=data;
 								else
 								{  if(vm.struct.structDetail==null)
-									vm.struct.structDetail=[];
+								vm.struct.structDetail=[];
 								var TableDetailName={};
-								  TableDetailName[response.data.listdata[vm.i].TableName]=data;
-									vm.struct.structDetail.push(TableDetailName);
+								TableDetailName[response.data.listdata[vm.i].TableName]=data;
+								vm.struct.structDetail.push(TableDetailName);
 								}
 								
 							
 							} else {
 							console.error(xhr.statusText);
+						
 							}
 								}
 							};
@@ -93,14 +71,6 @@ myApp.controller('DeluxForm', function ($scope, myService ,$state, $http, $locat
 							console.error(xhr.statusText);
 							};
 							xhr.send(null);
-								
-								
-							
-								
-								
-						 
-						
-							
 							
 							
 						}
@@ -116,39 +86,13 @@ myApp.controller('DeluxForm', function ($scope, myService ,$state, $http, $locat
 						
 						
 					});
-				}
-				else
-				{
-					$http.get('json/'+vm.selFormMaster.jsonFileName ).then(function (response)
-					{
-					vm.trandata = $scope.$eval( response.data);
-					});
-					if( vm.dbdata.tran.TranId>0)
-						{
-						vm.GetObject(vm.dbdata.tran.TranId);
-						}
-				}
 				
-			});
 			
 		}
 		
 	});
 	
-	 this.getLogData = function(url) {
-        return $http({
-            url : url,
-            method : 'GET',
-            async : false,
-            cache : false,
-            headers : { 'Accept' : 'application/json' , 'Pragma':'no-cache'}
-            
-        }).success(function(data) {
-			
-           return data;
-        });
-	 }
-   
+	 
 	
 // addTran & InsertUpdate
     this.addTran = function () 
