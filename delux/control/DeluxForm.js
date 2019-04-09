@@ -40,8 +40,11 @@ myApp.controller('DeluxForm', function ($scope, myService ,$state, $http, $locat
 								vm.GetObjectTable.TableNames.Relation.push(temp);
 								
 							}
-							var TableMasterId=+response.data.listdata[vm.i].TableMasterId;
-							var url=URL+'?Query= select *  from TableControlMaster where TableMasterid='+TableMasterId;
+							var TableMasterId=response.data.listdata[vm.i].TableMasterId;
+							var sqlquery='SELECT if(formcontrolmaster.FieldName is null,Tablecontrolmaster.FieldName ,formcontrolmaster.FieldName) AS  FieldName,if(formcontrolmaster.FieldName is null,Tablecontrolmaster.ControlTypeName ,formcontrolmaster.ControlTypeName) AS  ControlTypeName,if(formcontrolmaster.FieldName is null,Tablecontrolmaster.Caption ,formcontrolmaster.Caption) AS  Caption,if(formcontrolmaster.FieldName is null,Tablecontrolmaster.TableName ,formcontrolmaster.Query) AS  Query,if(formcontrolmaster.FieldName is null,Tablecontrolmaster.TableName ,formcontrolmaster.ComboQuery) AS  ComboQuery  FROM  Tablecontrolmaster inner join formtable on formtable.TableMasterid=Tablecontrolmaster.TableMasterid Left join formcontrolmaster on formcontrolmaster.FormTableId=formtable.FormTableId  and formcontrolmaster.FieldName=Tablecontrolmaster.FieldName where formtable.FormTableId='+response.data.listdata[vm.i].FormTableId+' order by Tablecontrolmaster.orderNum';
+
+							//var url=URL+'?Query= select *  from TableControlMaster where TableMasterid='+TableMasterId;
+							var url=URL+'?Query= '+sqlquery;
 							var data={};
 							var xhr = new XMLHttpRequest();
 							xhr.open("GET",url, false);
