@@ -771,6 +771,8 @@ function dynamicDetailsController($scope, $element, $attrs,$http) {
 			}
 			this.deleterecord1=function(object,index)
 			{
+				if(ctrl.detailsids==undefined)
+					ctrl.detailsids="";
 				if(ctrl.detailsids!=undefined)
 					{
 						if( ctrl.datamodel[index][ctrl.tablename+"Id"]>0)
