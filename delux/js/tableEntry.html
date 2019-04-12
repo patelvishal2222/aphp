@@ -6,12 +6,12 @@
 				<th ng-repeat="tabledata in $ctrl.formfields" 
 				ng-show="tabledata.ControlTypeName!='Hideen'  && tabledata.ControlTypeName!='FormText'"
 				>
-				<div  data-ng-if="tabledata.Caption!=null">
+				<div  data-ng-if="tabledata.Caption!=null ||  tabledata.Caption!='' ">
 					{{tabledata.Caption}}
 					
 					
 				</div>
-				<div  data-ng-if="tabledata.Caption==null ||  tabledata.Caption==undefined ">
+				<div  data-ng-if="tabledata.Caption==null ||  tabledata.Caption==undefined  ||  tabledata.Caption=='' ">
 					{{tabledata.FieldName}}
 			
 				</div>
