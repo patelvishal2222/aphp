@@ -13,10 +13,10 @@
 				ng-show="field.visibility==undefined || field.visibility==true" >
 		<div class="row"  ng-show="$ctrl.datamodel |   MyCondition :  field.Condition " >
 			<div class="col-lg-2" >
-				<div  data-ng-if="field.Caption!=null">
+				<div  data-ng-if="field.Caption!=null || field.Caption!=''">
 					<label>{{field.Caption}}</label>
 				</div>
-				<div  data-ng-if="field.Caption==null">
+				<div  data-ng-if="field.Caption==null || field.Caption==''">
 					<label>{{field.FieldName}}<label>
 			
 				</div>
@@ -76,10 +76,10 @@
 			 
 		<div class="form-group row" ng-show="$ctrl.datamodel |   MyCondition :  field.Condition "  >
 			<div class="col-lg-2">
-				<div  data-ng-if="field.Caption!=null">
+				<div  data-ng-if="field.Caption!=null || field.Caption!=''">
 					<label>{{field.Caption}}</label>
 				</div>
-				<div  data-ng-if="field.Caption==null">
+				<div  data-ng-if="field.Caption==null || field.Caption==''">
 					<label>{{field.FieldName}}<label>
 			
 				</div>
