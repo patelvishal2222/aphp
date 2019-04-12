@@ -1,6 +1,6 @@
 var myApp = angular.module("masterMind",[]);
-myApp.constant('URL','delux/dataLayer/php/EntiryJson.php');
-//myApp.constant('URL','delux/dataLayer/asp/DataLayer.ashx');
+//myApp.constant('URL','delux/dataLayer/php/EntiryJson.php');
+myApp.constant('URL','delux/dataLayer/asp/DataLayer.ashx');
 
 //http://plnkr.co/edit/z2nXgXyGi6LhSHth8ZNi?p=preview
 angular.module('masterMind').directive('barcode', function(){
@@ -771,8 +771,9 @@ function dynamicDetailsController($scope, $element, $attrs,$http) {
 			}
 			this.deleterecord1=function(object,index)
 			{
-				if(ctrl.detailsids==undefined)
-					ctrl.detailsids="";
+					if(ctrl.detailsids==undefined)
+						ctrl.detailsids="";
+			
 				if(ctrl.detailsids!=undefined)
 					{
 						if( ctrl.datamodel[index][ctrl.tablename+"Id"]>0)
@@ -788,6 +789,7 @@ function dynamicDetailsController($scope, $element, $attrs,$http) {
 						ctrl.datamodel[index].Srno = index + 1;
                 }
                 ctrl.total= ctrl.TotalAccount(ctrl.datamodel,"Amount");
+				console.log(ctrl.detailsids);
 			}
 	   //pushRecord
            ctrl.pushrecord = function (object) 
@@ -796,8 +798,9 @@ function dynamicDetailsController($scope, $element, $attrs,$http) {
 				//default  data push text
 				angular.forEach(ctrl.formfields,function(object)
 			{
-				if(object.DefaultData!=undefined )
+				if(object.DefaultData!=undefined &&  object.DefaultData!="" )
 				{
+					/*
 					if(object["FieldName"]=="VirtualCrDrMaster")
 					{
 						ctrl["Temp"+ctrl.tablename]["VirtualCrDrMaster"]={};
@@ -807,14 +810,20 @@ function dynamicDetailsController($scope, $element, $attrs,$http) {
 				if(object.DefaultData==2)
 				ctrl["Temp"+ctrl.tablename]["VirtualCrDrMaster"]["CrDrName"]="Dr";
 					}
-					else if(object["FieldName"].startsWith("Virtual"))
+					else 
+						*/
+						if(object["FieldName"].startsWith("Virtual"))
 					{
+						var FieldName=object["FieldName"].replace("Virtual","")+"Id";
+						if(ctrl["Temp"+ctrl.tablename][FieldName]==undefined ||ctrl["Temp"+ctrl.tablename][FieldName]=="")
+						ctrl["Temp"+ctrl.tablename][FieldName]=object.DefaultData;
 					}
 					else
 						{
-							ctrl["Temp"+ctrl.tablename][object["FieldName"]]=object.DefaultData;
+						if(ctrl["Temp"+ctrl.tablename][FieldName]==undefined ||ctrl["Temp"+ctrl.tablename][FieldName]=="")
+						ctrl["Temp"+ctrl.tablename][object["FieldName"]]=object.DefaultData;
 						}
-					console.log(object);
+					
 				}
 				
 			});
@@ -829,6 +838,13 @@ function dynamicDetailsController($scope, $element, $attrs,$http) {
                    ctrl.datamodel[ctrl["Temp"+ctrl.tablename]["Srno"]- 1] =ctrl["Temp"+ctrl.tablename];
 				}
 			    ctrl.total=ctrl.TotalAccount(ctrl.datamodel,"Amount");
+				angular.forEach(ctrl.formfields,function(object)
+					{
+						if(object.Aggregate!=undefined )
+							{
+								
+							}
+					});
             }
 	  
 		this.TotalAccount=function(datalist,key)
@@ -1052,7 +1068,7 @@ angular.module('masterMind')
 				var count=0;
 				for(i=0;i<object.length;i++)
 				{
-					console.log(i+"  "+object[i]["ControlTypeName"]+"  "+count);
+					
 					if(object[i]["ControlTypeName"]=='Hideen'  ||  object[i]["ControlTypeName"]==false )
 					{
 					}
@@ -1075,7 +1091,7 @@ angular.module('masterMind')
         });
  angular.module('masterMind').filter("MyCondition", function ($parse) {
             return function (object,values) {
-				if(values==undefined ||  object==undefined)
+				if(values==undefined ||  object==undefined  ||  values=='')
 				{
 					return true;
 				}
