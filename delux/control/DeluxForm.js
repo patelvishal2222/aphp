@@ -31,9 +31,10 @@ myApp.controller('DeluxForm', function ($scope, myService ,$state, $http, $locat
 					}
 					else
 					{
-						var temp={};
-								  temp["TableName"]=response.data.listdata[vm.i].TableName;
-								vm.GetObjectTable.TableNames.Relation.push(temp);
+						var TableDetailName={};
+								  TableDetailName["TableName"]=response.data.listdata[vm.i].TableName;
+								vm.GetObjectTable.TableNames.Relation.push(TableDetailName);
+								vm.dbdata[vm.struct.TableName][TableDetailName+"Ids"]="";
 								
 					}
 							var TableMasterId=response.data.listdata[vm.i].TableMasterId;
@@ -53,6 +54,7 @@ myApp.controller('DeluxForm', function ($scope, myService ,$state, $http, $locat
 								var TableDetailName={};
 								TableDetailName[response.data.listdata[vm.i].TableName]=data;
 								vm.struct.structDetail.push(TableDetailName);
+								
 						}
 							
 				}
@@ -112,17 +114,25 @@ myApp.controller('DeluxForm', function ($scope, myService ,$state, $http, $locat
 	{	if(TranId>0)
 		{
 			var MainObject={PrimaryValue:TranId,PrimaryKey:'TranId',TableNames:{TableName:vm.struct.TableName, Relation:[{TableName:'TranDetails'},{TableName:'Tranfin'}]}};
-			console.log(MainObject);
+		console.log(MainObject);
 			console.log(vm.GetObjectTable);
 			$http.get(URL+'?getObject=' +angular.toJson( vm.GetObjectTable)).then(function (response)
 			{
 				vm.dbdata[vm.struct.TableName] = response.data;
 				vm.dbdata[vm.struct.TableName]["BillDate"]=new Date(vm.dbdata[vm.struct.TableName]["BillDate"]);
-				vm.dbdata[vm.struct.TableName][ vm.menu.tablename+"Ids"]="";
+				
+				for(index=0;index<vm.GetObjectTable.TableNames.Relation.length;index++)
+				{
+					var TableDetailName=vm.GetObjectTable.TableNames.Relation[index]["TableName"];
+					vm.dbdata[vm.struct.TableName][TableDetailName+"Ids"]="";
+				}
+				console.log(vm.dbdata);
+				/*
 				for(i=0; i<vm.dbdata.Tran.TranDetails.length;i++)
 				{
 					vm.dbdata.Tran.TranDetails[i].ExpireDate=new Date(vm.dbdata.Tran.TranDetails[i].ExpireDate);
 				}
+				*/
 			});
 		}
     };
