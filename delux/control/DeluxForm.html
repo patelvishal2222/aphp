@@ -19,7 +19,7 @@
 					
 					<div class="row" ng-repeat="(TableDetailName,TableDetailStruct)  in tran_con.struct.structDetail[0]">
 				
-						<dynamic-details  datamodel=tran_con.dbdata[tran_con.struct.TableName][TableDetailName]     formfields=TableDetailStruct  modelfields=TableDetailStruct tablename=TableDetailName   total=tran_con.dbdata[tran_con.struct.TableName]["Total"]  rate=tran_con.menu.Rate crdrmasterid=tran_con.menu.CrDrMasterId  detailsids=tran_con.dbdata[tran_con.struct.TableName][tran_con.menu.tablename+"Ids"]  ><dynamic-details>
+						<dynamic-details  datamodel=tran_con.dbdata[tran_con.struct.TableName][TableDetailName]     formfields=TableDetailStruct  modelfields=TableDetailStruct tablename=TableDetailName   total=tran_con.dbdata[tran_con.struct.TableName]["Total"]  rate=tran_con.menu.Rate crdrmasterid=tran_con.menu.CrDrMasterId  detailsids=tran_con.dbdata[tran_con.struct.TableName][TableDetailName+"Ids"]  ><dynamic-details>
 					</div>
 					<div class="row" ng-hide="tran_con.trandata.TransctionTable==undefined"   >
 						<div class="col-lg-7">
