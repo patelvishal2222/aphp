@@ -22,7 +22,7 @@
 		<thead>
 			<tr>
 				<th ng-repeat="(key,value) in listdata[0]" 
-					ng-show="(!key.endsWith('Id')) &&  (displaydata[key]['Visible']==undefined  || displaydata[key]['Visible'])  " 
+					ng-show="(!key.endsWith('Id')) &&  (displaydata[key]['Visible']==undefined  || displaydata[key]['Visible']=='1')  " 
 					sort  by=listdata.sortKey  
 					reverse=listdata.reverse  
 					order=key >
@@ -52,7 +52,7 @@
 			<td ng-repeat="(key,value) in row"  
 				ng-show="(!key.endsWith('Id')) &&  
 				(displaydata[key]['Visible']==undefined  || 
-				displaydata[key]['Visible'])  " 
+				displaydata[key]['Visible']=='1')  " 
 				>
 				<div ng-if="displaydata[key]['DataType']=='number2'"  style="text-align:right"   >
 					{{value}}
@@ -73,7 +73,7 @@
 			<th ng-repeat="(key,value) in listdata[0]" 
 				ng-show="(!key.endsWith('Id')) &&  
 				(displaydata[key]['Visible']==undefined  || 
-				displaydata[key]['Visible'])  " 
+				displaydata[key]['Visible']=='1')  " 
 				>
 				<div ng-if="displaydata[key]['Aggregate']=='sum'"    style="text-align:right" >
 					{{listdata |  arraysum :key| number:2}} 
