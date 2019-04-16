@@ -13,3 +13,61 @@ select * ,@balance:=@balance+Stock  as StockQty from vwitemdetails join (Select 
 
 
 END
+
+
+
+
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `vwformcontrolmaster` AS
+    SELECT 
+        `formtable`.`FormTableId` AS `FormTableId`,
+        IF(ISNULL(`formcontrolmaster`.`FieldName`),
+            `tablecontrolmaster`.`FieldName`,
+            `formcontrolmaster`.`FieldName`) AS `FieldName`,
+        IF((ISNULL(`formcontrolmaster`.`FieldName`)
+                OR ISNULL(`formcontrolmaster`.`ControlTypeName`)),
+            `tablecontrolmaster`.`ControlTypeName`,
+            `formcontrolmaster`.`ControlTypeName`) AS `ControlTypeName`,
+        IF((ISNULL(`formcontrolmaster`.`FieldName`)
+                OR ISNULL(`formcontrolmaster`.`Caption`)),
+            `tablecontrolmaster`.`Caption`,
+            `formcontrolmaster`.`Caption`) AS `Caption`,
+        IF((ISNULL(`formcontrolmaster`.`FieldName`)
+                OR ISNULL(`formcontrolmaster`.`TableName`)),
+            `tablecontrolmaster`.`TableName`,
+            `formcontrolmaster`.`TableName`) AS `TableName`,
+        IF((ISNULL(`formcontrolmaster`.`FieldName`)
+                OR ISNULL(`formcontrolmaster`.`TableName`)),
+            `tablecontrolmaster`.`Query`,
+            `formcontrolmaster`.`Query`) AS `Query`,
+        IF((ISNULL(`formcontrolmaster`.`FieldName`)
+                OR ISNULL(`formcontrolmaster`.`ComboQuery`)),
+            `tablecontrolmaster`.`ComboQuery`,
+            `formcontrolmaster`.`ComboQuery`) AS `ComboQuery`,
+        IF(ISNULL(`formcontrolmaster`.`FieldName`),
+            NULL,
+            `formcontrolmaster`.`onchange`) AS `onchange`,
+        IF(ISNULL(`formcontrolmaster`.`FieldName`),
+            NULL,
+            `formcontrolmaster`.`Aggregate`) AS `Aggregate`,
+        IF(ISNULL(`formcontrolmaster`.`FieldName`),
+            NULL,
+            `formcontrolmaster`.`WhereCondition`) AS `WhereCondition`,
+        IF(ISNULL(`formcontrolmaster`.`FieldName`),
+            NULL,
+            `formcontrolmaster`.`DefaultData`) AS `DefaultData`,
+        IF(ISNULL(`formcontrolmaster`.`FieldName`),
+            NULL,
+            `formcontrolmaster`.`SelectField`) AS `SelectField`,
+        IF(ISNULL(`formcontrolmaster`.`FieldName`),
+            NULL,
+            `formcontrolmaster`.`filter`) AS `filter`,
+        `tablecontrolmaster`.`OrderNum` AS `orderNum`
+    FROM
+        ((`tablecontrolmaster`
+        JOIN `formtable` ON ((`formtable`.`TableMasterId` = `tablecontrolmaster`.`TableMasterId`)))
+        LEFT JOIN `formcontrolmaster` ON (((`formcontrolmaster`.`FormTableId` = `formtable`.`FormTableId`)
+            AND (`formcontrolmaster`.`FieldName` = `tablecontrolmaster`.`FieldName`))))
