@@ -1,0 +1,14 @@
+<div class="col-lg-10">
+		<control-entry   datamodel=del_con.dbdata[del_con.TableMaster.TableName]    formmodelfields=del_con.formmodelfields  ></control-entry>
+</div>
+<div class="col-lg-10">
+	<div  ng-show='del_con.listdata.length>0' >
+		<div  class="row"   >
+			<master-Form title=del_con.title datamodel=del_con.dbdata[del_con.TableMaster.TableName] insertupdate=del_con.InsertUpdate() model=del_con.editDialog formmodelfields=del_con.formFields  ></master-Form>
+		</div>
+		<div  class="row" >
+			<table-report title=del_con.title listdata="del_con.listdata"  addmode="del_con.addmode()"  editmode="del_con.editmode(object,index)" deletemode="del_con.deletemode(object,index)"   doubleclick1="del_con.doubleclick(object,index)"   displaydata=del_con.TableStruct  addbutton=del_con.addbutton   editbutton=del_con.editbutton deletebutton=del_con.deletebutton ></table-report>
+		</div>
+	</div>
+</div>
+
