@@ -1,13 +1,71 @@
-
-<!--
-Hide/show Column
-Move Column
-Sroting Multiple
-Color/width :Foreground and Background 
--->
+<link rel="stylesheet" href="../../css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script>
 
 </script>
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Modal Header</h4>
+      </div>
+      <div class="modal-body">
+	  Query <input type=text />
+	  <table class="table" >
+	  <th>
+		<td> Functionaliy
+		</th>
+	  <tr>	  <td> <input  type="checkbox" ng-model="fruit.Selected" /> ALL Serach </td> </tr>
+	  <tr>	  <td> <input  type="checkbox" ng-model="fruit.Selected" /> Field Serach </td></tr>
+	  <tr>	  <td> <input  type="checkbox" ng-model="fruit.Selected" /> Multi Serach </td></tr>
+	  <tr>	  <td> <input  type="checkbox" ng-model="fruit.Selected" /> Export XML </td></tr>
+	  <tr>	  <td> <input  type="checkbox" ng-model="fruit.Selected" /> Export Pdf </td></tr>
+	  <tr>	  <td> <input  type="checkbox" ng-model="fruit.Selected" /> Export Json </td></tr>
+	  <tr>	  <td> <input  type="checkbox" ng-model="fruit.Selected" /> Export Print </td></tr>
+	  <tr>	  <td> <input  type="checkbox" ng-model="fruit.Selected" /> Export Excel </td></tr>
+	  <tr>	  <td> <input  type="checkbox" ng-model="fruit.Selected" /> Export to Export </td></tr>
+	  <tr>	  <td> <input  type="checkbox" ng-model="fruit.Selected" /> Column right show popup Menu </td></tr>
+	  
+		
+		</table>
+		
+		
+<table class="table" >
+	<thead>
+		<tr>
+			<th>Visible</th>
+			<th>Field Name</th>
+			
+			<th>Caption Name</th>
+			<th>Column Width </th>
+			<th>Header Color</th>
+			<th>Data Color</th>
+			<th>Move Column</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="(key,value) in listdata[0]">
+		  
+				<td> <input  type="checkbox" ng-model="fruit.Selected" /> </td>
+				<td>			{{key}}    </td>
+				<td>			{{key}}    </td>
+				<td> <input  type="color"  /> </td>
+				<td> <input  type="color"  /> </td>
+		</tr>
+	</tbody>
+</table>
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 <div class="col-lg-12">
 	<div class="row ">
 		<div class="col-lg-2">
@@ -44,7 +102,13 @@ Color/width :Foreground and Background
 					</div>
 					
 				</th>
-				<th class="text-right">Action</th>
+				<!--color:red-->
+				<th class="text-center">
+				
+				<a  href="#myModal" data-toggle="modal"> <i class="fa fa-gear fa-spin" style="font-size:24px;"></i></a>
+				
+				</th>
+				
             </tr>
 			<tr>
 				<th ng-repeat="(key,value) in listdata[0]"  
@@ -148,3 +212,38 @@ Color/width :Foreground and Background
 		</div>
 	</div>
 </div>
+
+<!--
+ReportMaster
+	ReportMasterId
+	ReportQuery
+	AllSearch
+	FieldSearch
+	MulitSearch
+	ExportToXML
+	ExportToPDF
+	ExportToJson
+	ExportTOPrint
+	ExportToExcel
+	ExportToExport
+	PopupMenu
+	AddButton
+	EditButton
+	DeleteButton
+	ViewButton
+	Pagefunction
+	PageSize
+ReportControlMaster
+	ReportControlMasterId
+	ReportMasterId
+	FieldName
+	Caption
+	ToolTip
+	Visible
+	ColumnWidth
+	ColumnHeaderColor
+	ColumnDataColor
+	ColumnNo
+	AggregatefunctionId
+						
+						-->
