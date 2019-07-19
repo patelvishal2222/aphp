@@ -1,0 +1,291 @@
+<!--
+Create 
+Select
+Move 
+Resize
+
+Remove
+-->
+<!DOCTYPE html>
+<html lang="en"  >
+
+	<head>
+		<meta charset="utf-8"/>
+		<title>Tutorial: How to Make a Digital Clock with jQuery &amp; CSS3</title>
+
+		<link href="assets/css/style.css" rel="stylesheet" />
+
+	</head>
+<script language="javascript">
+function CreateTextBox()
+{
+var controlBar=document.getElementById('controlBar');
+console.log(controlBar);
+	var cStop = document.createElement('button');
+	
+	cStop.id = 'cStop';
+	cStop.value='start';
+	   var t = document.createTextNode("CLICK ME");
+
+  //  cStop.setAttribute("style","color:red;font-size:23px");
+	 cStop.appendChild(t);
+	controlBar.appendChild(cStop);
+		var ctxt = document.createElement('Input');
+	ctxt.value='txt1';
+	ctxt.id = 'txt1';
+	
+	controlBar.appendChild(ctxt);
+	var element4 = document.createElement("select");
+ var option1 = document.createElement("option");
+ option1.value="1";
+ option1.innerHTML="sample1";
+ element4.appendChild(option1);
+ var option2 = document.createElement("option");
+ option2.value="2";
+ option2.innerHTML="sample2";               
+ element4.appendChild(option2);
+  controlBar.appendChild(element4);
+	var ctxt = document.createElement('Input');
+		cStop.addEventListener('click', function(e){
+		alert('click');
+	});
+}
+function clickRect()
+	{
+	
+	tool=1;
+	}
+	function clickCir()
+		{
+		
+		tool=2;
+			
+	}
+var  tool=1;
+var obj=null;
+	  function draw(evt)
+	  {
+	
+	
+		if(tool==1)
+		drawRect(evt);
+		if(tool==2)
+		drawCir(evt);
+		
+		tool=0;
+		
+	  }
+function 	drawRect(evt)
+{
+var svg=document.getElementById('svg1');
+ var e = evt.target;
+    var dim = e.getBoundingClientRect();
+    var x = evt.clientX - dim.left;
+    var y = evt.clientY - dim.top;
+    console.log("x: "+x+" y:"+y);
+//console.log(svg.offsetLeft );
+ var svgNS = svg.namespaceURI;
+	 var rect = document.createElementNS(svgNS,'rect');
+    rect.setAttribute('x',x);
+    rect.setAttribute('y',y);
+    rect.setAttribute('width',10);
+    rect.setAttribute('height',10);
+    rect.setAttribute('fill','#95B3D7');
+    svg.appendChild(rect);
+}
+	function 	drawCir(evt)
+	{
+	var svg=document.getElementById('svg1');
+	 var e = evt.target;
+    var dim = e.getBoundingClientRect();
+    var x = evt.clientX - dim.left;
+    var y = evt.clientY - dim.top;
+	 var svgNS = svg.namespaceURI;
+	 var rect = document.createElementNS(svgNS,'circle');
+    rect.setAttribute('cx',x);
+    rect.setAttribute('cy',y);
+    rect.setAttribute('r',25);
+ rect.setAttribute('onmousedown',"mousedown(this,evt)");
+ rect.setAttribute('onmousemove',"mousemove(this,evt)");
+ rect.setAttribute('onmouseup',"mouseup(this)");
+ rect.setAttribute('onmouseout',"mouseup(this)");
+ //rect.setAttribute('ondrag',"mousemove(this,evt)");
+    rect.setAttribute('fill','#95B3D7');
+    svg.appendChild(rect);
+	}
+	
+	function mouseover(obj1)
+	{
+	mouseexit();
+	if(obj==null)
+	{
+		obj=obj1;
+	 obj.style.fill = '#fff';
+	
+	 }
+	 
+	}
+	function mouseexit()
+	{
+	console.log(obj);
+		if(obj!=null)
+		{
+		obj.style.fill = '#95B3D7';
+		obj=null;
+		}
+	}
+	
+	var selectedElement = null;
+var currentX = 0;
+var currentY = 0;
+	 function mousedown(e,evt) {
+            // save the original values when the user clicks on the element
+			//mouseup(e);
+            currentX = evt.clientX;
+            currentY = evt.clientY;
+            selectedElement = e;
+			 selectedElement.style.fill = '#800000';
+			 selectedElement.style.cursor="move" ;
+			 selectedElement.style.zIndex = 1000;
+			 selectedElement.style.position = 'absolute';
+        }
+	function	mousemove(e,evt) {    
+            // if there is an active element, move it around by updating its coordinates           
+		
+            if (selectedElement) {
+		
+			//evt.preventDefault();
+                var dx = parseInt(selectedElement.getAttribute("cx")) + evt.clientX - currentX;
+                var dy = parseInt(selectedElement.getAttribute("cy")) + evt.clientY - currentY;
+				console.log(selectedElement.getAttribute("cx")+"  "+ evt.clientX+"   "+currentX);
+                currentX = evt.clientX;
+                currentY = evt.clientY;
+                selectedElement.setAttribute("cx", dx);
+                selectedElement.setAttribute("cy", dy);
+            }
+			
+			
+        }
+	function 	mouseup(e) {
+            // deactivate element when the mouse is up
+			if(selectedElement!=null)
+			{
+			 selectedElement.style.zIndex = 1;
+			selectedElement.style.fill = '#95B3D7';
+			selectedElement.style.cursor="default";
+			}
+            selectedElement = null;  
+			
+        }
+	function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  ev.target.appendChild(document.getElementById(data));
+}
+</script>
+<style>
+#header-search {
+  width: 200px;
+  background: @header-color;
+  color: white;
+  font-size: 12pt;
+  border: 0px solid;
+  outline: 0;
+  vertical-align: -50%;
+}
+#header-search::-webkit-input-placeholder {
+  color: white;
+}
+#search-button {
+  background: #FFFFFF;
+  vertical-align: -50%;
+}
+.header-view-logo {
+  vertical-align: middle;
+}
+#search-icon {
+  fill: white;
+}
+#div1 {
+  width: 350px;
+  height: 70px;
+  padding: 10px;
+  border: 1px solid #aaaaaa;
+}
+</style>
+<body>
+  <span>
+    <svg width="200" height="200">
+  <rect x="0" y="0" width="100" height="100" fill="#529fca" />
+  <g id="my-group">
+    <rect x="0" y="100" width="100" height="100" fill="#59fa81" />
+    <rect x="100" y="0" width="100" height="100" fill="#ad4a3d" />
+  </g>
+</svg>
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="en"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="400px" height="300px" viewBox="0 0 40 30" >
+    <title>3D transformations</title>
+    <style type="text/css">
+        .box {
+            transform-style: preserve-3d;             1
+        }
+		
+        rect {
+            stroke-width: 0.3;
+            stroke-linejoin: round;
+        }
+        .inside {
+            fill: burlywood;
+            stroke: saddleBrown;
+        }
+        .outside {
+            fill: lightGray;
+            stroke: gray;
+        }
+    </style>
+    <g class="box" style="transform: translate(5px,10px)
+                          rotate3d(1,1,0,-30deg)">    2
+        <rect class="inside" width="25" height="15"
+              style="transform: translateZ(-10px)"/>  3
+        <rect class="inside" width="10" height="15"
+              style="transform: rotateY(90deg)"/>     4
+        <rect class="outside" width="25" height="15" /> 5
+        <rect class="outside" width="10" height="15"
+              style="transform: translate(25px,0)
+                                rotateY(90deg)"/>     6
+    </g>
+</svg>
+  </span>
+<!--
+<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+
+<img id="drag1" src="https://www.w3schools.com/htmL/img_logo.gif" draggable="true" ondragstart="drag(event)" width="336" height="69">
+-->
+<div id="controlBar"   height=500 width=500  > 
+</div>
+
+<input type=button  id=btnrect value=rect  onclick="clickRect()" />
+<input type=button  id=btncir value=cir onclick="clickCir()" />
+<input type=button  id=btncir value=textbox onclick="CreateTextBox()" />
+
+ <svg id=svg1  height=500 width=500  onclick="draw(evt)"   >
+
+
+</svg>
+<button id="search-button" />
+<svg id="search-icon" class="search-icon" viewBox="0 0 24 24">
+    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+    <path d="M0 0h24v24H0z" fill="none"/>
+</svg>
+
+</body>
+</html>

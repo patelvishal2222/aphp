@@ -1,0 +1,117 @@
+
+<html>
+<head>
+<title>Dynamic Table</title>
+<style type="text/css">
+body {background-color:#ffffff}
+table {table-collapse:collapse; border-spacing:0}
+td {border:2px groove black; padding:7px}
+th {border:2px groove black; padding:7px}
+.ctr {text-align:center}
+</style>
+<script language="JavaScript" type="text/javascript">
+// Table data -- an array of objects
+var jsData = new Array();
+jsData[0] = {bowl:"I", year:1967, winner:"Packers", winScore:35, loser:"Chiefs", losScore:10};
+jsData[1] = {bowl:"II", year:1968, winner:"Packers", winScore:33, loser:"Raiders (Oakland)", losScore:14};
+jsData[2] = {bowl:"III", year:1969, winner:"Jets", winScore:16, loser:"Colts (Balto)", losScore:7};
+jsData[3] = {bowl:"IV", year:1970, winner:"Chiefs", winScore:23, loser:"Vikings", losScore:7};
+jsData[4] = {bowl:"V", year:1971, winner:"Colts (Balto)", winScore:16, loser:"Cowboys", losScore:13};
+
+// Sorting functions (invoked by sortTable())
+function sortByYear(a, b) {
+    return a.year - b.year;
+}
+function sortByWinScore(a, b) {
+    return b.winScore - a.winScore;
+}
+function sortByLosScore(a, b) {
+    return b.losScore - a.losScore;
+}
+function sortByWinner(a, b) {
+    a = a.winner.toLowerCase();
+    b = b.winner.toLowerCase();
+    return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+}
+function sortByLoser(a, b) {
+    a = a.loser.toLowerCase();
+    b = b.loser.toLowerCase();
+    return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+}
+
+// Sorting function dispatcher (invoked by table column links)
+function sortTable(link) {
+    switch (link.firstChild.nodeValue) {
+        case "Year" :
+            jsData.sort(sortByYear);
+            break;
+        case "Winner" :
+            jsData.sort(sortByWinner);
+            break;
+        case "Loser" :
+            jsData.sort(sortByLoser);
+            break;
+        case "Win" :
+            jsData.sort(sortByWinScore);
+            break;
+        case "Lose" :
+            jsData.sort(sortByLosScore);
+            break;
+    }
+    drawTable("bowlData")
+}
+
+// Remove existing table rows
+function clearTable(tbody) {
+    while (tbody.rows.length > 0) {
+        tbody.deleteRow(0);
+    }
+}
+
+// Draw table from 'jsData' array of objects
+function drawTable(tbody) {
+    var tr, td;
+    tbody = document.getElementById(tbody);
+    // remove existing rows, if any
+    clearTable(tbody);
+    // loop through data source
+    for (var i = 0; i < jsData.length; i++) {
+        tr = tbody.insertRow(tbody.rows.length);
+        td = tr.insertCell(tr.cells.length);
+        td.setAttribute("class", "ctr");
+        td.innerHTML = jsData[i].bowl;
+        td = tr.insertCell(tr.cells.length);
+        td.innerHTML = jsData[i].year;
+        td = tr.insertCell(tr.cells.length);
+        td.innerHTML = jsData[i].winner;
+        td = tr.insertCell(tr.cells.length);
+        td.innerHTML = jsData[i].loser;
+        td = tr.insertCell(tr.cells.length);
+        td.setAttribute("class", "ctr");
+        td.innerHTML = jsData[i].winScore + " - " + jsData[i].losScore;
+    }
+}
+</script>
+</head>
+<body onload="drawTable('bowlData')">
+<h1>Super Bowl Games</h1>
+<hr>
+<table id="bowlGames">
+<thead>
+<tr><th>Bowl</th>
+    <th><a href="#" title="Sort by Year" onclick="sortTable(this)">Year</a></th>
+    <th><a href="#" title="Sort by Winning Team" onclick="sortTable(this)">Winner</a></th>
+    <th><a href="#" title="Sort by Losing Team" onclick="sortTable(this)">Loser</a></th>
+    <th>Score <a href="#" title="Sort by Winning Score" 
+    onclick="sortTable(this)">Win</a> - <a href="#" 
+    title="Sort by Losing Score" onclick="sortTable(this)">Lose</a></th>
+</tr>
+</thead>
+<tbody id="bowlData"></tbody>
+</table>
+</body>
+</html>
+
+
+           
+         
