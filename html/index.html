@@ -170,12 +170,12 @@ body {font-family: Arial;}
 </div>
 
 <div id="London" class="tabcontent">
-  <h3>AccountMaster</h3>
+ 
   
-  <iframe  id=m1 src="table.html?Query=Select AccountMasterId,AccountName,Phone,City  from AccountMaster"  width=1000 height=800 >
+   <h3>UnitMaster</h3>
+  <iframe src="table.html?Query=Select * from UnitMaster&TableId=3"   id=m3 width=1000 height=800 >
   <p>Your browser does not support iframes.</p>
 </iframe>
-  
 </div>
 
 <div id="Paris" class="tabcontent">
@@ -186,8 +186,10 @@ body {font-family: Arial;}
 </div>
 
 <div id="Tokyo" class="tabcontent">
-  <h3>UnitMaster</h3>
-  <iframe src="table.html?Query=Select * from UnitMaster"   id=m3 width=1000 height=800 >
+ 
+   <h3>AccountMaster</h3>
+  <div data-include="table.html"></div>
+  <iframe  id=m1 src="table.html?Query=Select AccountMasterId,AccountName,Phone,City  from AccountMaster"  width=1000 height=800 >
   <p>Your browser does not support iframes.</p>
 </iframe>
   
