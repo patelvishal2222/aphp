@@ -1,0 +1,297 @@
+    
+                    
+<html>
+<head>
+    <title>Convert JSON Data to HTML Table</title>
+    <style>
+      
+
+body {font-family: Arial;}
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 80%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0} 
+  to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.close {
+  color: black;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-header {
+  padding: 2px 16px;
+  /*
+  background-color: #5cb85c; 
+  */
+  color: black;
+}
+
+.modal-body {padding: 2px 16px;}
+
+.modal-footer {
+  padding: 2px 16px;
+  /*
+  background-color: #5cb85c;
+  */
+  color: black;
+}
+
+    </style>
+</head>
+<body   >
+<script>
+
+</script>
+
+
+
+<button id="myBtn">Open Modal</button>
+
+<!-- The Modal -->
+
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close">&times;</span>
+      <h2>Entry</h2>
+    </div>
+    <div class="modal-body" id=formcontent >
+	<Table border=0  >
+	<tr>
+	<td>
+      Employee  </td><td> <input Type=text   placeholder="Employee name..." /> </td>
+	  </tr>
+	  <tr>
+      <td>Name </td> <td> <input Type=text  placeholder="Name..." /></td>
+	  </tr>
+	  </table>
+    </div>
+    <div class="modal-footer">
+      <!--  <h3>Modal Footer</h3>-->
+	  <input type=Button value=Save  onclick="savedata()"/>
+	  <input type=Button value=Cancel  onclick="canceldata()"/>
+    </div>
+  </div>
+
+
+</div>
+
+<div class="tab">
+  <button class="tablinks" onclick="openCity(event, 'London')">Account</button>
+  <button class="tablinks" onclick="openCity(event, 'Paris')">ItemMaster</button>
+  <button class="tablinks" onclick="openCity(event, 'Tokyo')">UnitMaster</button>
+</div>
+
+<div id="London" class="tabcontent">
+ 
+  
+   <h3>UnitMaster</h3>
+  <iframe src="table.html?Query=Select * from UnitMaster&TableId=3"   id=m3 width=1000 height=800 >
+  <p>Your browser does not support iframes.</p>
+</iframe>
+</div>
+
+<div id="Paris" class="tabcontent">
+  <h3>ItemMaster</h3>
+  <iframe src="table.html?Query=Select *  from ItemMaster"  id=m2 width=1000 height=800 >
+  <p>Your browser does not support iframes.</p>
+</iframe>
+</div>
+
+<div id="Tokyo" class="tabcontent">
+ 
+   <h3>AccountMaster</h3>
+  <div data-include="table.html"></div>
+  <iframe  id=m1 src="table.html?Query=Select AccountMasterId,AccountName,Phone,City  from AccountMaster"  width=1000 height=800 >
+  <p>Your browser does not support iframes.</p>
+</iframe>
+  
+</div>
+
+
+
+</body>
+
+<script>
+
+var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+  function savedata()
+  {
+  var data='Name:'+document.getElementById('name').value+'\n'+'Address :'+document.getElementById('address').value;
+  alert(data);
+  }
+  function canceldata()
+  {
+   modal.style.display = "none";
+  }
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+  modal.style.display = "block";
+    
+	  var table = document.createElement("table");
+	  tr = table.insertRow(-1);
+	   this.td = document.createElement('td');
+	    tr.appendChild(this.td);
+                var lblCancel = document.createElement('label');
+                lblCancel.innerHTML = 'Name :';
+                lblCancel.setAttribute('onclick', 'crudApp.Cancel(this)');
+                
+                lblCancel.setAttribute('title', 'Cancel 1111');
+                lblCancel.setAttribute('id', 'lbl1' );
+				
+                this.td.appendChild(lblCancel);
+			var txtName = document.createElement('input');
+			 txtName.setAttribute('type', 'text')
+				 txtName.setAttribute('id', 'name' );
+				txtName.setAttribute('placeholder','Name');
+			    this.td.appendChild(txtName);
+				
+				
+				 tr = table.insertRow(-1);
+	   this.td = document.createElement('td');
+	    tr.appendChild(this.td);
+                var lblCancel = document.createElement('label');
+                lblCancel.innerHTML = 'Address :';
+                lblCancel.setAttribute('onclick', 'crudApp.Cancel(this)');
+                
+                lblCancel.setAttribute('title', 'Cancel 1111');
+                lblCancel.setAttribute('id', 'lbl1' );
+				
+                this.td.appendChild(lblCancel);
+			var txtName = document.createElement('input');
+			 txtName.setAttribute('type', 'text')
+				 txtName.setAttribute('id', 'address' );
+				txtName.setAttribute('placeholder','address');
+			    this.td.appendChild(txtName);
+	
+	var formcontent = document.getElementById("formcontent");
+		formcontent.innerHTML = "";
+        formcontent.appendChild(table);
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+
+  if (event.target == modal) {
+    modal.style.display = "none";
+	
+  }
+}
+
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+
+
+</script>
+</html>
