@@ -1,5 +1,6 @@
 ALTER TABLE `account`.`formtable` 
 ADD COLUMN `TableLevelId` INT NULL AFTER `TableMasterId`;
+1
 
 -- MySQL dump 10.13  Distrib 5.7.9, for Win64 (x86_64)
 --
